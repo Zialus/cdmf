@@ -20,22 +20,31 @@ int main(int argc, char** argv){
 
 	// reading rating matrix
 	smat_t R;	// val: csc, val_t: csr
-	mat_t W, W_ref;
-	mat_t H, H_ref;
+	//mat_t W;
+	mat_t W_ref;
+	mat_t W_csr5;
+	//mat_t H;
+	mat_t H_ref;
+	mat_t H_csr5;
 	cout << "[info] load rating data." << endl;
 	load(input_file_name, R, false, false);
 
 	// W, H  here are k*m, k*n
 	cout << "[info] initializ W and H matrix." << endl;
-	initial_col(W, param.k, R.rows);
+	//initial_col(W, param.k, R.rows);
 	initial_col(W_ref, param.k, R.rows);
-	initial_col(H, param.k, R.cols);
+	initial_col(W_csr5, param.k, R.rows);
+	//initial_col(H, param.k, R.cols);
 	initial_col(H_ref, param.k, R.cols);
+	initial_col(H_csr5, param.k, R.cols);
 
 	// compute cdmf on the ocl device
+	cout << "------------------------------------------------------" << endl;
 	cout << "[info] compute cdmf on the selected ocl device." << endl;
-	cdmf_ocl(R, W, H, param);
-	cdmf_csr5(R, W, H, param);
+	//cdmf_ocl(R, W, H, param);
+	cout << "------------------------------------------------------" << endl;
+	cout << "[info] compute spmv on the selected ocl device." << endl;
+	cdmf_csr5(R, W_csr5, H_csr5, param);
 
 	// compute cdmf reference results on a cpu core
 	cout << "[info] compute cdmf on a cpu core." << endl;
@@ -44,8 +53,8 @@ int main(int argc, char** argv){
 
 	// compare reference and anonymouslib results
 	cout << "[info] validate the results." << endl;
-	golden_compare(W, W_ref, param.k, R.rows);
-	golden_compare(H, H_ref, param.k, R.cols);
+	golden_compare(W_csr5, W_ref, param.k, R.rows);
+	golden_compare(H_csr5, H_ref, param.k, R.cols);
 
 	cout << "------------------------------------------------------" << endl;
 

@@ -1252,7 +1252,7 @@ int anonymouslibHandle<ANONYMOUSLIB_IT, ANONYMOUSLIB_UIT, ANONYMOUSLIB_VT>::setO
     "                 const vT            alpha)                                                          \n"
     "    {                                                                                                \n"
     "        vT x = d_x[d_column_index_partition[candidate_index]];                                          \n"
-    "        return d_value_partition[candidate_index] * x;// * alpha;                                    \n"
+    "        return d_value_partition[candidate_index] * x * alpha;                                    \n"
     "    }                                                                                                \n"
     "                                                                                                     \n"
     "    inline                                                                                           \n"
