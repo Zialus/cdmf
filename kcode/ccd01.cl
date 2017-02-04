@@ -1,72 +1,102 @@
-float
-RankOneUpdate_dev (__global const long *col_ptr,
+VALUE_TYPE
+RankOneUpdate_dev (__global const unsigned  *col_ptr,
 		__global const unsigned *row_idx,
-		__global const float *val, 
-		const int j,
-		__global const float *u_vec_t, 
-		const float lambda,
-		const float vj){
-	float g = 0, h = lambda;
+		__global const VALUE_TYPE *val, 
+		const unsigned j,
+		__global const VALUE_TYPE *u_vec_t, 
+		const VALUE_TYPE lambda,
+		const VALUE_TYPE vj){
+	VALUE_TYPE g = 0, h = lambda;
 	if (col_ptr[j + 1] == col_ptr[j])
 		return 0;
-	for (long idx = col_ptr[j]; idx < col_ptr[j + 1]; ++idx){
-		int i = row_idx[idx];
+	for (unsigned  idx = col_ptr[j]; idx < col_ptr[j + 1]; ++idx){
+		unsigned i = row_idx[idx];
 		g += u_vec_t[i] * val[idx];
 		h += u_vec_t[i] * u_vec_t[i];
 	} 
-	float newvj = g / h;
+	VALUE_TYPE newvj = g / h;
 	return newvj;
 }
 
 __kernel void
-RankOneUpdate_DUAL_kernel (const long cols,
-		__global const long *col_ptr,
-		__global const unsigned int *row_idx,
-		__global float *val,
-		__global float *u,
-		__global float *v, 
-		const float lambda,
-		const long cols_t,
-		__global const long *col_ptr_t,
-		__global const unsigned int *row_idx_t,
-		__global float *val_t){
-	int ii = get_global_id (0);
-	int jj = get_global_size (0);
-	for (size_t c = ii; c < cols; c += jj){
+RankOneUpdate_DUAL_kernel_v (const unsigned  cols,
+		__global const unsigned  *col_ptr,
+		__global const unsigned  *row_idx,
+		__global VALUE_TYPE *val,
+		__global VALUE_TYPE *u,
+		__global VALUE_TYPE *v, 
+		const VALUE_TYPE lambda,
+		const unsigned  cols_t,
+		__global const unsigned  *col_ptr_t,
+		__global const unsigned  *row_idx_t,
+		__global VALUE_TYPE *val_t){
+	unsigned ii = get_global_id (0);
+	unsigned jj = get_global_size (0);
+	size_t c = ii;
+	if (c < cols){
 		v[c] = 	RankOneUpdate_dev (col_ptr, row_idx, val, c, u, lambda * (col_ptr[c + 1] - col_ptr[c]), v[c]);
-		//if (c < 10){
-		//	printf ("v[%d]=%f.\n", c, v[c]);
-		//}
 	}
-	for (size_t c = ii; c < cols_t; c += jj){
+}
+__kernel void
+RankOneUpdate_DUAL_kernel_u (const unsigned  cols,
+		__global const unsigned  *col_ptr,
+		__global const unsigned  *row_idx,
+		__global VALUE_TYPE *val,
+		__global VALUE_TYPE *u,
+		__global VALUE_TYPE *v, 
+		const VALUE_TYPE lambda,
+		const unsigned  cols_t,
+		__global const unsigned  *col_ptr_t,
+		__global const unsigned  *row_idx_t,
+		__global VALUE_TYPE *val_t){
+	unsigned ii = get_global_id (0);
+	unsigned jj = get_global_size (0);
+
+	size_t c = ii;
+	if (c < cols_t){
 		u[c] = RankOneUpdate_dev (col_ptr_t, row_idx_t, val_t, c, v, lambda * (col_ptr_t[c + 1] - col_ptr_t[c]), u[c]);
-		//if (c < 10){
-		//	printf ("u[%d]=%f.\n", c, u[c]);
-		//}
 	}
 }
 
 __kernel void
-UpdateRating_DUAL_kernel_NoLoss (const long cols,
-		__global const long *col_ptr,
-		__global const unsigned int *row_idx,
-		__global float *val,
-		__global float *Wt_vec_t,
-		__global float *Ht_vec_t,
-		const long cols_t,
-		__global const long *col_ptr_t,
-		__global const unsigned int *row_idx_t,
-		__global float *val_t){
-	int ii = get_global_id (0);
-	int jj = get_global_size (0);
-	for (size_t i = ii; i < cols; i += jj){
-		float Htc = Ht_vec_t[i];
+UpdateRating_DUAL_kernel_NoLoss_c (const unsigned  cols,
+		__global const unsigned  *col_ptr,
+		__global const unsigned  *row_idx,
+		__global VALUE_TYPE *val,
+		__global VALUE_TYPE *Wt_vec_t,
+		__global VALUE_TYPE *Ht_vec_t,
+		const unsigned  cols_t,
+		__global const unsigned  *col_ptr_t,
+		__global const unsigned  *row_idx_t,
+		__global VALUE_TYPE *val_t){
+	unsigned ii = get_global_id (0);
+	unsigned jj = get_global_size (0);
+	size_t i = ii;
+	if (i < cols){
+		VALUE_TYPE Htc = Ht_vec_t[i];
 		for (size_t idx = col_ptr[i]; idx < col_ptr[i + 1]; ++idx){
 			val[idx] += Wt_vec_t[row_idx[idx]] * Htc;
 		}
 	}
-	for (size_t i = ii; i < cols_t; i += jj){
-		float Htc = Wt_vec_t[i];
+}
+
+__kernel void
+UpdateRating_DUAL_kernel_NoLoss_r (const unsigned  cols,
+		__global const unsigned  *col_ptr,
+		__global const unsigned  *row_idx,
+		__global VALUE_TYPE *val,
+		__global VALUE_TYPE *Wt_vec_t,
+		__global VALUE_TYPE *Ht_vec_t,
+		const unsigned  cols_t,
+		__global const unsigned  *col_ptr_t,
+		__global const unsigned  *row_idx_t,
+		__global VALUE_TYPE *val_t){
+	unsigned ii = get_global_id (0);
+	unsigned jj = get_global_size (0);
+
+	size_t i = ii;
+	if (i < cols_t){
+		VALUE_TYPE Htc = Wt_vec_t[i];
 		for (size_t idx = col_ptr_t[i]; idx < col_ptr_t[i + 1]; ++idx){
 			val_t[idx] += Ht_vec_t[row_idx_t[idx]] * Htc;
 		}
@@ -74,30 +104,47 @@ UpdateRating_DUAL_kernel_NoLoss (const long cols,
 }
 
 __kernel void
-UpdateRating_DUAL_kernel_NoLoss_ (const long cols,
-		__global const long *col_ptr,
-		__global const unsigned int *row_idx,
-		__global float *val,
-		__global float *Wt_vec_t,
-		__global float *Ht_vec_t,
-		const long cols_t,
-		__global const long *col_ptr_t,
-		__global const unsigned int *row_idx_t,
-		__global float *val_t){
-	int ii = get_global_id (0);
-	int jj = get_global_size (0);
-	for (size_t i = ii; i < cols; i += jj){
-		float Htc = Ht_vec_t[i];
+UpdateRating_DUAL_kernel_NoLoss_c_ (const unsigned  cols,
+		__global const unsigned  *col_ptr,
+		__global const unsigned  *row_idx,
+		__global VALUE_TYPE *val,
+		__global VALUE_TYPE *Wt_vec_t,
+		__global VALUE_TYPE *Ht_vec_t,
+		const unsigned  cols_t,
+		__global const unsigned  *col_ptr_t,
+		__global const unsigned  *row_idx_t,
+		__global VALUE_TYPE *val_t){
+	unsigned ii = get_global_id (0);
+	unsigned jj = get_global_size (0);
+
+	size_t i = ii;
+	if (i < cols){
+		VALUE_TYPE Htc = Ht_vec_t[i];
 		for (size_t idx = col_ptr[i]; idx < col_ptr[i + 1]; ++idx){
 			val[idx] -= Wt_vec_t[row_idx[idx]] * Htc;
 		}
 	}
-	for (size_t i = ii; i < cols_t; i += jj){
-		float Htc = Wt_vec_t[i];
+}
+
+__kernel void
+UpdateRating_DUAL_kernel_NoLoss_r_ (const unsigned  cols,
+		__global const unsigned  *col_ptr,
+		__global const unsigned  *row_idx,
+		__global VALUE_TYPE *val,
+		__global VALUE_TYPE *Wt_vec_t,
+		__global VALUE_TYPE *Ht_vec_t,
+		const unsigned  cols_t,
+		__global const unsigned  *col_ptr_t,
+		__global const unsigned  *row_idx_t,
+		__global VALUE_TYPE *val_t){
+	unsigned ii = get_global_id (0);
+	unsigned jj = get_global_size (0);
+
+	size_t i = ii;
+	if (i < cols_t){
+		VALUE_TYPE Htc = Wt_vec_t[i];
 		for (size_t idx = col_ptr_t[i]; idx < col_ptr_t[i + 1]; ++idx){
 			val_t[idx] -= Ht_vec_t[row_idx_t[idx]] * Htc;
 		}
 	}
 }
-
-

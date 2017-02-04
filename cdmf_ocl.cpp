@@ -12,18 +12,30 @@ void cdmf_ocl(smat_t &R, mat_t &W_c, mat_t &H_c, parameter &param)
 	cl_int status, err;
 	cl_uint NumDevice;
 	cl_platform_id platform;
-	if(param.platform_id==0)
+	if(param.platform_id == 0)
 	{
 		device_type[0] = 'c';
 		device_type[1] = 'p';
 		device_type[2] = 'u';
 	}
-	else
+	else if(param.platform_id == 1)
 	{
 		device_type[0] = 'g';
 		device_type[1] = 'p';
 		device_type[2] = 'u';
 	}
+	else if(param.platform_id == 2)
+	{
+		device_type[0] = 'm';
+		device_type[1] = 'i';
+		device_type[2] = 'c';
+	}
+	else
+	{
+		printf("[info] unknown device type!\n");
+		exit(-1);
+	}
+
 	getPlatform (platform, param.platform_id);
 	printf("[info] - the selected platform: %d, device type: %s\n", param.platform_id, device_type);
 	cl_device_id * devices = getCl_device_id (platform, device_type);
@@ -40,7 +52,7 @@ void cdmf_ocl(smat_t &R, mat_t &W_c, mat_t &H_c, parameter &param)
 	size_t sourceSize[] = { strlen(source)};
 	cl_program program = clCreateProgramWithSource (context, 1, &source, sourceSize, NULL);
 	char options[1024];
-	sprintf(options, "-DWG_SIZE=%d -DVALUE_TYPE=%s", param.nThreadsPerBlock, "double");
+	sprintf(options, "-DWG_SIZE=%d -DVALUE_TYPE=%s", param.nThreadsPerBlock, getT(sizeof(VALUE_TYPE)));
 	status = clBuildProgram (program, 1, devices, options, NULL, NULL);
 	if (status != CL_SUCCESS) 
 	{
@@ -268,7 +280,7 @@ void cdmf_ocl(smat_t &R, mat_t &W_c, mat_t &H_c, parameter &param)
 	}
 	double t2 = gettime ();
 	double deltaT = t2 - t1;
-	printf("[info] - Training time: %lf s\n",  deltaT);
+	printf("[info] - training time: %lf s\n",  deltaT);
 	printf("[info] - rank one updating time: %ld, R updating time: %ld\n", t_rank_one_update, t_update_ratings);
 	// making prediction
 	if(param.do_predict == 1)

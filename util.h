@@ -70,6 +70,13 @@ inline double gettime()
 	return t.tv_sec + t.tv_usec * 1e-6;
 }
 
+inline char * getT(unsigned sz)
+{
+	if(sz==8) return "double";
+	if(sz==4) return "float";
+	return "float";
+}
+
 	template<typename iT, typename vT>
 double getB(const iT m, const iT nnz)
 {

@@ -1,5 +1,52 @@
 #define WG_HALF WG_SIZE/2
 
+void UV(const unsigned int cols,
+		__global const unsigned int *col_ptr,
+		__global VALUE_TYPE * Ht,
+		__global VALUE_TYPE * Hb,
+		__global VALUE_TYPE * H,
+		const VALUE_TYPE lambda)
+{
+	unsigned int i = get_global_id(0);
+	//for(unsigned i=0; i<cols; i++)
+	//{
+	if(i < cols)
+	{
+	VALUE_TYPE t = Ht[i];
+	VALUE_TYPE b = Hb[i];
+	VALUE_TYPE l = lambda * (col_ptr[i+1] - col_ptr[i]);
+	VALUE_TYPE s = t/(l + b);
+	H[i] = s;
+	Ht[i] = 0;
+	Hb[i] = 0;								
+	}
+	return ;
+	//}
+}
+__kernel
+void CALV(const unsigned int cols,
+		__global const unsigned int *col_ptr,
+		__global VALUE_TYPE * Ht,
+		__global VALUE_TYPE * Hb,
+		__global VALUE_TYPE * H,
+		const VALUE_TYPE lambda)
+{
+	UV(cols, col_ptr, Ht, Hb, H, lambda);
+	return ;
+}
+
+__kernel
+void CALU(const unsigned int rows,
+		__global const unsigned int *row_ptr,
+		__global VALUE_TYPE * Wt,
+		__global VALUE_TYPE * Wb,
+		__global VALUE_TYPE * W,
+		const VALUE_TYPE lambda)
+{
+	UV(rows, row_ptr, Wt, Wb, W, lambda);
+	return ;
+}
+
 void RankOneUpdate_dev(__global const unsigned int *col_ptr,
 		__global const unsigned int *row_idx,
 		__global const VALUE_TYPE *val,

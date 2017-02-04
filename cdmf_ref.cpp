@@ -127,6 +127,7 @@ void cdmf_ref(smat_t &R, mat_t &W, mat_t &H, parameter &param)
 
 	vec_t oldWt(R.rows), oldHt(R.cols);
 	vec_t u(R.rows), v(R.cols);
+	double t1 = gettime ();
 	for(int oiter = 1; oiter <= maxiter; ++oiter) 
 	{
 		double gnorm = 0, initgnorm=0;
@@ -163,7 +164,7 @@ void cdmf_ref(smat_t &R, mat_t &W, mat_t &H, parameter &param)
 				start = omp_get_wtime();
 				gnorm = 0;
 				innerfundec_cur = 0;
-//#pragma omp parallel for schedule(kind) shared(u,v) reduction(+:innerfundec_cur)
+				//#pragma omp parallel for schedule(kind) shared(u,v) reduction(+:innerfundec_cur)
 #pragma omp parallel for schedule(kind) shared(u,v) 
 				for(long c = 0; c < R.cols; ++c)
 					v[c] = RankOneUpdate(R, c, u, lambda*(R.col_ptr[c+1]-R.col_ptr[c]), v[c], &innerfundec_cur, param.do_nmf);
@@ -175,15 +176,15 @@ void cdmf_ref(smat_t &R, mat_t &W, mat_t &H, parameter &param)
 				for(long c = 0; c < Rt.cols; ++c)
 					u[c] = RankOneUpdate(Rt, c, v, lambda*(Rt.col_ptr[c+1]-Rt.col_ptr[c]), u[c], &innerfundec_cur, param.do_nmf);
 				num_updates += Rt.cols;
-			/*	if((innerfundec_cur < fundec_max*eps))  {
+				/*	if((innerfundec_cur < fundec_max*eps))  {
 					if(iter==1) early_stop+=1;
 					break; 
-				}
-				rankfundec += innerfundec_cur;
-				innerfundec_max = max(innerfundec_max, innerfundec_cur);
+					}
+					rankfundec += innerfundec_cur;
+					innerfundec_max = max(innerfundec_max, innerfundec_cur);
 				// the fundec of the first inner iter of the first rank of the first outer iteration could be too large!!
 				if(!(oiter==1 && t == 0 && iter==1))
-					fundec_max = max(fundec_max, innerfundec_cur);*/
+				fundec_max = max(fundec_max, innerfundec_cur);*/
 				Wtime += omp_get_wtime() - start;
 			}
 
@@ -217,7 +218,10 @@ void cdmf_ref(smat_t &R, mat_t &W, mat_t &H, parameter &param)
 			if(param.verbose) puts("");
 			fflush(stdout);
 		}
-		}
-		omp_set_num_threads(num_threads_old);
-		}
+	}
+	double t2 = gettime ();
+	double deltaT = t2 - t1;
+	printf("[info] - OMP time: %lf s\n",  deltaT);
+	omp_set_num_threads(num_threads_old);
+}
 
