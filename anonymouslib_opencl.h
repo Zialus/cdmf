@@ -17,7 +17,9 @@ class anonymouslibHandle
 		int warmup();
 		int inputCSR(ANONYMOUSLIB_IT  nnz, cl_mem csr_row_pointer, cl_mem csr_column_index, cl_mem csr_value);
 		int asCSR();
+		int asCSR_();
 		int asCSR5();
+		int asCSR5_();
 		int setX(cl_mem x);
 		int spmv(const ANONYMOUSLIB_VT alpha, cl_mem y, cl_mem yb, double *time);
 		int destroy();
@@ -140,6 +142,28 @@ int anonymouslibHandle<ANONYMOUSLIB_IT, ANONYMOUSLIB_UIT, ANONYMOUSLIB_VT>::asCS
 	return err;
 }
 
+	template <class ANONYMOUSLIB_IT, class ANONYMOUSLIB_UIT, class ANONYMOUSLIB_VT>
+int anonymouslibHandle<ANONYMOUSLIB_IT, ANONYMOUSLIB_UIT, ANONYMOUSLIB_VT>::asCSR_()
+{
+	int err = ANONYMOUSLIB_SUCCESS;
+
+	if (_format == ANONYMOUSLIB_FORMAT_CSR)
+		return err;
+
+	if (_format == ANONYMOUSLIB_FORMAT_CSR5)
+	{
+		// convert csr5 data to csr data
+		double time = 0;
+		err = aosoa_transpose<ANONYMOUSLIB_IT, ANONYMOUSLIB_UIT, ANONYMOUSLIB_VT>
+			(_ocl_kernel_aosoa_transpose_smem_iT, _ocl_kernel_aosoa_transpose_smem_vT, _ocl_command_queue,
+			 _csr5_sigma, _nnz, _csr5_partition_pointer, _csr_column_index, _csr_value, 0, &time);
+
+		// free the two newly added CSR5 arrays
+		_format = ANONYMOUSLIB_FORMAT_CSR;
+	}
+
+	return err;
+}
 	template <class ANONYMOUSLIB_IT, class ANONYMOUSLIB_UIT, class ANONYMOUSLIB_VT>
 int anonymouslibHandle<ANONYMOUSLIB_IT, ANONYMOUSLIB_UIT, ANONYMOUSLIB_VT>::asCSR5()
 {
@@ -292,6 +316,46 @@ int anonymouslibHandle<ANONYMOUSLIB_IT, ANONYMOUSLIB_UIT, ANONYMOUSLIB_VT>::asCS
 }
 
 	template <class ANONYMOUSLIB_IT, class ANONYMOUSLIB_UIT, class ANONYMOUSLIB_VT>
+int anonymouslibHandle<ANONYMOUSLIB_IT, ANONYMOUSLIB_UIT, ANONYMOUSLIB_VT>::asCSR5_()
+{
+	int err = ANONYMOUSLIB_SUCCESS;
+
+	if (_format == ANONYMOUSLIB_FORMAT_CSR5)
+		return err;
+
+	if (_format == ANONYMOUSLIB_FORMAT_CSR)
+	{
+		double malloc_time = 0, tile_ptr_time = 0, tile_desc_time = 0, transpose_time = 0;
+		anonymouslib_timer malloc_timer, tile_ptr_timer, tile_desc_timer, transpose_timer;
+		double time = 0;
+
+		// compute sigma
+
+		// calculate the number of partitions
+
+		// malloc the newly added arrays for CSR5
+
+		// convert csr data to csr5 data (3 steps)
+		// step 1. generate partition pointer
+
+		// step 2. generate partition descriptor
+
+		// step 3. transpose column_index and value arrays
+		err = aosoa_transpose<ANONYMOUSLIB_IT, ANONYMOUSLIB_UIT, ANONYMOUSLIB_VT>
+			(_ocl_kernel_aosoa_transpose_smem_iT, _ocl_kernel_aosoa_transpose_smem_vT, _ocl_command_queue,
+			 _csr5_sigma, _nnz, _csr5_partition_pointer, _csr_column_index, _csr_value, 1, &time);
+		if (err != ANONYMOUSLIB_SUCCESS)
+			return ANONYMOUSLIB_CSR_TO_CSR5_FAILED;
+		transpose_time += time;
+
+
+		_format = ANONYMOUSLIB_FORMAT_CSR5;
+	}
+
+	return err;
+}
+
+	template <class ANONYMOUSLIB_IT, class ANONYMOUSLIB_UIT, class ANONYMOUSLIB_VT>
 int anonymouslibHandle<ANONYMOUSLIB_IT, ANONYMOUSLIB_UIT, ANONYMOUSLIB_VT>::setX(cl_mem x)
 {
 	int err = ANONYMOUSLIB_SUCCESS;
@@ -376,14 +440,14 @@ int anonymouslibHandle<ANONYMOUSLIB_IT, ANONYMOUSLIB_UIT, ANONYMOUSLIB_VT>::setS
 	sprintf (threadbunch_str, "%d", ANONYMOUSLIB_THREAD_BUNCH);
 	//cout << "sigma_str = " << sigma_str << endl;
 
-	char *it_str = " int ";
-	char *uit_str = " unsigned int ";
+	char *it_str = (char *)" int ";
+	char *uit_str = (char *)" unsigned int ";
 
 	char *vt_str;
 	if (sizeof(ANONYMOUSLIB_VT) == 8)
-		vt_str = " double ";
+		vt_str = (char *)" double ";
 	else if (sizeof(ANONYMOUSLIB_VT) == 4)
-		vt_str = " float ";
+		vt_str = (char *)" float ";
 
 	string ocl_source_code_string_format = _ocl_source_code_string_format_const;
 	string ocl_source_code_string_csr5_spmv = _ocl_source_code_string_csr5_spmv_const;

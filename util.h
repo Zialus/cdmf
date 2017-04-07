@@ -17,7 +17,8 @@
 #include <sys/time.h>
 #include <sstream>
 
-typedef double VALUE_TYPE;
+//typedef float VALUE_TYPE;
+//typedef double VALUE_TYPE;
 
 using namespace std;
 
@@ -72,9 +73,9 @@ inline double gettime()
 
 inline char * getT(unsigned sz)
 {
-	if(sz==8) return "double";
-	if(sz==4) return "float";
-	return "float";
+	if(sz==8) return (char *)"double";
+	if(sz==4) return (char *)"float";
+	return (char *)"float";
 }
 
 	template<typename iT, typename vT>
@@ -170,9 +171,9 @@ class entry_iterator_t
 			{
 				fgets(buf, 1000, fp);
 				if (with_weights)
-					sscanf(buf, "%d %d %lf %lf", &i, &j, &v, &w);
+					(sizeof(VALUE_TYPE)==8)?(sscanf(buf, "%d %d %lf %lf", &i, &j, &v, &w)):(sscanf(buf, "%d %d %f %f", &i, &j, &v, &w));
 				else
-					sscanf(buf, "%d %d %lf", &i, &j, &v);
+					(sizeof(VALUE_TYPE)==8)?(sscanf(buf, "%d %d %lf", &i, &j, &v)):(sscanf(buf, "%d %d %f", &i, &j, &v));
 				--nnz;
 			} 
 			else 
@@ -408,7 +409,7 @@ class testset_t
 		void load(unsigned _rows, unsigned _cols, unsigned _nnz, const char *filename) 
 		{
 			int r, c; 
-			double v;
+			VALUE_TYPE v;
 			rows = _rows; cols = _cols; nnz = _nnz;
 			T = vector<rate_t>(nnz);
 			FILE *fp = fopen(filename, "r");
@@ -425,23 +426,23 @@ class testset_t
 			for(size_t idx=0; idx < nnz; ++idx) 
 				T[idx] = entry_it->next();
 		}
-		double get_global_mean()
+		VALUE_TYPE get_global_mean()
 		{
-			double sum=0;
+			VALUE_TYPE sum=0;
 			for(unsigned i=0; i<nnz; ++i) sum+=T[i].v;
 			return sum/nnz;
 		}
-		void remove_bias(double bias=0)
+		void remove_bias(VALUE_TYPE bias=0)
 		{
 			if(bias) for(unsigned i=0; i<nnz; ++i) T[i].v-=bias;
 		}
 };
 
-double dot(const vec_t &a, const vec_t &b);
-double dot(const mat_t &W, const int i, const mat_t &H, const int j);
-double dot(const mat_t &W, const int i, const vec_t &H_j);
-double calrmse(testset_t &testset, const mat_t &W, const mat_t &H, bool iscol=false);
-double calrmse_r1(testset_t &testset, vec_t &Wt, vec_t &H_t);
-double calrmse_r1(testset_t &testset, vec_t &Wt, vec_t &Ht, vec_t &oldWt, vec_t &oldHt);
+VALUE_TYPE dot(const vec_t &a, const vec_t &b);
+VALUE_TYPE dot(const mat_t &W, const int i, const mat_t &H, const int j);
+VALUE_TYPE dot(const mat_t &W, const int i, const vec_t &H_j);
+VALUE_TYPE calrmse(testset_t &testset, const mat_t &W, const mat_t &H, bool iscol=false);
+VALUE_TYPE calrmse_r1(testset_t &testset, vec_t &Wt, vec_t &H_t);
+VALUE_TYPE calrmse_r1(testset_t &testset, vec_t &Wt, vec_t &Ht, vec_t &oldWt, vec_t &oldHt);
 void golden_compare(mat_t W, mat_t W_ref, unsigned k, unsigned m);
 #endif

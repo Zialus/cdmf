@@ -4,9 +4,9 @@
 
 // CCD rank-one 
 
-inline double RankOneUpdate(const smat_t &R, const int j, const vec_t &u, const double lambda, const double vj, double *redvar, int do_nmf)
+inline VALUE_TYPE RankOneUpdate(const smat_t &R, const int j, const vec_t &u, const VALUE_TYPE lambda, const VALUE_TYPE vj, VALUE_TYPE *redvar, int do_nmf)
 {
-	double g=0, h=lambda;
+	VALUE_TYPE g=0, h=lambda;
 	if(R.col_ptr[j+1]==R.col_ptr[j]) return 0;
 	for(long idx=R.col_ptr[j]; idx < R.col_ptr[j+1]; ++idx) 
 	{
@@ -14,7 +14,7 @@ inline double RankOneUpdate(const smat_t &R, const int j, const vec_t &u, const 
 		g += u[i]*R.val[idx]; 
 		h += u[i]*u[i];
 	}
-	double newvj = g/h, tmp = 0, delta = 0, fundec = 0;
+	VALUE_TYPE newvj = g/h, tmp = 0, delta = 0, fundec = 0;
 	if(do_nmf>0 & newvj < 0) 
 	{
 		newvj = 0;
@@ -33,13 +33,13 @@ inline double RankOneUpdate(const smat_t &R, const int j, const vec_t &u, const 
 	return newvj;
 }
 
-inline double UpdateRating(smat_t &R, const vec_t &Wt, const vec_t &Ht, const vec_t &oldWt, const vec_t &oldHt) 
+inline VALUE_TYPE UpdateRating(smat_t &R, const vec_t &Wt, const vec_t &Ht, const vec_t &oldWt, const vec_t &oldHt) 
 {
-	double loss=0;
+	VALUE_TYPE loss=0;
 #pragma omp parallel for  schedule(kind) reduction(+:loss)
 	for(int c =0; c < R.cols; ++c)
 	{
-		double Htc = Ht[c], oldHtc = oldHt[c], loss_inner = 0;
+		VALUE_TYPE Htc = Ht[c], oldHtc = oldHt[c], loss_inner = 0;
 		for(long idx=R.col_ptr[c]; idx < R.col_ptr[c+1]; ++idx)
 		{
 			R.val[idx] -=  Wt[R.row_idx[idx]]*Htc-oldWt[R.row_idx[idx]]*oldHtc;
@@ -50,13 +50,13 @@ inline double UpdateRating(smat_t &R, const vec_t &Wt, const vec_t &Ht, const ve
 	return loss;	
 }
 
-inline double UpdateRating(smat_t &R, const vec_t &Wt2, const vec_t &Ht2) 
+inline VALUE_TYPE UpdateRating(smat_t &R, const vec_t &Wt2, const vec_t &Ht2) 
 {
-	double loss=0;
+	VALUE_TYPE loss=0;
 #pragma omp parallel for schedule(kind) reduction(+:loss)
 	for(int c =0; c < R.cols; ++c)
 	{
-		double Htc = Ht2[2*c], oldHtc = Ht2[2*c+1], loss_inner = 0;
+		VALUE_TYPE Htc = Ht2[2*c], oldHtc = Ht2[2*c+1], loss_inner = 0;
 		for(long idx=R.col_ptr[c]; idx < R.col_ptr[c+1]; ++idx)
 		{
 			R.val[idx] -=  Wt2[2*R.row_idx[idx]]*Htc-Wt2[2*R.row_idx[idx]+1]*oldHtc;
@@ -67,15 +67,15 @@ inline double UpdateRating(smat_t &R, const vec_t &Wt2, const vec_t &Ht2)
 	return loss;	
 }
 
-inline double UpdateRating(smat_t &R, const vec_t &Wt, const vec_t &Ht, bool add) 
+inline VALUE_TYPE UpdateRating(smat_t &R, const vec_t &Wt, const vec_t &Ht, bool add) 
 {
-	double loss=0;
+	VALUE_TYPE loss=0;
 	if(add) 
 	{
 #pragma omp parallel for schedule(kind) reduction(+:loss)
 		for(int c =0; c < R.cols; ++c)
 		{
-			double Htc = Ht[c], loss_inner = 0;
+			VALUE_TYPE Htc = Ht[c], loss_inner = 0;
 			for(unsigned idx=R.col_ptr[c]; idx < R.col_ptr[c+1]; ++idx)
 			{
 				R.val[idx] +=  Wt[R.row_idx[idx]]*Htc;
@@ -90,7 +90,7 @@ inline double UpdateRating(smat_t &R, const vec_t &Wt, const vec_t &Ht, bool add
 #pragma omp parallel for schedule(kind) reduction(+:loss)
 		for(int c =0; c < R.cols; ++c)
 		{
-			double Htc = Ht[c], loss_inner = 0;
+			VALUE_TYPE Htc = Ht[c], loss_inner = 0;
 			for(unsigned idx=R.col_ptr[c]; idx < R.col_ptr[c+1]; ++idx)
 			{
 				R.val[idx] -=  Wt[R.row_idx[idx]]*Htc;
@@ -109,11 +109,11 @@ void cdmf_ref(smat_t &R, mat_t &W, mat_t &H, parameter &param)
 	int maxiter = param.maxiter;
 	int inneriter = param.maxinneriter;
 	int num_threads_old = omp_get_num_threads();
-	double lambda = param.lambda;
-	double eps = param.eps;
-	double Itime = 0, Wtime = 0, Htime = 0, Rtime = 0, start = 0, oldobj=0;
+	VALUE_TYPE lambda = param.lambda;
+	VALUE_TYPE eps = param.eps;
+	VALUE_TYPE Itime = 0, Wtime = 0, Htime = 0, Rtime = 0, start = 0, oldobj=0;
 	long num_updates = 0;
-	double reg=0,loss;
+	VALUE_TYPE reg=0,loss;
 
 	omp_set_num_threads(param.threads);
 
@@ -130,9 +130,9 @@ void cdmf_ref(smat_t &R, mat_t &W, mat_t &H, parameter &param)
 	double t1 = gettime ();
 	for(int oiter = 1; oiter <= maxiter; ++oiter) 
 	{
-		double gnorm = 0, initgnorm=0;
-		double rankfundec = 0;
-		double fundec_max = 0;
+		VALUE_TYPE gnorm = 0, initgnorm=0;
+		VALUE_TYPE rankfundec = 0;
+		VALUE_TYPE fundec_max = 0;
 		int early_stop = 0;
 		for(int tt=0; tt < k; ++tt) 
 		{
@@ -155,7 +155,7 @@ void cdmf_ref(smat_t &R, mat_t &W, mat_t &H, parameter &param)
 			Itime += omp_get_wtime() - start;
 
 			gnorm = 0, initgnorm=0;
-			double innerfundec_cur = 0, innerfundec_max = 0;
+			VALUE_TYPE innerfundec_cur = 0, innerfundec_max = 0;
 			int maxit = inneriter; 	
 			//	if(oiter > 1) maxit *= 2;
 			for(int iter = 1; iter <= param.maxinneriter; ++iter)
@@ -205,7 +205,7 @@ void cdmf_ref(smat_t &R, mat_t &W, mat_t &H, parameter &param)
 				reg += Rt.nnz_of_col(c)*(Wt[c]*Wt[c]);
 				reg -= Rt.nnz_of_col(c)*(oldWt[c]*oldWt[c]);
 			}
-			double obj = loss+reg*lambda;
+			VALUE_TYPE obj = loss+reg*lambda;
 			if(param.verbose)
 				printf("iter %d rank %d time %.10g loss %.10g obj %.10g diff %.10g gnorm %.6g reg %.7g ",
 						oiter,t+1, Htime+Wtime+Rtime, loss, obj, oldobj - obj, initgnorm, reg);
@@ -218,6 +218,11 @@ void cdmf_ref(smat_t &R, mat_t &W, mat_t &H, parameter &param)
 			if(param.verbose) puts("");
 			fflush(stdout);
 		}
+	        /*for(int ii=0; ii<5; ii++)
+        	{
+                	printf("WW: %f\t", W[0][ii]);
+        	}
+	        printf("\n");*/
 	}
 	double t2 = gettime ();
 	double deltaT = t2 - t1;

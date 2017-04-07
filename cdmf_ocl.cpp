@@ -4,7 +4,7 @@ void cdmf_ocl(smat_t &R, mat_t &W_c, mat_t &H_c, parameter &param)
 {
 	char device_type[4]={'g', 'p', 'u', '\0'};
 	char input_file_name[1024];
-	char *input_test_file;
+	char *input_test_file = (char *)"/home/jianbin/cdmf/DAT/netflix/netflix_mme.txt";
 	char filename[1024] = {"./kcode/ccd033.cl"};
 	bool with_weights = false;
 
@@ -14,7 +14,7 @@ void cdmf_ocl(smat_t &R, mat_t &W_c, mat_t &H_c, parameter &param)
 	cl_platform_id platform;
 	if(param.platform_id == 0)
 	{
-		device_type[0] = 'c';
+		device_type[0] = 'g';
 		device_type[1] = 'p';
 		device_type[2] = 'u';
 	}
@@ -256,7 +256,6 @@ void cdmf_ocl(smat_t &R, mat_t &W_c, mat_t &H_c, parameter &param)
 			// Reading Buffer
 			CL_CHECK(clEnqueueReadBuffer (commandQueue, WtBuffer, CL_TRUE, 0, R.rows * sizeof (VALUE_TYPE), Wt, 0, NULL, NULL));
 			CL_CHECK(clEnqueueReadBuffer (commandQueue, HtBuffer, CL_TRUE, 0, R.cols * sizeof (VALUE_TYPE), Ht, 0, NULL, NULL));
-
 			// update the rating matrix in CSC format (-)
 			cl_event eventPoint2c, eventPoint2r;
 			CL_CHECK(clEnqueueNDRangeKernel (commandQueue, 	UpdateRating_DUAL_kernel_NoLoss_c_, 1, NULL,
@@ -287,7 +286,7 @@ void cdmf_ocl(smat_t &R, mat_t &W_c, mat_t &H_c, parameter &param)
 	{
 		double t5 = gettime ();
 		int i, j;
-		double vv, rmse = 0;
+		VALUE_TYPE vv, rmse = 0;
 		size_t num_insts = 0;
 		long vvv;
 		FILE *test_fp = fopen (input_test_file, "r");
@@ -296,20 +295,21 @@ void cdmf_ocl(smat_t &R, mat_t &W_c, mat_t &H_c, parameter &param)
 			printf ("can't open output file.\n");
 			exit (1);
 		}
-		while (fscanf (test_fp, "%d %d %lf", &i, &j, &vv) != EOF)
+		while ((sizeof(VALUE_TYPE)==8)?(fscanf (test_fp, "%d %d %lf", &i, &j, &vv) != EOF):(fscanf (test_fp, "%d %d %f", &i, &j, &vv) != EOF))
 		{
-			double pred_v = 0;
+			VALUE_TYPE pred_v = 0;
 			for (int t = 0; t < k; t++)
 				pred_v += W_c[t][i - 1] * H_c[t][j - 1];
 			num_insts++;
 			rmse += (pred_v - vv) * (pred_v - vv);
 		}
 		rmse = sqrt (rmse / num_insts);
-		printf ("[info] test RMSE = %lf.\n", rmse);
+		printf ("[info] test RMSE= %lf\n", rmse);
 		double t6 = gettime ();
 		double deltaT2 = t6 - t5;
 		printf("[info] Predict time: %lf s\n", deltaT2);
 	}
+
 
 	/** Release the context **/
 	CL_CHECK(clReleaseMemObject(row_ptrBuffer));	//Release mem object.

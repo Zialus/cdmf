@@ -48,19 +48,16 @@ int main(int argc, char** argv){
 #endif
 
 	// compute cdmf reference results on a cpu core
-	//cout << "[info] compute cdmf on a cpu core." << endl;
+	cout << "[info] compute cdmf on a cpu core." << endl;
 	//cdmf_ref(R, W_ref, H_ref, param);
 	
 
 	// compare reference and anonymouslib results
-	//cout << "[info] validate the results." << endl;
+	cout << "[info] validate the results." << endl;
 	//golden_compare(W, W_ref, param.k, R.rows);
 	//golden_compare(H, H_ref, param.k, R.cols);
 
 	cout << "------------------------------------------------------" << endl;
 
-	/*if(x!=NULL) free(x);
-	if(y!=NULL) free(y);
-	if(y_ref!=NULL) free(y_ref);*/
 	return 0;
 }

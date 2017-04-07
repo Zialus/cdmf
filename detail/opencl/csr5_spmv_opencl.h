@@ -74,7 +74,7 @@ int csr5_spmv(cl_kernel                 ocl_kernel_spmv_csr5_compute,
     if(err != CL_SUCCESS) { cout << "ocl_kernel_spmv_csr5_compute kernel run error = " << err << endl; return err; }
 
     err = clWaitForEvents(1, &ceTimer);
-    if(err != CL_SUCCESS) { cout << "event error = " << err << endl; return err; }
+    if(err != CL_SUCCESS) { cout << "event error = " << err << " line: " << __LINE__<< endl; return err; }
 
     basicCL.getEventTimer(ceTimer, &queuedTime, &submitTime, &startTime, &endTime);
     spmv_time += double(endTime - startTime) / 1000000.0;
