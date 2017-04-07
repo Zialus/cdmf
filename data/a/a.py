@@ -5,8 +5,8 @@ import random
 dataName="a.dat"
 #dataName="a.mtx"
 file=open(dataName,"w+")
-m=102400
-n=m
+m=64000
+n=150
 uid=0
 iid=0
 score=0
@@ -46,7 +46,7 @@ for x in range(m):
                 file.write(str(score))
                 file.write("\n")
 		uid = x+1
-		iid = random.randint(2,m)
+		iid = random.randint(2,n)
 		score = random.randint(1,5)
 		file.write(str(uid))
                 file.write("\t")
