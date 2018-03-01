@@ -21,6 +21,7 @@ script:
   - make
   - ctest -V
   - cd ..
+  - mv exec/cdmf .
 
 before_install:
     - eval "${MATRIX_EVAL}"

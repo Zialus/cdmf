@@ -21,7 +21,7 @@ set(EXECUTABLE_OUTPUT_PATH "${CMAKE_SOURCE_DIR}/exec/")
 # V1: native, V2: thread batching, V3: load balancing
 set(VERSION "-D V3")
 set(NUMRUN "-DNUM_RUN=1")
-set(WARNINGS "-Wno-format-security -Wno-unused-result -Wno-write-strings -Wno-deprecated-declarations")
+set(WARNINGS "-Wno-format -Wno-unused-result -Wno-write-strings -Wno-deprecated-declarations")
 set(VALUE "-DVALUE_TYPE=double")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${NUMRUN} ${VERSION} ${VALUE} -m64 ${WARNINGS} ${OpenMP_C_FLAGS}")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${NUMRUN} ${VERSION} ${VALUE} -m64 ${WARNINGS} ${OpenMP_CXX_FLAGS}")
