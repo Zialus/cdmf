@@ -14,23 +14,29 @@ find_package(OpenMP REQUIRED)
 
 set(CMAKE_C_STANDARD 11)
 
-#set(CMAKE_VERBOSE_MAKEFILE ON)
+set(EXECUTABLE_OUTPUT_PATH "${CMAKE_SOURCE_DIR}/exec/")
+
+set(CMAKE_VERBOSE_MAKEFILE ON)
 
 # V1: native, V2: thread batching, V3: load balancing
-set(VERSION "V3")
-set(DFLAGS "-DNUM_RUN=1")
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${DFLAGS} -D ${VERSION} -D VALUE_TYPE=double -m64 ${OpenMP_C_FLAGS}")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${DFLAGS} -D ${VERSION} -D VALUE_TYPE=double -m64 ${OpenMP_CXX_FLAGS}")
+set(VERSION "-D V3")
+set(NUMRUN "-DNUM_RUN=1")
+set(WARNINGS "-Wno-format-security -Wno-unused-result -Wno-write-strings")
+set(VALUE "-DVALUE_TYPE=double")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${NUMRUN} ${VERSION} ${VALUE} -m64 ${WARNINGS} ${OpenMP_C_FLAGS}")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${NUMRUN} ${VERSION} ${VALUE} -m64 ${WARNINGS} ${OpenMP_CXX_FLAGS}")
 
 
 # Source code of application
-file(GLOB source_src "${PROJECT_SOURCE_DIR}/*.h")
-file(GLOB source_hdr "${PROJECT_SOURCE_DIR}/*.cpp")
+file(GLOB source_src "${PROJECT_SOURCE_DIR}/*.cpp")
+file(GLOB source_hdr "${PROJECT_SOURCE_DIR}/*.h")
 
 # Compiler flags
-#if (CMAKE_COMPILER_IS_GNUCC)
+#if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
 #    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -pedantic")
-#endif (CMAKE_COMPILER_IS_GNUCC)
+#elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+#    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Weverything")
+#endif()
 
 
 # Set up executable
