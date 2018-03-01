@@ -16,7 +16,7 @@ set(CMAKE_C_STANDARD 11)
 
 set(EXECUTABLE_OUTPUT_PATH "${CMAKE_SOURCE_DIR}/exec/")
 
-set(CMAKE_VERBOSE_MAKEFILE ON)
+#set(CMAKE_VERBOSE_MAKEFILE ON)
 
 # V1: native, V2: thread batching, V3: load balancing
 set(VERSION "-D V3")

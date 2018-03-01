@@ -4,14 +4,23 @@ sudo: required
 
 script:
   - pushd .
+  - cd data/a/
+  - python2 a.py
+  - popd
+  - pushd .
   - cd data/b/
   - python2 b.py
+  - popd
+  - pushd .
+  - cd data/c/
+  - python2 c.py
   - popd
   - mkdir build
   - cd build
   - cmake -D CMAKE_BUILD_TYPE=Release ..
   - make
   - ctest -V
+  - cd ..
 
 before_install:
     - eval "${MATRIX_EVAL}"
