@@ -12,7 +12,11 @@
 #include <vector>
 #include <cmath>
 #include <assert.h>
-#include <CL/cl.h>
+#ifdef __APPLE__
+    #include <OpenCL/opencl.h>
+#else
+    #include <CL/cl.hpp>
+#endif
 #include <fstream>
 #include <sys/time.h>
 #include <sstream>

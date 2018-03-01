@@ -1,5 +1,4 @@
 #include "util.h"
-#include <CL/cl.h>
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
