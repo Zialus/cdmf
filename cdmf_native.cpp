@@ -5,7 +5,7 @@ void cdmf_native(smat_t &R, mat_t &W_c, mat_t &H_c, parameter &param)
 	char device_type[4]={'g', 'p', 'u', '\0'};
 	char input_file_name[1024];
 	char *input_test_file;
-	char filename[1024] = {"./kcode/ccd01.cl"};
+	char filename[1024] = {"../kcode/ccd01.cl"};
 	bool with_weights = false;
 
 	// create context and build the kernel code

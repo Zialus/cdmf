@@ -34,7 +34,7 @@ void cdmf_csr5(smat_t &R, mat_t &W_c, mat_t &H_c, parameter &param)
 	memset(Wt, 0, rows * sizeof(VALUE_TYPE));
 	// create an ocl context
 	char device_type[4]={'g', 'p', 'u', '\0'};
-	char filename[1024] = {"./kcode/ccd033.cl"};
+	char filename[1024] = {"../kcode/ccd033.cl"};
 	cl_int status, err;
 	cl_uint NumDevice;
 	cl_platform_id platform;
