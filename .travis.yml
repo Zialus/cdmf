@@ -3,6 +3,7 @@ dist: trusty
 sudo: required
 
 script:
+  - clinfo
   - pushd .
   - cd data/a/
   - python2 a.py
@@ -19,8 +20,6 @@ script:
   - cd build
   - cmake -D CMAKE_BUILD_TYPE=Release ..
   - make
-  - cd ..
-  - mv exec/cdmf .
   - ctest -V
 
 before_install:
@@ -38,6 +37,7 @@ matrix:
         - brew update
         - brew cask uninstall oclint
         - brew install llvm@3.9 && brew link --overwrite llvm@3.9 --force
+        - brew install clinfo
     - os: osx
       osx_image: xcode9.3
       env:
@@ -46,6 +46,7 @@ matrix:
         - brew update
         - brew cask uninstall oclint
         - brew install llvm@4 && brew link --overwrite llvm@4 --force
+        - brew install clinfo        
     - os: osx
       osx_image: xcode9.3
       env:
@@ -54,6 +55,7 @@ matrix:
         - brew update
         - brew cask uninstall oclint
         - brew install llvm && brew link --overwrite llvm --force
+        - brew install clinfo
 
     ######## OSX GCC ########
     - os: osx
@@ -64,6 +66,7 @@ matrix:
         - brew update
         - brew cask uninstall oclint
         - brew install gcc@4.9
+        - brew install clinfo
     - os: osx
       osx_image: xcode9.3
       env:
@@ -72,6 +75,7 @@ matrix:
         - brew update
         - brew cask uninstall oclint
         - brew install gcc@5
+        - brew install clinfo        
     - os: osx
       osx_image: xcode9.3
       env:
@@ -80,6 +84,7 @@ matrix:
         - brew update
         - brew cask uninstall oclint
         - brew install gcc@6
+        - brew install clinfo        
     - os: osx
       osx_image: xcode9.3
       env:
@@ -103,8 +108,9 @@ matrix:
         - MATRIX_EVAL="CC=clang-3.9 && CXX=clang++-3.9"
       before_script:
         - sudo sed -i 's/trusty/artful/g' /etc/apt/sources.list
-        - sudo apt-get update
-        - sudo apt-get install libomp-dev
+        - sudo apt update
+        - sudo apt install libomp-dev
+        - sudo apt install ocl-icd-opencl-dev opencl-headers clinfo
     - os: linux
       addons:
         apt:
@@ -116,8 +122,9 @@ matrix:
         - MATRIX_EVAL="CC=clang-4.0 && CXX=clang++-4.0"
       before_script:
         - sudo sed -i 's/trusty/artful/g' /etc/apt/sources.list
-        - sudo apt-get update
-        - sudo apt-get install libomp-dev
+        - sudo apt update
+        - sudo apt install libomp-dev
+        - sudo apt install ocl-icd-opencl-dev opencl-headers clinfo
     - os: linux
       addons:
         apt:
@@ -129,8 +136,9 @@ matrix:
         - MATRIX_EVAL="CC=clang-5.0 && CXX=clang++-5.0"
       before_script:
         - sudo sed -i 's/trusty/artful/g' /etc/apt/sources.list
-        - sudo apt-get update
-        - sudo apt-get install libomp-dev
+        - sudo apt update
+        - sudo apt install libomp-dev
+        - sudo apt install ocl-icd-opencl-dev opencl-headers clinfo
 
     ######## LINUX GCC ########
     - os: linux
