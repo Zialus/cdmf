@@ -54,7 +54,16 @@ matrix:
       before_script:
         - brew update
         - brew cask uninstall oclint
-        - brew install llvm && brew link --overwrite llvm --force
+        - brew install llvm@5 && brew link --overwrite llvm@5 --force
+        - brew install clinfo
+    - os: osx
+      osx_image: xcode9.3
+      env:
+        - MATRIX_EVAL="CC=clang-6.0 && CXX=clang++"
+      before_script:
+        - brew update
+        - brew cask uninstall oclint
+        - brew install llvm@6 && brew link --overwrite llvm@6 --force
         - brew install clinfo
 
     ######## OSX GCC ########
@@ -135,6 +144,20 @@ matrix:
             - clang-5.0
       env:
         - MATRIX_EVAL="CC=clang-5.0 && CXX=clang++-5.0"
+      before_script:
+        - sudo sed -i 's/trusty/artful/g' /etc/apt/sources.list
+        - sudo apt update
+        - sudo apt install libomp-dev
+        - sudo apt install ocl-icd-opencl-dev opencl-headers clinfo
+    - os: linux
+      addons:
+        apt:
+          sources:
+            - llvm-toolchain-trusty-6.0
+          packages:
+            - clang-6.0
+      env:
+        - MATRIX_EVAL="CC=clang-6.0 && CXX=clang++-6.0"
       before_script:
         - sudo sed -i 's/trusty/artful/g' /etc/apt/sources.list
         - sudo apt update
