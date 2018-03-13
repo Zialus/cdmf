@@ -93,6 +93,7 @@ matrix:
         - brew update
         - brew cask uninstall oclint
         - brew install gcc
+        - brew install clinfo
 
     ######## LINUX CLANG ########
     - os: linux
@@ -150,6 +151,8 @@ matrix:
             - g++-4.9
       env:
          - MATRIX_EVAL="CC=gcc-4.9 && CXX=g++-4.9"
+      before_script:
+        - sudo apt install ocl-icd-opencl-dev opencl-headers clinfo
     - os: linux
       addons:
         apt:
@@ -159,6 +162,8 @@ matrix:
             - g++-5
       env:
          - MATRIX_EVAL="CC=gcc-5 && CXX=g++-5"
+      before_script:
+        - sudo apt install ocl-icd-opencl-dev opencl-headers clinfo
     - os: linux
       addons:
         apt:
@@ -168,6 +173,8 @@ matrix:
             - g++-6
       env:
         - MATRIX_EVAL="CC=gcc-6 && CXX=g++-6"
+      before_script:
+        - sudo apt install ocl-icd-opencl-dev opencl-headers clinfo
     - os : linux
       addons:
         apt:
@@ -177,3 +184,5 @@ matrix:
             - g++-7
       env:
         - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
+      before_script:
+        - sudo apt install ocl-icd-opencl-dev opencl-headers clinfo
