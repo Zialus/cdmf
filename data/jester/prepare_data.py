@@ -3,11 +3,9 @@
 
 # In[1]:
 
-#prepare netflix data as an input to to cuMF
-#data should be in ./data/netflix/
-#assume input is given in text format
-#each line is like 
-#"user_id item_id rating"
+# assume input is given in text format
+# each line is like 
+# "user_id item_id rating"
 import os
 from six.moves import urllib
 import numpy as np
@@ -19,41 +17,8 @@ from scipy import sparse
 
 # In[2]:
 
-# Step 1: Download the data.
-url = 'http://www.select.cs.cmu.edu/code/graphlab/datasets/'
+train_data_file = 'jester_ratings.dat'
 
-def maybe_download(filename, expected_bytes):
-  """Download a file if not present, and make sure it's the right size."""
-  if not os.path.exists(filename):
-    filename, _ = urllib.request.urlretrieve(url + filename, filename)
-  statinfo = os.stat(filename)
-  if statinfo.st_size == expected_bytes:
-    print('Found and verified', filename)
-  else:
-    print(statinfo.st_size)
-    raise Exception(
-        'Failed to verify ' + filename + '. Can you get to it with a browser?')
-  return filename
-
-#from http://www.select.cs.cmu.edu/code/graphlab/datasets/
-print "download netflix_mm and netflix_mme from the above URL first"
-train_data_file = 'jester_ratings.dat' #maybe_download('a.dat', 307198)
-#test_data_file = 'a_t.dat' #maybe_download('a_t.dat', 0)
-
-#netflix_mm and netflix_mme look like
-'''
-% Generated 25-Sep-2011
-480189 17770 99072112
-1 1  3
-2 1  5
-3 1  4
-5 1  3
-6 1  3
-7 1  4
-8 1  3
-
-'''
-#64000	150	1761439
 m = 64000
 n = 150
 nnz_train = 1761439
