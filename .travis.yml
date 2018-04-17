@@ -149,20 +149,20 @@ matrix:
         - sudo apt update
         - sudo apt install libomp-dev
         - sudo apt install ocl-icd-opencl-dev opencl-headers clinfo
-    - os: linux
-      addons:
-        apt:
-          sources:
-            - llvm-toolchain-trusty-6.0
-          packages:
-            - clang-6.0
-      env:
-        - MATRIX_EVAL="CC=clang-6.0 && CXX=clang++-6.0"
-      before_script:
-        - sudo sed -i 's/trusty/artful/g' /etc/apt/sources.list
-        - sudo apt update
-        - sudo apt install libomp-dev
-        - sudo apt install ocl-icd-opencl-dev opencl-headers clinfo
+#    - os: linux
+#      addons:
+#        apt:
+#          sources:
+#            - llvm-toolchain-trusty-6.0
+#          packages:
+#            - clang-6.0
+#      env:
+#        - MATRIX_EVAL="CC=clang-6.0 && CXX=clang++-6.0"
+#      before_script:
+#        - sudo sed -i 's/trusty/artful/g' /etc/apt/sources.list
+#        - sudo apt update
+#        - sudo apt install libomp-dev
+#        - sudo apt install ocl-icd-opencl-dev opencl-headers clinfo
 
     ######## LINUX GCC ########
     - os: linux
