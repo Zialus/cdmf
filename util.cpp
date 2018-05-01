@@ -429,16 +429,15 @@ void golden_compare(mat_t W, mat_t W_ref, unsigned k, unsigned m)
 		for(unsigned j = 0; j < m; j++)
 			if (fabs((double)W[i][j] - (double)W_ref[i][j]) > 0.1 * fabs((double)W_ref[i][j]))
 			{
-				//cout << i << "|" << j << "\t";
-				//cout << W[i][j] << "," << W_ref[i][j] << "\t";
+//				cout << i << "|" << j << "\t";
+//				cout << W[i][j] << "," << W_ref[i][j] << "\t";
 				error_count++;
 			}
-		//cout << endl;
+//		cout << endl;
 	}
-	//cout << endl;
+//	cout << endl;
 	if (error_count == 0)
 		cout << "Check... PASS!" << endl;
 	else
 		cout << "Check... NO PASS! #Error = " << error_count << " out of " << k*m << " entries." << endl;
-	return ;
 }

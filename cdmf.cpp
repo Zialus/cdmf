@@ -20,9 +20,10 @@ int main(int argc, char** argv){
 	// reading rating matrix
 	smat_t R;	// val: csc, val_t: csr
 	mat_t W;
-	//mat_t W_ref;
+	mat_t W_ref;
 	mat_t H;
-	//mat_t H_ref;
+	mat_t H_ref;
+
 	cout << "[info] load rating data." << endl;
     double t1 = gettime();
     load(input_file_name, R, false, false);
@@ -33,9 +34,9 @@ int main(int argc, char** argv){
 	// W, H  here are k*m, k*n
 	cout << "[info] initializ W and H matrix." << endl;
 	initial_col(W, param.k, R.rows);
-	//initial_col(W_ref, param.k, R.rows);
+	initial_col(W_ref, param.k, R.rows);
 	initial_col(H, param.k, R.cols);
-	//initial_col(H_ref, param.k, R.cols);
+	initial_col(H_ref, param.k, R.cols);
 
 	// compute cdmf on the ocl device
 	cout << "------------------------------------------------------" << endl;
@@ -52,13 +53,12 @@ int main(int argc, char** argv){
 
 	// compute cdmf reference results on a cpu core
 	cout << "[info] compute cdmf on a cpu core." << endl;
-	//cdmf_ref(R, W_ref, H_ref, param);
-	
+	cdmf_ref(R, W_ref, H_ref, param);
 
 	// compare reference and anonymouslib results
 	cout << "[info] validate the results." << endl;
-	//golden_compare(W, W_ref, param.k, R.rows);
-	//golden_compare(H, H_ref, param.k, R.cols);
+	golden_compare(W, W_ref, param.k, R.rows);
+	golden_compare(H, H_ref, param.k, R.cols);
 
 	cout << "------------------------------------------------------" << endl;
 
