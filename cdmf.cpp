@@ -1,5 +1,5 @@
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
 #include "util.h"
 #include <iostream>
 #include <string>
@@ -11,7 +11,6 @@ void cdmf_ref(smat_t &R, mat_t &W, mat_t &H, parameter &param);
 void cdmf_ocl(smat_t &R, mat_t &W, mat_t &H, parameter &param);
 void cdmf_csr5(smat_t &R, mat_t &W, mat_t &H, parameter &param);
 void cdmf_native(smat_t &R, mat_t &W, mat_t &H, parameter &param);
-void golden_compare(mat_t W, mat_t W_ref, unsigned k, unsigned m);
 
 int main(int argc, char** argv){
 	char input_file_name[1024];
