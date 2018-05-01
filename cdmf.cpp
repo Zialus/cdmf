@@ -24,7 +24,11 @@ int main(int argc, char** argv){
 	mat_t H;
 	//mat_t H_ref;
 	cout << "[info] load rating data." << endl;
-	load(input_file_name, R, false, false);
+    double t1 = gettime();
+    load(input_file_name, R, false, false);
+    double t2 = gettime();
+    double deltaT = t2 - t1;
+    printf("[info] - loading time: %lf s\n",  deltaT);
 
 	// W, H  here are k*m, k*n
 	cout << "[info] initializ W and H matrix." << endl;
