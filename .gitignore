@@ -3,3 +3,5 @@ cmake-*
 exec/
 *.dat
 *.bin
+*.csv
+*.mtx
