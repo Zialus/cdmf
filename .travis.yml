@@ -101,7 +101,7 @@ matrix:
       before_script:
         - brew update
         - brew cask uninstall oclint
-        - brew install gcc
+        - brew install gcc@7
         - brew install clinfo
 
     ######## LINUX CLANG ########
