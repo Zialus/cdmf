@@ -1,5 +1,5 @@
-#ifndef CSR5_SPMV_H
-#define CSR5_SPMV_H
+#ifndef CSR5_SPMV_OPENCL_H
+#define CSR5_SPMV_OPENCL_H
 
 #include "common_opencl.h"
 #include "utils_opencl.h"
@@ -135,4 +135,4 @@ int csr5_spmv(cl_kernel                 ocl_kernel_spmv_csr5_compute,
     return err;
 }
 
-#endif // CSR5_SPMV_H
+#endif // CSR5_SPMV_OPENCL_H

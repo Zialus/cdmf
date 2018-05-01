@@ -1,5 +1,5 @@
-#ifndef FORMAT_H
-#define FORMAT_H
+#ifndef FORMAT_OPENCL_H
+#define FORMAT_OPENCL_H
 
 #include "common_opencl.h"
 #include "utils_opencl.h"
@@ -412,4 +412,4 @@ int aosoa_transpose(cl_kernel           _ocl_kernel_aosoa_transpose_smem_iT,
     return err;
 }
 
-#endif // FORMAT_H
+#endif // FORMAT_OPENCL_H

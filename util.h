@@ -1,25 +1,29 @@
-#ifndef MATUTIL
-#define MATUTIL
-#include <iostream>
+#ifndef UTIL_H
+#define UTIL_H
+
+#include <cmath>
+#include <cassert>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+
+#include <iostream>
 #include <algorithm>
 #include <utility>
 #include <map>
 #include <queue>
 #include <set>
 #include <vector>
-#include <cmath>
-#include <assert.h>
+#include <fstream>
+#include <sstream>
+
 #ifdef __APPLE__
     #include <OpenCL/opencl.h>
 #else
     #include <CL/cl.hpp>
 #endif
-#include <fstream>
+
 #include <sys/time.h>
-#include <sstream>
 
 //typedef float VALUE_TYPE;
 //typedef double VALUE_TYPE;
@@ -449,4 +453,6 @@ VALUE_TYPE calrmse(testset_t &testset, const mat_t &W, const mat_t &H, bool isco
 VALUE_TYPE calrmse_r1(testset_t &testset, vec_t &Wt, vec_t &H_t);
 VALUE_TYPE calrmse_r1(testset_t &testset, vec_t &Wt, vec_t &Ht, vec_t &oldWt, vec_t &oldHt);
 void golden_compare(mat_t W, mat_t W_ref, unsigned k, unsigned m);
-#endif
+
+#endif // UTIL_H
+

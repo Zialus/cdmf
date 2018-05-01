@@ -1,12 +1,13 @@
 #ifndef COMMON_H
 #define COMMON_H
 
-#include <time.h>
-#include <stdio.h>
-#include <stdlib.h>
+#include <ctime>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <cmath>
+
 #include <iostream>
-#include <string.h>
-#include <math.h>
 
 using namespace std;
 

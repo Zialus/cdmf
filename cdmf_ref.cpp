@@ -1,5 +1,7 @@
 #include <omp.h>
+
 #include "util.h"
+
 #define kind dynamic,500
 
 // CCD rank-one 

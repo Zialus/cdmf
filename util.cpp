@@ -1,10 +1,13 @@
-#include "util.h"
 #include <cstring>
 #include <cstdio>
 #include <cstdlib>
+
 #include <iostream>
 #include <string>
 #include <fstream>
+
+#include "util.h"
+
 using namespace std;
 
 // load utility for CCS RCS
