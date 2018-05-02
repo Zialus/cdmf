@@ -1,5 +1,7 @@
 #include "util.h"
 
+void calculate_rmse_native(const mat_t& W_c, const mat_t& H_c, const parameter& param, const char* srcdir);
+
 void cdmf_native(smat_t &R, mat_t &W_c, mat_t &H_c, parameter &param, const char* srcdir)
 {
 	char device_type[4]={'g', 'p', 'u', '\0'};
@@ -279,7 +281,35 @@ void cdmf_native(smat_t &R, mat_t &W_c, mat_t &H_c, parameter &param, const char
 	double deltaT = t2 - t1;
 	printf("[info] - training time: %lf s\n",  deltaT);
 	printf("[info] - rank one updating time: %llu ms, R updating time: %llu ms\n", t_rank_one_update/1000000000ULL, t_update_ratings/1000000000ULL);
+
 	// making prediction
+	calculate_rmse_native(W_c, H_c, param, srcdir);
+
+	/** Release the context **/
+	CL_CHECK(clReleaseMemObject(row_ptrBuffer));	//Release mem object.
+	CL_CHECK(clReleaseMemObject(col_idxBuffer));	//Release mem object.
+	CL_CHECK(clReleaseMemObject(col_ptrBuffer));	//Release mem object.
+	CL_CHECK(clReleaseMemObject(row_idxBuffer));
+	CL_CHECK(clReleaseMemObject(valBuffer));	//Release mem object.
+	CL_CHECK(clReleaseMemObject(val_tBuffer));
+	CL_CHECK(clReleaseMemObject (WtBuffer));
+	CL_CHECK(clReleaseMemObject (HtBuffer));
+	CL_CHECK(clReleaseCommandQueue(commandQueue));
+	CL_CHECK(clReleaseKernel(UpdateRating_DUAL_kernel_NoLoss_c));
+	CL_CHECK(clReleaseKernel(UpdateRating_DUAL_kernel_NoLoss_r));
+	CL_CHECK(clReleaseKernel(UpdateRating_DUAL_kernel_NoLoss_c_));
+	CL_CHECK(clReleaseKernel(UpdateRating_DUAL_kernel_NoLoss_r_));
+	CL_CHECK(clReleaseKernel(RankOneUpdate_DUAL_kernel_u));	//*Release kernel.
+	CL_CHECK(clReleaseKernel(RankOneUpdate_DUAL_kernel_v));	//*Release kernel.
+	CL_CHECK(clReleaseProgram(program));	//Release the program object.
+	CL_CHECK(clReleaseContext(context));
+	free(devices);
+}
+
+void calculate_rmse_native(const mat_t& W_c, const mat_t& H_c, const parameter& param, const char* srcdir) {
+
+	int k = param.k;
+
 	if(param.do_predict == 1)
 	{
 
@@ -321,24 +351,4 @@ void cdmf_native(smat_t &R, mat_t &W_c, mat_t &H_c, parameter &param, const char
 		printf("[info] Predict time: %lf s\n", deltaT2);
 		fclose(test_fp);
 	}
-
-	/** Release the context **/
-	CL_CHECK(clReleaseMemObject(row_ptrBuffer));	//Release mem object.
-	CL_CHECK(clReleaseMemObject(col_idxBuffer));	//Release mem object.
-	CL_CHECK(clReleaseMemObject(col_ptrBuffer));	//Release mem object.
-	CL_CHECK(clReleaseMemObject(row_idxBuffer));
-	CL_CHECK(clReleaseMemObject(valBuffer));	//Release mem object.
-	CL_CHECK(clReleaseMemObject(val_tBuffer));
-	CL_CHECK(clReleaseMemObject (WtBuffer));
-	CL_CHECK(clReleaseMemObject (HtBuffer));
-	CL_CHECK(clReleaseCommandQueue(commandQueue));
-	CL_CHECK(clReleaseKernel(UpdateRating_DUAL_kernel_NoLoss_c));
-	CL_CHECK(clReleaseKernel(UpdateRating_DUAL_kernel_NoLoss_r));
-	CL_CHECK(clReleaseKernel(UpdateRating_DUAL_kernel_NoLoss_c_));
-	CL_CHECK(clReleaseKernel(UpdateRating_DUAL_kernel_NoLoss_r_));
-	CL_CHECK(clReleaseKernel(RankOneUpdate_DUAL_kernel_u));	//*Release kernel.
-	CL_CHECK(clReleaseKernel(RankOneUpdate_DUAL_kernel_v));	//*Release kernel.
-	CL_CHECK(clReleaseProgram(program));	//Release the program object.
-	CL_CHECK(clReleaseContext(context));
-	free(devices);
 }
