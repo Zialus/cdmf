@@ -148,7 +148,7 @@ matrix:
         - sudo sed -i 's/trusty/artful/g' /etc/apt/sources.list
         - sudo apt update
         - sudo apt install libomp-dev
-        - sudo apt install beignet ocl-icd-opencl-dev opencl-headers clinfo
+        - sudo apt install beignet opencl-headers clinfo
 #    - os: linux
 #      addons:
 #        apt:
@@ -208,4 +208,4 @@ matrix:
       env:
         - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
       before_script:
-        - sudo apt install beignet ocl-icd-opencl-dev opencl-headers clinfo
+        - sudo apt install beignet opencl-headers clinfo
