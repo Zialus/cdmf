@@ -149,7 +149,7 @@ matrix:
         - sudo apt update
         - sudo apt install libomp-dev
         - sudo apt install opencl-headers clinfo
-        - ./.travis-opencl-install.sh
+        - sudo sh .travis-opencl-install.sh
 #    - os: linux
 #      addons:
 #        apt:
@@ -210,4 +210,4 @@ matrix:
         - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
       before_script:
         - sudo apt install opencl-headers clinfo
-        - ./.travis-opencl-install.sh
+        - sudo sh .travis-opencl-install.sh
