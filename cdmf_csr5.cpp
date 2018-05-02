@@ -46,7 +46,7 @@ void cdmf_csr5(smat_t &R, mat_t &W_c, mat_t &H_c, parameter &param)
 	}
 	else if(param.platform_id == 1)
 	{
-		device_type[0] = 'g';
+		device_type[0] = 'c';
 		device_type[1] = 'p';
 		device_type[2] = 'u';
 	}

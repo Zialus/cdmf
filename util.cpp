@@ -69,6 +69,11 @@ int getPlatform(cl_platform_id &platform, int id)
 	{
 		cl_platform_id* platforms=(cl_platform_id*)malloc(numPlatforms*sizeof(cl_platform_id));
 		status=clGetPlatformIDs(numPlatforms,platforms,NULL);
+		if(status!=CL_SUCCESS)
+		{
+			cout<<"ERROR:Getting platform IDs!\n";
+			return -1;
+		}
 		platform=platforms[id];
 		free(platforms);
 	}
@@ -88,6 +93,13 @@ cl_device_id *getCl_device_id(cl_platform_id &platform, char* device_type)
 		status=clGetDeviceIDs(platform,CL_DEVICE_TYPE_CPU,0,NULL,&numDevices);
 	else if((device_type[0]=='g')&&(device_type[1]=='p')&&(device_type[2]=='u'))
 		status=clGetDeviceIDs(platform,CL_DEVICE_TYPE_GPU,0,NULL,&numDevices);
+
+	if(status!=CL_SUCCESS)
+	{
+		cout<<"ERROR:Getting numDevices from clGetDeviceIDs!\n";
+		exit(1);
+	}
+
 	if(numDevices>0)
 	{
 		devices=(cl_device_id*)malloc(numDevices*sizeof(cl_device_id));
@@ -97,6 +109,12 @@ cl_device_id *getCl_device_id(cl_platform_id &platform, char* device_type)
 			status=clGetDeviceIDs(platform,CL_DEVICE_TYPE_ACCELERATOR,numDevices,devices,NULL);
 		else if((device_type[0]=='g')&&(device_type[1]=='p')&&(device_type[2]=='u'))
 			status=clGetDeviceIDs(platform,CL_DEVICE_TYPE_GPU,numDevices,devices,NULL);
+	}
+
+	if(status!=CL_SUCCESS)
+	{
+		cout<<"ERROR:Getting devices from clGetDeviceIDs!\n";
+		exit(1);
 	}
 	return devices;
 }

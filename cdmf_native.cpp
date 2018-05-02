@@ -14,13 +14,13 @@ void cdmf_native(smat_t &R, mat_t &W_c, mat_t &H_c, parameter &param)
 	cl_platform_id platform;
 	if(param.platform_id == 0)
 	{
-		device_type[0] = 'c';
+		device_type[0] = 'g';
 		device_type[1] = 'p';
 		device_type[2] = 'u';
 	}
 	else if(param.platform_id == 1)
 	{
-		device_type[0] = 'g';
+		device_type[0] = 'c';
 		device_type[1] = 'p';
 		device_type[2] = 'u';
 	}
