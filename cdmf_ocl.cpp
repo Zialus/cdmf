@@ -1,12 +1,9 @@
 #include "util.h"
 
-void cdmf_ocl(smat_t &R, mat_t &W_c, mat_t &H_c, parameter &param)
+void cdmf_ocl(smat_t &R, mat_t &W_c, mat_t &H_c, parameter &param, const char* srcdir)
 {
 	char device_type[4]={'g', 'p', 'u', '\0'};
-	char input_file_name[1024];
-	char *input_test_file = (char *)"/home/jianbin/cdmf/DAT/netflix/netflix_mme.txt";
 	char filename[1024] = {"../kcode/ccd033.cl"};
-	bool with_weights = false;
 
 	// create context and build the kernel code
 	cl_int status, err;
@@ -284,6 +281,19 @@ void cdmf_ocl(smat_t &R, mat_t &W_c, mat_t &H_c, parameter &param)
 	// making prediction
 	if(param.do_predict == 1)
 	{
+
+		char input_test_file[1024];
+
+		char meta_filename[1024], buf[1024], buf_test[1024];
+		sprintf(meta_filename,"%s/meta",srcdir);
+		FILE *fp = fopen(meta_filename,"r");
+		unsigned m, n, nnz, nnz_test;
+		fscanf(fp, "%u %u", &m, &n);
+		fscanf(fp, "%u %s", &nnz, buf);
+		fscanf(fp, "%u %s", &nnz_test, buf_test);
+		sprintf(input_test_file,"%s/%s", srcdir, buf_test);
+		fclose(fp);
+
 		double t5 = gettime ();
 		int i, j;
 		VALUE_TYPE vv, rmse = 0;
@@ -292,7 +302,7 @@ void cdmf_ocl(smat_t &R, mat_t &W_c, mat_t &H_c, parameter &param)
 		FILE *test_fp = fopen (input_test_file, "r");
 		if (test_fp == NULL)
 		{
-			printf ("can't open output file.\n");
+			printf ("can't open test file.\n");
 			exit (1);
 		}
 		while ((sizeof(VALUE_TYPE)==8)?(fscanf (test_fp, "%d %d %lf", &i, &j, &vv) != EOF):(fscanf (test_fp, "%d %d %f", &i, &j, &vv) != EOF))
@@ -304,10 +314,11 @@ void cdmf_ocl(smat_t &R, mat_t &W_c, mat_t &H_c, parameter &param)
 			rmse += (pred_v - vv) * (pred_v - vv);
 		}
 		rmse = sqrt (rmse / num_insts);
-		printf ("[info] test RMSE= %lf\n", rmse);
+		printf ("[info] test RMSE = %lf\n", rmse);
 		double t6 = gettime ();
 		double deltaT2 = t6 - t5;
 		printf("[info] Predict time: %lf s\n", deltaT2);
+		fclose(test_fp);
 	}
 
 
@@ -330,6 +341,4 @@ void cdmf_ocl(smat_t &R, mat_t &W_c, mat_t &H_c, parameter &param)
 	CL_CHECK(clReleaseProgram(program));	//Release the program object.
 	CL_CHECK(clReleaseContext(context));
 	free(devices);
-	return ;
 }
-
