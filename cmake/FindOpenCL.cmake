@@ -65,6 +65,7 @@ if("${CMAKE_SIZEOF_VOID_P}" EQUAL "8")
 		DOC "OpenCL dynamic library path"
 		PATH_SUFFIXES x86_64 x64 x86_64/sdk x86_64-linux-gnu
 		PATHS
+		/opt/intel/opencl-1.2-6.4.0.37/lib64
 		/usr/lib
 		/usr/local/cuda/lib
 		/opt/cuda/lib
@@ -79,8 +80,8 @@ else( )
 		$ENV{CUDA_PATH}/lib
 		DOC "OpenCL dynamic library path"
 		PATH_SUFFIXES x86 Win32
-
 		PATHS
+		/opt/intel/opencl-1.2-6.4.0.37/lib64
 		/usr/lib
 		/usr/local/cuda/lib
 		/opt/cuda/lib
