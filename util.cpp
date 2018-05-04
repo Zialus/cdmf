@@ -76,6 +76,7 @@ int getPlatform(cl_platform_id &platform, int id)
 		}
 		platform=platforms[id];
 		free(platforms);
+		return 0;
 	}
 	else
 		return -1;
