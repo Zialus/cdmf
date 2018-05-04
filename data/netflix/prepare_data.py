@@ -18,28 +18,29 @@ from scipy import sparse
 # In[2]:
 
 train_data_file = 'netflix_mm.txt'
+test_data_file = 'netflix_mme.txt'
 
 m = 480189 
 n = 17770
 nnz_train = 99072112
-#nnz_test = 0
+nnz_test = 1408395
 
 
 # In[3]:
 
-#print "prepare test data"
+print "prepare test data"
 #1-based to 0-based
-#test_j,test_i,test_rating = np.loadtxt(test_data_file,dtype=np.int32, skiprows=3, unpack=True)
-#R_test_coo = coo_matrix((test_rating,(test_i - 1,test_j - 1)))
+test_i,test_j,test_rating = np.loadtxt(test_data_file,dtype=np.int32, skiprows=0, unpack=True)
+R_test_coo = coo_matrix((test_rating,(test_i - 1,test_j - 1)))
 
 
 # In[4]:
 
 #for test data, we need COO format to calculate test RMSE
-#assert R_test_coo.nnz == nnz_test
-#R_test_coo.data.astype(np.float32).tofile('R_test_coo.data.bin')
-#R_test_coo.row.tofile('R_test_coo.row.bin')
-#R_test_coo.col.tofile('R_test_coo.col.bin')
+assert R_test_coo.nnz == nnz_test
+R_test_coo.data.astype(np.float32).tofile('R_test_coo.data.bin')
+R_test_coo.row.tofile('R_test_coo.row.bin')
+R_test_coo.col.tofile('R_test_coo.col.bin')
 
 
 # In[5]:
