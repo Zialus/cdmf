@@ -47,9 +47,7 @@ R_test_coo.col.tofile('R_test_coo.col.bin')
 
 print "prepare training data"
 #1-based to 0-based
-#train_j,train_i,train_rating = np.loadtxt(train_data_file,dtype=np.int32, skiprows=0, unpack=True)
 train_i,train_j,train_rating = np.loadtxt(train_data_file,dtype=np.int32, skiprows=0, unpack=True)
-print train_j, train_i, train_rating
 R_train_coo = coo_matrix((train_rating,(train_i - 1,train_j - 1)))
 
 
@@ -58,7 +56,6 @@ R_train_coo = coo_matrix((train_rating,(train_i - 1,train_j - 1)))
 #for training data, we need COO format to calculate training RMSE
 #we need CSR format R when calculate X from \Theta
 #we need CSC format of R when calculating \Theta from X
-print R_train_coo.nnz, nnz_train
 assert R_train_coo.nnz == nnz_train
 R_train_coo.row.tofile('R_train_coo.row.bin')
 R_train_coo.col.tofile('R_train_coo.col.bin')

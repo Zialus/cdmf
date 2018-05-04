@@ -3,6 +3,7 @@
 
 # In[1]:
 
+
 # assume input is given in text format
 # each line is like 
 # "user_id item_id rating"
@@ -18,6 +19,7 @@ from scipy import sparse
 # In[2]:
 
 train_data_file = 'ydatamusic.txt' 
+
 
 m = 1948882
 n = 98212
@@ -46,8 +48,8 @@ nnz_train = 115248575
 
 print "prepare training data"
 #1-based to 0-based
-train_i,train_j,train_rating = np.loadtxt(train_data_file,dtype=[('f0', np.int32),('f1',np.int32),('f2',np.float)], skiprows=0, unpack=True)
-print train_j, train_i, train_rating
+train_i,train_j,train_rating = np.loadtxt(train_data_file,dtype=np.int32, skiprows=0, unpack=True)
+print train_i, train_j, train_rating
 R_train_coo = coo_matrix((train_rating,(train_i - 1,train_j - 1)))
 
 
