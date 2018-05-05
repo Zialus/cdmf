@@ -103,6 +103,15 @@ matrix:
         - brew cask uninstall oclint
         - brew install gcc@7
         - brew install clinfo
+    - os: osx
+      osx_image: xcode9.3
+      env:
+        - MATRIX_EVAL="CC=gcc-8 && CXX=g++-8"
+      before_script:
+        - brew update
+        - brew cask uninstall oclint
+        - brew install gcc@8
+        - brew install clinfo
 
     ######## LINUX CLANG ########
 #    - os: linux
@@ -208,6 +217,18 @@ matrix:
             - g++-7
       env:
         - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
+      before_script:
+        - sudo apt install opencl-headers clinfo
+        - sudo sh .travis-opencl-install.sh
+    - os : linux
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-8
+      env:
+        - MATRIX_EVAL="CC=gcc-8 && CXX=g++-8"
       before_script:
         - sudo apt install opencl-headers clinfo
         - sudo sh .travis-opencl-install.sh
