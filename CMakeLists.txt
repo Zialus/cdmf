@@ -28,8 +28,8 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${NUMRUN} ${VERSION} ${VALUE} -m64 ${WAR
 
 
 # Source code of application
-file(GLOB source_src "${PROJECT_SOURCE_DIR}/*.cpp")
-file(GLOB source_hdr "${PROJECT_SOURCE_DIR}/*.h" "${PROJECT_SOURCE_DIR}/detail/*.h" "${PROJECT_SOURCE_DIR}/detail/opencl/*.h")
+file(GLOB source_src "${PROJECT_SOURCE_DIR}/src/*.cpp")
+file(GLOB source_hdr "${PROJECT_SOURCE_DIR}/src/*.h" "${PROJECT_SOURCE_DIR}/src/detail/*.h" "${PROJECT_SOURCE_DIR}/src/detail/opencl/*.h")
 
 # Compiler flags
 #if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
