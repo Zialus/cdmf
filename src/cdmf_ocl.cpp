@@ -53,15 +53,13 @@ void cdmf_ocl(smat_t &R, mat_t &W_c, mat_t &H_c, parameter &param, const char* s
 	char options[1024];
 	sprintf(options, "-DWG_SIZE=%d -DVALUE_TYPE=%s", param.nThreadsPerBlock, getT(sizeof(VALUE_TYPE)));
 	status = clBuildProgram (program, 1, devices, options, NULL, NULL);
-	if (status != CL_SUCCESS) 
-	{
-		size_t length;
-		clGetProgramBuildInfo (program, devices[0], CL_PROGRAM_BUILD_LOG, 0, NULL, &length);
-		char *buffer = (char *) malloc (length + 1);
-		clGetProgramBuildInfo (program, devices[0], CL_PROGRAM_BUILD_LOG, length, buffer, NULL);
-		printf ("build info: %s\n", buffer);
-		if(buffer!= NULL) free(buffer);
-	}
+
+	size_t length;
+	clGetProgramBuildInfo(program, devices[0], CL_PROGRAM_BUILD_LOG, 0, NULL, &length);
+	char* buffer = (char*) malloc(length + 1);
+	clGetProgramBuildInfo(program, devices[0], CL_PROGRAM_BUILD_LOG, length, buffer, NULL);
+	printf("[build info]: %s", buffer);
+	if (buffer != NULL) { free(buffer); }
 
 	for (int t = 0; t < param.k; ++t)
 		for (long c = 0; c < R.cols; ++c)
