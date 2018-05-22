@@ -225,7 +225,7 @@ parameter parse_command_line(int argc, char **argv, char *input_file_name, char 
 					break;
 
 				case 'N':
-					param.do_nmf = atoi(argv[i]) == 1 ? true : false;
+					param.do_nmf = atoi(argv[i]) == 1;
 					break;
 
 					//case 'C':
