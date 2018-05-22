@@ -47,6 +47,7 @@ void CALU(const unsigned int rows,
 	return ;
 }
 
+__kernel
 void RankOneUpdate_dev(__global const unsigned int *col_ptr,
 		__global const unsigned int *row_idx,
 		__global const VALUE_TYPE *val,
