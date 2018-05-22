@@ -110,10 +110,11 @@ class parameter
 {
 	public:
 		int solver_type;
-		int k;
+		unsigned int k;
 		int threads;
-		int maxiter, maxinneriter;
-		VALUE_TYPE lambda;
+		unsigned int maxinneriter;
+        unsigned int maxiter;
+        VALUE_TYPE lambda;
 		VALUE_TYPE rho;
 		VALUE_TYPE eps;	// for the fundec stop-cond in ccdr1
 		VALUE_TYPE eta0, betaup, betadown;  // learning rate parameters used in DSGD
@@ -121,9 +122,9 @@ class parameter
 		int do_predict, verbose;
 		int platform_id;
 		int do_nmf;  // non-negative matrix factorization
-		unsigned int enable_cuda;
-		int nBlocks;
-		int nThreadsPerBlock;		
+		bool enable_cuda;
+		unsigned int nBlocks;
+		unsigned int nThreadsPerBlock;
 		parameter() {
 			solver_type = CCDR1;
 			k = 10;
@@ -231,8 +232,9 @@ class smat_t
 		unsigned *colMajored_sparse_idx;
 		size_t nbits_colMajored_sparse_idx;
 		//unsigned unsigned int *row_idx, *col_idx; // for matlab
-		unsigned int mem_alloc_by_me, with_weights;
-		smat_t():mem_alloc_by_me(false), with_weights(false){ }
+        bool mem_alloc_by_me;
+        bool with_weights;
+        smat_t():mem_alloc_by_me(false), with_weights(false){ }
 		smat_t(const smat_t& m){ *this = m; mem_alloc_by_me = false;}
 
 		// For matlab (Almost deprecated)

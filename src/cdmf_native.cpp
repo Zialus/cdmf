@@ -72,6 +72,7 @@ void cdmf_native(smat_t &R, mat_t &W_c, mat_t &H_c, parameter &param, const char
 	for (int t = 0; t < param.k; ++t)
 		for (long c = 0; c < R.cols; ++c)
 			H_c[t][c] = 0;
+
 	unsigned num_updates = 0;
 	unsigned k = param.k;
 	VALUE_TYPE lambda = param.lambda;
@@ -87,7 +88,7 @@ void cdmf_native(smat_t &R, mat_t &W_c, mat_t &H_c, parameter &param, const char
 	VALUE_TYPE *val_t = R.val_t;
 	size_t nbits_u = R.rows * sizeof (VALUE_TYPE);
 	size_t nbits_v = R.cols * sizeof (VALUE_TYPE);
-	printf("[info] - blocks: %d, threads per block: %d\n", nBlocks, nThreadsPerBlock);
+	printf("[info] - blocks: %u, threads per block: %u\n", nBlocks, nThreadsPerBlock);
 
 	VALUE_TYPE *Wt, *Ht;
 	Wt = (VALUE_TYPE *) malloc (R.rows * sizeof (VALUE_TYPE));
