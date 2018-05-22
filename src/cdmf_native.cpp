@@ -38,28 +38,28 @@ void cdmf_native(smat_t &R, mat_t &W_c, mat_t &H_c, parameter &param, const char
 	getPlatform (platform, param.platform_id);
 	printf("[info] - the selected platform: %d, device type: %s\n", param.platform_id, device_type);
 	cl_device_id * devices = getCl_device_id (platform, device_type);
-	cl_context context = clCreateContext (NULL, 1, devices, NULL, NULL, NULL);
+	cl_context context = clCreateContext (nullptr, 1, devices, nullptr, nullptr, nullptr);
 	status = clGetContextInfo (context, CL_CONTEXT_NUM_DEVICES, sizeof (cl_uint),
-			&NumDevice, NULL);
+			&NumDevice, nullptr);
 	printf("[info] - %d devices found!\n", NumDevice);
-	cl_command_queue commandQueue = clCreateCommandQueue (context, devices[0], CL_QUEUE_PROFILING_ENABLE, NULL);
+	cl_command_queue commandQueue = clCreateCommandQueue (context, devices[0], CL_QUEUE_PROFILING_ENABLE, nullptr);
 
 	string sourceStr;
 	status = convertToString (filename, sourceStr);
 	printf("[info] - The kernel to be compiled: %s\n", filename);
 	const char *source = sourceStr.c_str ();
 	size_t sourceSize[] = { strlen(source)};
-	cl_program program = clCreateProgramWithSource (context, 1, &source, sourceSize, NULL);
+	cl_program program = clCreateProgramWithSource (context, 1, &source, sourceSize, nullptr);
 	char options[1024];
 	sprintf(options, "-DWG_SIZE=%d -DVALUE_TYPE=%s", param.nThreadsPerBlock, getT(sizeof(VALUE_TYPE)));
-	status = clBuildProgram (program, 1, devices, options, NULL, NULL);
+	status = clBuildProgram (program, 1, devices, options, nullptr, nullptr);
 
 	size_t length;
-	clGetProgramBuildInfo(program, devices[0], CL_PROGRAM_BUILD_LOG, 0, NULL, &length);
+	clGetProgramBuildInfo(program, devices[0], CL_PROGRAM_BUILD_LOG, 0, nullptr, &length);
 	char* buffer = (char*) malloc(length + 1);
-	clGetProgramBuildInfo(program, devices[0], CL_PROGRAM_BUILD_LOG, length, buffer, NULL);
+	clGetProgramBuildInfo(program, devices[0], CL_PROGRAM_BUILD_LOG, length, buffer, nullptr);
 
-	if (buffer != NULL) {
+	if (buffer != nullptr) {
 		printf("[build info]: %s\n", buffer);
 		free(buffer);
 	}
@@ -108,7 +108,7 @@ void cdmf_native(smat_t &R, mat_t &W_c, mat_t &H_c, parameter &param, const char
 	CHECK_ERROR(err);
 	cl_mem WtBuffer = clCreateBuffer (context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, nbits_u, (void *) Wt, &err);	// u
 	CHECK_ERROR(err);
-	cl_mem HtBuffer = clCreateBuffer (context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, nbits_v, (void *) Ht, NULL);	// v
+	cl_mem HtBuffer = clCreateBuffer (context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, nbits_v, (void *) Ht, nullptr);	// v
 	CHECK_ERROR(err);
 
 	// creating and building kernels

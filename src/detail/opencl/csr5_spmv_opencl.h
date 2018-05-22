@@ -70,7 +70,7 @@ int csr5_spmv(cl_kernel                 ocl_kernel_spmv_csr5_compute,
     err |= clSetKernelArg(ocl_kernel_spmv_csr5_compute, 16, sizeof(ANONYMOUSLIB_VT), (void*)&alpha);
 
     err = clEnqueueNDRangeKernel(ocl_command_queue, ocl_kernel_spmv_csr5_compute, 1,
-                                 NULL, szGlobalWorkSize, szLocalWorkSize, 0, NULL, &ceTimer);
+                                 nullptr, szGlobalWorkSize, szLocalWorkSize, 0, nullptr, &ceTimer);
     if(err != CL_SUCCESS) { cout << "ocl_kernel_spmv_csr5_compute kernel run error = " << err << endl; return err; }
 
     err = clWaitForEvents(1, &ceTimer);
@@ -94,7 +94,7 @@ int csr5_spmv(cl_kernel                 ocl_kernel_spmv_csr5_compute,
     err |= clSetKernelArg(ocl_kernel_spmv_csr5_calibrate, 5, sizeof(cl_int), (void*)&p);
 
     err = clEnqueueNDRangeKernel(ocl_command_queue, ocl_kernel_spmv_csr5_calibrate, 1,
-                                 NULL, szGlobalWorkSize, szLocalWorkSize, 0, NULL, &ceTimer);
+                                 nullptr, szGlobalWorkSize, szLocalWorkSize, 0, nullptr, &ceTimer);
     if(err != CL_SUCCESS) { cout << "ocl_kernel_spmv_csr5_calibrate kernel run error = " << err << endl; return err; }
 
     err = clWaitForEvents(1, &ceTimer);
@@ -121,7 +121,7 @@ int csr5_spmv(cl_kernel                 ocl_kernel_spmv_csr5_compute,
     err |= clSetKernelArg(ocl_kernel_spmv_csr5_tail_partition, 9, sizeof(ANONYMOUSLIB_VT), (void*)&alpha);
 
     err = clEnqueueNDRangeKernel(ocl_command_queue, ocl_kernel_spmv_csr5_tail_partition, 1,
-                                 NULL, szGlobalWorkSize, szLocalWorkSize, 0, NULL, &ceTimer);
+                                 nullptr, szGlobalWorkSize, szLocalWorkSize, 0, nullptr, &ceTimer);
     if(err != CL_SUCCESS) { cout << "ocl_kernel_spmv_csr5_tail_partition kernel run error = " << err << endl; return err; }
 
     err = clWaitForEvents(1, &ceTimer);

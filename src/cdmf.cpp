@@ -17,7 +17,7 @@ void cdmf_native(smat_t &R, mat_t &W, mat_t &H, parameter &param, const char* sr
 int main(int argc, char** argv){
 	char input_file_name[1024];
 	char filename[1024] = {"../kcode/ccd01.cl"};
-	parameter param = parse_command_line(argc, argv, input_file_name, NULL, filename);
+	parameter param = parse_command_line(argc, argv, input_file_name, nullptr, filename);
 
 	// reading rating matrix
 	smat_t R;	// val: csc, val_t: csr

@@ -521,7 +521,7 @@ int anonymouslibHandle<ANONYMOUSLIB_IT, ANONYMOUSLIB_UIT, ANONYMOUSLIB_VT>::setS
 		char *buffer = (char *) malloc (length + 1);
 		clGetProgramBuildInfo (_ocl_program_format, _ocl_device[0], CL_PROGRAM_BUILD_LOG, length, buffer, NULL);
 		printf ("[program format] build info: \n %s\n", buffer);
-		if(buffer!= NULL) free(buffer);
+		if(buffer!= nullptr) free(buffer);
 		return err;
 	}
 
@@ -533,7 +533,7 @@ int anonymouslibHandle<ANONYMOUSLIB_IT, ANONYMOUSLIB_UIT, ANONYMOUSLIB_VT>::setS
 		char *buffer = (char *) malloc (length + 1);
 		clGetProgramBuildInfo (_ocl_program_csr5_spmv, _ocl_device[0], CL_PROGRAM_BUILD_LOG, length, buffer, NULL);
 		printf ("[csr5 spmv] build info: \n %s\n", buffer);
-		if(buffer!= NULL) free(buffer);
+		if(buffer!= nullptr) free(buffer);
 		return err;
 	}
 	// Create kernels

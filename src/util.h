@@ -75,7 +75,7 @@ const char * get_error_string(cl_int err);
 inline double gettime()
 {
 	struct timeval t;
-	gettimeofday (&t, NULL);
+	gettimeofday (&t, nullptr);
 	return t.tv_sec + t.tv_usec * 1e-6;
 }
 
@@ -163,7 +163,7 @@ class entry_iterator_t
 	public:
 		unsigned int with_weights;
 		size_t nnz;
-		entry_iterator_t():nnz(0),fp(NULL), with_weights(false){}
+		entry_iterator_t():nnz(0),fp(nullptr), with_weights(false){}
 		entry_iterator_t(size_t nnz_, const char* filename, unsigned int with_weights_=false) 
 		{
 			nnz = nnz_;

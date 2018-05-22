@@ -11,7 +11,7 @@ int format_warmup(cl_kernel           ocl_kernel_warmup,
     int err = ANONYMOUSLIB_SUCCESS;
 
     cl_mem d_scan;
-    d_scan = clCreateBuffer(ocl_context, CL_MEM_READ_WRITE, ANONYMOUSLIB_CSR5_OMEGA * sizeof(int), NULL, &err);
+    d_scan = clCreateBuffer(ocl_context, CL_MEM_READ_WRITE, ANONYMOUSLIB_CSR5_OMEGA * sizeof(int), nullptr, &err);
 
     size_t szLocalWorkSize[1];
     size_t szGlobalWorkSize[1];
@@ -28,7 +28,7 @@ int format_warmup(cl_kernel           ocl_kernel_warmup,
     {
 
         err = clEnqueueNDRangeKernel(ocl_command_queue, ocl_kernel_warmup, 1,
-                                     NULL, szGlobalWorkSize, szLocalWorkSize, 0, NULL, NULL);
+                                     nullptr, szGlobalWorkSize, szLocalWorkSize, 0, nullptr, nullptr);
         if(err != CL_SUCCESS) { cout << "ocl_kernel_warmup kernel run error = " << err << endl; return err; }
     }
 
@@ -78,7 +78,7 @@ int generate_partition_pointer(cl_kernel           ocl_kernel_generate_partition
     err |= clSetKernelArg(ocl_kernel_generate_partition_pointer_s1, 5, sizeof(cl_int), (void*)&nnz);
 
     err = clEnqueueNDRangeKernel(ocl_command_queue, ocl_kernel_generate_partition_pointer_s1, 1,
-                                 NULL, szGlobalWorkSize, szLocalWorkSize, 0, NULL, &ceTimer);
+                                 nullptr, szGlobalWorkSize, szLocalWorkSize, 0, nullptr, &ceTimer);
     if(err != CL_SUCCESS) { cout << "ocl_kernel_generate_partition_pointer_s1 kernel run error = " << err << endl; return err; }
 
     err = clWaitForEvents(1, &ceTimer);
@@ -98,7 +98,7 @@ int generate_partition_pointer(cl_kernel           ocl_kernel_generate_partition
     err |= clSetKernelArg(ocl_kernel_generate_partition_pointer_s2, 1, sizeof(cl_mem), (void*)&partition_pointer);
 
     err = clEnqueueNDRangeKernel(ocl_command_queue, ocl_kernel_generate_partition_pointer_s2, 1,
-                                 NULL, szGlobalWorkSize, szLocalWorkSize, 0, NULL, &ceTimer);
+                                 nullptr, szGlobalWorkSize, szLocalWorkSize, 0, nullptr, &ceTimer);
     if(err != CL_SUCCESS) { cout << "ocl_kernel_generate_partition_pointer_s2 kernel run error = " << err << endl; return err; }
 
     err = clWaitForEvents(1, &ceTimer);
@@ -163,7 +163,7 @@ int generate_partition_descriptor(cl_kernel           ocl_kernel_generate_partit
     err |= clSetKernelArg(ocl_kernel_generate_partition_descriptor_s0, 1, sizeof(cl_int), (void*)&num_packet);
 
     err = clEnqueueNDRangeKernel(ocl_command_queue, ocl_kernel_generate_partition_descriptor_s0, 1,
-                                 NULL, szGlobalWorkSize, szLocalWorkSize, 0, NULL, &ceTimer);
+                                 nullptr, szGlobalWorkSize, szLocalWorkSize, 0, nullptr, &ceTimer);
     if(err != CL_SUCCESS) { cout << "ocl_kernel_generate_partition_descriptor_s0 kernel run error = " << err << endl; return err; }
 
     err = clWaitForEvents(1, &ceTimer);
@@ -190,7 +190,7 @@ int generate_partition_descriptor(cl_kernel           ocl_kernel_generate_partit
     err |= clSetKernelArg(ocl_kernel_generate_partition_descriptor_s1, 5, sizeof(cl_int), (void*)&num_packet);
 
     err = clEnqueueNDRangeKernel(ocl_command_queue, ocl_kernel_generate_partition_descriptor_s1, 1,
-                                 NULL, szGlobalWorkSize, szLocalWorkSize, 0, NULL, &ceTimer);
+                                 nullptr, szGlobalWorkSize, szLocalWorkSize, 0, nullptr, &ceTimer);
     if(err != CL_SUCCESS) { cout << "ocl_kernel_generate_partition_descriptor_s1 kernel run error = " << err << endl; return err; }
 
     err = clWaitForEvents(1, &ceTimer);
@@ -218,7 +218,7 @@ int generate_partition_descriptor(cl_kernel           ocl_kernel_generate_partit
     err |= clSetKernelArg(ocl_kernel_generate_partition_descriptor_s2, 7, sizeof(cl_int), (void*)&p);
 
     err = clEnqueueNDRangeKernel(ocl_command_queue, ocl_kernel_generate_partition_descriptor_s2, 1,
-                                 NULL, szGlobalWorkSize, szLocalWorkSize, 0, NULL, &ceTimer);
+                                 nullptr, szGlobalWorkSize, szLocalWorkSize, 0, nullptr, &ceTimer);
     if(err != CL_SUCCESS) { cout << "ocl_kernel_generate_partition_descriptor_s2 kernel run error = " << err << endl; return err; }
 
     err = clWaitForEvents(1, &ceTimer);
@@ -255,7 +255,7 @@ int generate_partition_descriptor(cl_kernel           ocl_kernel_generate_partit
         err |= clSetKernelArg(ocl_kernel_generate_partition_descriptor_s3, 1, sizeof(cl_int), (void*)&p);
 
         err = clEnqueueNDRangeKernel(ocl_command_queue, ocl_kernel_generate_partition_descriptor_s3, 1,
-                                     NULL, szGlobalWorkSize, szLocalWorkSize, 0, NULL, &ceTimer);
+                                     nullptr, szGlobalWorkSize, szLocalWorkSize, 0, nullptr, &ceTimer);
         if(err != CL_SUCCESS) { cout << "ocl_kernel_generate_partition_descriptor_s3 kernel run error = " << err << endl; return err; }
 
         err = clWaitForEvents(1, &ceTimer);
@@ -331,7 +331,7 @@ int generate_partition_descriptor_offset(cl_kernel           ocl_kernel_generate
     err |= clSetKernelArg(ocl_kernel_generate_partition_descriptor_offset, 9, sizeof(cl_int), (void*)&sigma);
 
     err = clEnqueueNDRangeKernel(ocl_command_queue, ocl_kernel_generate_partition_descriptor_offset, 1,
-                                 NULL, szGlobalWorkSize, szLocalWorkSize, 0, NULL, &ceTimer);
+                                 nullptr, szGlobalWorkSize, szLocalWorkSize, 0, nullptr, &ceTimer);
     if(err != CL_SUCCESS) { cout << "ocl_kernel_generate_partition_descriptor_offset kernel run error = " << err << endl; return err; }
 
     err = clWaitForEvents(1, &ceTimer);
@@ -382,7 +382,7 @@ int aosoa_transpose(cl_kernel           _ocl_kernel_aosoa_transpose_smem_iT,
     err |= clSetKernelArg(_ocl_kernel_aosoa_transpose_smem_iT, 2, sizeof(cl_int), (void*)&R2C);
 
     err = clEnqueueNDRangeKernel(ocl_command_queue, _ocl_kernel_aosoa_transpose_smem_iT, 1,
-                                 NULL, szGlobalWorkSize, szLocalWorkSize, 0, NULL, &ceTimer);
+                                 nullptr, szGlobalWorkSize, szLocalWorkSize, 0, nullptr, &ceTimer);
     if(err != CL_SUCCESS) { cout << "_ocl_kernel_aosoa_transpose_smem_iT kernel run error = " << err << endl; return err; }
 
     err = clWaitForEvents(1, &ceTimer);
@@ -398,7 +398,7 @@ int aosoa_transpose(cl_kernel           _ocl_kernel_aosoa_transpose_smem_iT,
     err |= clSetKernelArg(_ocl_kernel_aosoa_transpose_smem_vT, 2, sizeof(cl_int), (void*)&R2C);
 
     err = clEnqueueNDRangeKernel(ocl_command_queue, _ocl_kernel_aosoa_transpose_smem_vT, 1,
-                                 NULL, szGlobalWorkSize, szLocalWorkSize, 0, NULL, &ceTimer);
+                                 nullptr, szGlobalWorkSize, szLocalWorkSize, 0, nullptr, &ceTimer);
     if(err != CL_SUCCESS) { cout << "_ocl_kernel_aosoa_transpose_smem_vT kernel run error = " << err << endl; return err; }
 
     err = clWaitForEvents(1, &ceTimer);

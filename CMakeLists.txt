@@ -12,7 +12,7 @@ project(cdmf)
 find_package(OpenCL REQUIRED)
 find_package(OpenMP REQUIRED)
 
-set(CMAKE_C_STANDARD 11)
+set(CMAKE_CXX_STANDARD 11)
 
 set(EXECUTABLE_OUTPUT_PATH "${CMAKE_SOURCE_DIR}/exec/")
 

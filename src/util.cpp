@@ -57,9 +57,9 @@ int convertToString(const char *filename,string &s)
 
 int getPlatform(cl_platform_id &platform, int id)
 {
-	platform=NULL;
+	platform= nullptr;
 	cl_uint numPlatforms;
-	cl_int status=clGetPlatformIDs(0,NULL,&numPlatforms);
+	cl_int status=clGetPlatformIDs(0, nullptr,&numPlatforms);
 	if(status!=CL_SUCCESS)
 	{
 		cout<<"ERROR:Getting platforms!\n";
@@ -68,7 +68,7 @@ int getPlatform(cl_platform_id &platform, int id)
 	if(numPlatforms>0)
 	{
 		cl_platform_id* platforms=(cl_platform_id*)malloc(numPlatforms*sizeof(cl_platform_id));
-		status=clGetPlatformIDs(numPlatforms,platforms,NULL);
+		status=clGetPlatformIDs(numPlatforms,platforms, nullptr);
 		if(status!=CL_SUCCESS)
 		{
 			cout<<"ERROR:Getting platform IDs!\n";
@@ -86,14 +86,14 @@ cl_device_id *getCl_device_id(cl_platform_id &platform, char* device_type)
 {
 	cl_uint numDevices=0;
 	cl_int status = 0;
-	cl_device_id *devices=NULL;
+	cl_device_id *devices= nullptr;
 
 	if((device_type[0]=='m')&&(device_type[1]=='i')&&(device_type[2]=='c'))
-		status=clGetDeviceIDs(platform,CL_DEVICE_TYPE_ACCELERATOR,0,NULL,&numDevices);
+		status=clGetDeviceIDs(platform,CL_DEVICE_TYPE_ACCELERATOR,0, nullptr,&numDevices);
 	else if((device_type[0]=='c')&&(device_type[1]=='p')&&(device_type[2]=='u'))
-		status=clGetDeviceIDs(platform,CL_DEVICE_TYPE_CPU,0,NULL,&numDevices);
+		status=clGetDeviceIDs(platform,CL_DEVICE_TYPE_CPU,0, nullptr,&numDevices);
 	else if((device_type[0]=='g')&&(device_type[1]=='p')&&(device_type[2]=='u'))
-		status=clGetDeviceIDs(platform,CL_DEVICE_TYPE_GPU,0,NULL,&numDevices);
+		status=clGetDeviceIDs(platform,CL_DEVICE_TYPE_GPU,0, nullptr,&numDevices);
 
 	if(status!=CL_SUCCESS)
 	{
@@ -105,11 +105,11 @@ cl_device_id *getCl_device_id(cl_platform_id &platform, char* device_type)
 	{
 		devices=(cl_device_id*)malloc(numDevices*sizeof(cl_device_id));
 		if((device_type[0]=='c')&&(device_type[1]=='p')&&(device_type[2]=='u'))
-			status=clGetDeviceIDs(platform,CL_DEVICE_TYPE_CPU,numDevices,devices,NULL);
+			status=clGetDeviceIDs(platform,CL_DEVICE_TYPE_CPU,numDevices,devices, nullptr);
 		else if((device_type[0]=='m')&&(device_type[1]=='i')&&(device_type[2]=='c'))
-			status=clGetDeviceIDs(platform,CL_DEVICE_TYPE_ACCELERATOR,numDevices,devices,NULL);
+			status=clGetDeviceIDs(platform,CL_DEVICE_TYPE_ACCELERATOR,numDevices,devices, nullptr);
 		else if((device_type[0]=='g')&&(device_type[1]=='p')&&(device_type[2]=='u'))
-			status=clGetDeviceIDs(platform,CL_DEVICE_TYPE_GPU,numDevices,devices,NULL);
+			status=clGetDeviceIDs(platform,CL_DEVICE_TYPE_GPU,numDevices,devices, nullptr);
 	}
 
 	if(status!=CL_SUCCESS)

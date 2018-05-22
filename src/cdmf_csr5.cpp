@@ -37,28 +37,28 @@ void cdmf_csr5(smat_t &R, mat_t &W_c, mat_t &H_c, parameter &param)
 	getPlatform (platform, param.platform_id);
 	printf("[info] - the selected platform: %d, device type: %s\n", param.platform_id, device_type);
 	cl_device_id * devices = getCl_device_id (platform, device_type);
-	cl_context context = clCreateContext (NULL, 1, devices, NULL, NULL, NULL);
+	cl_context context = clCreateContext (nullptr, 1, devices, nullptr, nullptr, nullptr);
 	status = clGetContextInfo (context, CL_CONTEXT_NUM_DEVICES, sizeof (cl_uint),
-			&NumDevice, NULL);
+			&NumDevice, nullptr);
 	printf("[info] - %d devices found!\n", NumDevice);
-	cl_command_queue commandQueue = clCreateCommandQueue (context, devices[0], CL_QUEUE_PROFILING_ENABLE, NULL);
+	cl_command_queue commandQueue = clCreateCommandQueue (context, devices[0], CL_QUEUE_PROFILING_ENABLE, nullptr);
 
 	string sourceStr;
 	status = convertToString (filename, sourceStr);
 	printf("[info] - The kernel to be compiled: %s\n", filename);
 	const char *source = sourceStr.c_str ();
 	size_t sourceSize[] = { strlen(source)};
-	cl_program program = clCreateProgramWithSource (context, 1, &source, sourceSize, NULL);
+	cl_program program = clCreateProgramWithSource (context, 1, &source, sourceSize, nullptr);
 	char options[1024];
 	sprintf(options, "-DWG_SIZE=%d -DVALUE_TYPE=%s", param.nThreadsPerBlock, getT(sizeof(VALUE_TYPE)));
-	status = clBuildProgram (program, 1, devices, options, NULL, NULL);
+	status = clBuildProgram (program, 1, devices, options, nullptr, nullptr);
 
 	size_t length;
-	clGetProgramBuildInfo(program, devices[0], CL_PROGRAM_BUILD_LOG, 0, NULL, &length);
+	clGetProgramBuildInfo(program, devices[0], CL_PROGRAM_BUILD_LOG, 0, nullptr, &length);
 	char* buffer = (char*) malloc(length + 1);
-	clGetProgramBuildInfo(program, devices[0], CL_PROGRAM_BUILD_LOG, length, buffer, NULL);
+	clGetProgramBuildInfo(program, devices[0], CL_PROGRAM_BUILD_LOG, length, buffer, nullptr);
 
-	if (buffer != NULL) {
+	if (buffer != nullptr) {
 		printf("[build info]: %s\n", buffer);
 		free(buffer);
 	}
@@ -243,8 +243,12 @@ void cdmf_csr5(smat_t &R, mat_t &W_c, mat_t &H_c, parameter &param)
 			// Writing Buffer
 			Wt = &(W_c[t][0]); // u
 			Ht = &(H_c[t][0]); // v
-			CL_CHECK(clEnqueueWriteBuffer(commandQueue, WBuffer, CL_TRUE, 0, R.rows * sizeof (VALUE_TYPE), Wt, 0, NULL, NULL));
-			CL_CHECK(clEnqueueWriteBuffer(commandQueue, HBuffer, CL_TRUE, 0, R.cols * sizeof (VALUE_TYPE), Ht, 0, NULL, NULL));
+			CL_CHECK(clEnqueueWriteBuffer(commandQueue, WBuffer, CL_TRUE, 0, R.rows * sizeof (VALUE_TYPE), Wt, 0,
+                                          nullptr,
+                                          nullptr));
+			CL_CHECK(clEnqueueWriteBuffer(commandQueue, HBuffer, CL_TRUE, 0, R.cols * sizeof (VALUE_TYPE), Ht, 0,
+                                          nullptr,
+                                          nullptr));
 
 			/*if (oiter > 1)
 			{
@@ -277,20 +281,26 @@ void cdmf_csr5(smat_t &R, mat_t &W_c, mat_t &H_c, parameter &param)
 
 				// update vector v
 				CL_CHECK(Av.spmv(1.0, HtBuffer, HbBuffer, &time));
-				CL_CHECK(clEnqueueNDRangeKernel (commandQueue, _kernel_CALV, 1, NULL, gws_col, local_work_size, 0, NULL, &eventPoint1v));
+				CL_CHECK(clEnqueueNDRangeKernel (commandQueue, _kernel_CALV, 1, nullptr, gws_col, local_work_size, 0,
+                                                 nullptr, &eventPoint1v));
 				CL_CHECK(clWaitForEvents (1, &eventPoint1v));
 
 				// update vector u
 				CL_CHECK(Au.spmv(1.0, WtBuffer, WbBuffer, &time));				
-				CL_CHECK(clEnqueueNDRangeKernel (commandQueue, _kernel_CALU, 1, NULL, gws_row, local_work_size, 0, NULL, &eventPoint1u));
+				CL_CHECK(clEnqueueNDRangeKernel (commandQueue, _kernel_CALU, 1, nullptr, gws_row, local_work_size, 0,
+                                                 nullptr, &eventPoint1u));
 				CL_CHECK(clWaitForEvents (1, &eventPoint1u));
 
 				CL_CHECK(clReleaseEvent (eventPoint1v));
 				CL_CHECK(clReleaseEvent (eventPoint1u));
 			} 
 			// Reading Buffer
-			CL_CHECK(clEnqueueReadBuffer (commandQueue, WBuffer, CL_TRUE, 0, R.rows * sizeof (VALUE_TYPE), Wt, 0, NULL, NULL));
-			CL_CHECK(clEnqueueReadBuffer (commandQueue, HBuffer, CL_TRUE, 0, R.cols * sizeof (VALUE_TYPE), Ht, 0, NULL, NULL));
+			CL_CHECK(clEnqueueReadBuffer (commandQueue, WBuffer, CL_TRUE, 0, R.rows * sizeof (VALUE_TYPE), Wt, 0,
+                                          nullptr,
+                                          nullptr));
+			CL_CHECK(clEnqueueReadBuffer (commandQueue, HBuffer, CL_TRUE, 0, R.cols * sizeof (VALUE_TYPE), Ht, 0,
+                                          nullptr,
+                                          nullptr));
 			//Av.asCSR_();
 			//Au.asCSR_();
 			// update the rating matrix in CSC format (-)
