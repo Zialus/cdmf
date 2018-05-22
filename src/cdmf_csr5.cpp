@@ -3,38 +3,10 @@
 
 void cdmf_csr5(smat_t &R, mat_t &W_c, mat_t &H_c, parameter &param)
 {
-	unsigned m = R.rows;
-	unsigned n = R.cols;
-	unsigned nnz = R.nnz;
-	unsigned k = param.k;
-	VALUE_TYPE lambda = param.lambda;
-	unsigned inneriter = param.maxinneriter;
-	unsigned rows = R.rows;
-	unsigned cols = R.cols;
-	unsigned nBlocks = param.nBlocks;
-	unsigned nThreadsPerBlock = param.nThreadsPerBlock;
-	unsigned maxiter = param.maxiter;
-	unsigned *col_ptr = R.col_ptr, *row_ptr = R.row_ptr;
-	unsigned *row_idx = R.row_idx, *col_idx = R.col_idx;
-	VALUE_TYPE *val = R.val;
-	VALUE_TYPE *val_t = R.val_t;
-	size_t nbits_u = R.rows * sizeof (VALUE_TYPE);
-	size_t nbits_v = R.cols * sizeof (VALUE_TYPE);
-
-	for (int t = 0; t < k; ++t)
-		for (unsigned c = 0; c < cols; ++c)
-			H_c[t][c] = 0;
-
-	double gb = getB<int, VALUE_TYPE>(m, nnz);
-	double gflop = getFLOP<int>(nnz);
-
-	VALUE_TYPE *Wt = (VALUE_TYPE *) malloc (R.rows * sizeof (VALUE_TYPE));
-	VALUE_TYPE *Ht = (VALUE_TYPE *) malloc (R.cols * sizeof (VALUE_TYPE));
-	memset(Ht, 0, cols * sizeof(VALUE_TYPE));
-	memset(Wt, 0, rows * sizeof(VALUE_TYPE));
-	// create an ocl context
 	char device_type[4]={'g', 'p', 'u', '\0'};
 	char filename[1024] = {"../kcode/ccd033.cl"};
+
+	// create context and build the kernel code
 	cl_int status, err;
 	cl_uint NumDevice;
 	cl_platform_id platform;
@@ -80,15 +52,50 @@ void cdmf_csr5(smat_t &R, mat_t &W_c, mat_t &H_c, parameter &param)
 	char options[1024];
 	sprintf(options, "-DWG_SIZE=%d -DVALUE_TYPE=%s", param.nThreadsPerBlock, getT(sizeof(VALUE_TYPE)));
 	status = clBuildProgram (program, 1, devices, options, NULL, NULL);
-	if (status != CL_SUCCESS) 
-	{
-		size_t length;
-		clGetProgramBuildInfo (program, devices[0], CL_PROGRAM_BUILD_LOG, 0, NULL, &length);
-		char *buffer = (char *) malloc (length + 1);
-		clGetProgramBuildInfo (program, devices[0], CL_PROGRAM_BUILD_LOG, length, buffer, NULL);
-		printf ("build info: %s\n", buffer);
-		if(buffer!= NULL) free(buffer);
+
+	size_t length;
+	clGetProgramBuildInfo(program, devices[0], CL_PROGRAM_BUILD_LOG, 0, NULL, &length);
+	char* buffer = (char*) malloc(length + 1);
+	clGetProgramBuildInfo(program, devices[0], CL_PROGRAM_BUILD_LOG, length, buffer, NULL);
+
+	if (buffer != NULL) {
+		printf("[build info]: %s\n", buffer);
+		free(buffer);
 	}
+
+	if (status == CL_SUCCESS) {
+		printf ("[build info]: Compilation successful \n");
+	}
+
+	unsigned m = R.rows;
+	unsigned n = R.cols;
+	unsigned nnz = R.nnz;
+	unsigned k = param.k;
+	VALUE_TYPE lambda = param.lambda;
+	unsigned inneriter = param.maxinneriter;
+	unsigned rows = R.rows;
+	unsigned cols = R.cols;
+	unsigned nBlocks = param.nBlocks;
+	unsigned nThreadsPerBlock = param.nThreadsPerBlock;
+	unsigned maxiter = param.maxiter;
+	unsigned *col_ptr = R.col_ptr, *row_ptr = R.row_ptr;
+	unsigned *row_idx = R.row_idx, *col_idx = R.col_idx;
+	VALUE_TYPE *val = R.val;
+	VALUE_TYPE *val_t = R.val_t;
+	size_t nbits_u = R.rows * sizeof (VALUE_TYPE);
+	size_t nbits_v = R.cols * sizeof (VALUE_TYPE);
+
+	for (int t = 0; t < k; ++t)
+		for (unsigned c = 0; c < cols; ++c)
+			H_c[t][c] = 0;
+
+	double gb = getB<int, VALUE_TYPE>(m, nnz);
+	double gflop = getFLOP<int>(nnz);
+
+	VALUE_TYPE *Wt = (VALUE_TYPE *) malloc (R.rows * sizeof (VALUE_TYPE));
+	VALUE_TYPE *Ht = (VALUE_TYPE *) malloc (R.cols * sizeof (VALUE_TYPE));
+	memset(Ht, 0, cols * sizeof(VALUE_TYPE));
+	memset(Wt, 0, rows * sizeof(VALUE_TYPE));
 
 	// buffers to store the bottom results
 	VALUE_TYPE * Hb = (VALUE_TYPE *)malloc(R.cols * sizeof(VALUE_TYPE));
