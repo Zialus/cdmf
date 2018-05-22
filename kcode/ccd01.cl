@@ -1,4 +1,4 @@
-VALUE_TYPE
+static VALUE_TYPE
 RankOneUpdate_dev (__global const unsigned  *col_ptr,
 		__global const unsigned *row_idx,
 		__global const VALUE_TYPE *val, 
@@ -31,7 +31,7 @@ RankOneUpdate_DUAL_kernel_v (const unsigned  cols,
 		__global const unsigned  *row_idx_t,
 		__global VALUE_TYPE *val_t){
 	unsigned ii = get_global_id (0);
-	unsigned jj = get_global_size (0);
+//	unsigned jj = get_global_size (0);
 	size_t c = ii;
 	if (c < cols){
 		v[c] = 	RankOneUpdate_dev (col_ptr, row_idx, val, c, u, lambda * (col_ptr[c + 1] - col_ptr[c]), v[c]);
@@ -50,7 +50,7 @@ RankOneUpdate_DUAL_kernel_u (const unsigned  cols,
 		__global const unsigned  *row_idx_t,
 		__global VALUE_TYPE *val_t){
 	unsigned ii = get_global_id (0);
-	unsigned jj = get_global_size (0);
+//	unsigned jj = get_global_size (0);
 
 	size_t c = ii;
 	if (c < cols_t){
@@ -70,7 +70,7 @@ UpdateRating_DUAL_kernel_NoLoss_c (const unsigned  cols,
 		__global const unsigned  *row_idx_t,
 		__global VALUE_TYPE *val_t){
 	unsigned ii = get_global_id (0);
-	unsigned jj = get_global_size (0);
+//	unsigned jj = get_global_size (0);
 	size_t i = ii;
 	if (i < cols){
 		VALUE_TYPE Htc = Ht_vec_t[i];
@@ -92,7 +92,7 @@ UpdateRating_DUAL_kernel_NoLoss_r (const unsigned  cols,
 		__global const unsigned  *row_idx_t,
 		__global VALUE_TYPE *val_t){
 	unsigned ii = get_global_id (0);
-	unsigned jj = get_global_size (0);
+//	unsigned jj = get_global_size (0);
 
 	size_t i = ii;
 	if (i < cols_t){
@@ -115,7 +115,7 @@ UpdateRating_DUAL_kernel_NoLoss_c_ (const unsigned  cols,
 		__global const unsigned  *row_idx_t,
 		__global VALUE_TYPE *val_t){
 	unsigned ii = get_global_id (0);
-	unsigned jj = get_global_size (0);
+//	unsigned jj = get_global_size (0);
 
 	size_t i = ii;
 	if (i < cols){
@@ -138,7 +138,7 @@ UpdateRating_DUAL_kernel_NoLoss_r_ (const unsigned  cols,
 		__global const unsigned  *row_idx_t,
 		__global VALUE_TYPE *val_t){
 	unsigned ii = get_global_id (0);
-	unsigned jj = get_global_size (0);
+//	unsigned jj = get_global_size (0);
 
 	size_t i = ii;
 	if (i < cols_t){
