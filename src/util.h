@@ -256,7 +256,6 @@ class smat_t
 		}
 		void load_from_iterator(unsigned int _rows, unsigned int _cols, unsigned int _nnz, entry_iterator_t* entry_it, unsigned int ifALS) 
 		{
-			unsigned *mapIDX;
 			rows =_rows,cols=_cols,nnz=_nnz;
 			mem_alloc_by_me = true;
 			with_weights = entry_it->with_weights;
@@ -335,7 +334,7 @@ class smat_t
 
 			if (ifALS)
 			{
-				mapIDX = MALLOC(unsigned, rows);
+				unsigned *mapIDX = MALLOC(unsigned, rows);
 				for (int r = 0; r < rows; ++r)
 				{
 					mapIDX[r] = row_ptr[r];
