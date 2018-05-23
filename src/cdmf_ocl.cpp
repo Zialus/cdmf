@@ -39,8 +39,7 @@ void cdmf_ocl(smat_t &R, mat_t &W_c, mat_t &H_c, parameter &param, const char* s
     printf("[info] - the selected platform: %d, device type: %s\n", param.platform_id, device_type);
     cl_device_id * devices = getCl_device_id (platform, device_type);
     cl_context context = clCreateContext (nullptr, 1, devices, nullptr, nullptr, nullptr);
-    status = clGetContextInfo (context, CL_CONTEXT_NUM_DEVICES, sizeof (cl_uint),
-            &NumDevice, nullptr);
+    status = clGetContextInfo (context, CL_CONTEXT_NUM_DEVICES, sizeof (cl_uint), &NumDevice, nullptr);
     printf("[info] - %d devices found!\n", NumDevice);
     cl_command_queue commandQueue = clCreateCommandQueue (context, devices[0], CL_QUEUE_PROFILING_ENABLE, nullptr);
 
@@ -94,21 +93,21 @@ void cdmf_ocl(smat_t &R, mat_t &W_c, mat_t &H_c, parameter &param, const char* s
     Ht = (VALUE_TYPE *) malloc (R.cols * sizeof (VALUE_TYPE));
 
     // creating buffers
-    cl_mem    row_ptrBuffer = clCreateBuffer(context, CL_MEM_READ_WRITE|CL_MEM_COPY_HOST_PTR, R.nbits_row_ptr,(void *)row_ptr, &err);
+    cl_mem row_ptrBuffer = clCreateBuffer(context, CL_MEM_READ_WRITE|CL_MEM_COPY_HOST_PTR, R.nbits_row_ptr,(void *)row_ptr, &err);
     CHECK_ERROR(err);
-    cl_mem    col_idxBuffer = clCreateBuffer(context, CL_MEM_READ_WRITE|CL_MEM_COPY_HOST_PTR ,R.nbits_col_idx, (void *)col_idx, &err);
+    cl_mem col_idxBuffer = clCreateBuffer(context, CL_MEM_READ_WRITE|CL_MEM_COPY_HOST_PTR ,R.nbits_col_idx, (void *)col_idx, &err);
     CHECK_ERROR(err);
-    cl_mem    col_ptrBuffer = clCreateBuffer(context, CL_MEM_READ_WRITE|CL_MEM_COPY_HOST_PTR, R.nbits_col_ptr,(void *)col_ptr, &err);
+    cl_mem col_ptrBuffer = clCreateBuffer(context, CL_MEM_READ_WRITE|CL_MEM_COPY_HOST_PTR, R.nbits_col_ptr,(void *)col_ptr, &err);
     CHECK_ERROR(err);
-    cl_mem    row_idxBuffer = clCreateBuffer(context, CL_MEM_READ_WRITE|CL_MEM_COPY_HOST_PTR ,R.nbits_row_idx, (void *)row_idx, &err);
+    cl_mem row_idxBuffer = clCreateBuffer(context, CL_MEM_READ_WRITE|CL_MEM_COPY_HOST_PTR ,R.nbits_row_idx, (void *)row_idx, &err);
     CHECK_ERROR(err);
-    cl_mem    valBuffer = clCreateBuffer(context, CL_MEM_READ_WRITE|CL_MEM_COPY_HOST_PTR ,R.nbits_val, (void *)val, &err);
+    cl_mem valBuffer = clCreateBuffer(context, CL_MEM_READ_WRITE|CL_MEM_COPY_HOST_PTR ,R.nbits_val, (void *)val, &err);
     CHECK_ERROR(err);
-    cl_mem    val_tBuffer = clCreateBuffer(context, CL_MEM_READ_WRITE|CL_MEM_COPY_HOST_PTR ,R.nbits_val, (void *)val_t, &err);
+    cl_mem val_tBuffer = clCreateBuffer(context, CL_MEM_READ_WRITE|CL_MEM_COPY_HOST_PTR ,R.nbits_val, (void *)val_t, &err);
     CHECK_ERROR(err);
-    cl_mem WtBuffer = clCreateBuffer (context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, nbits_u, (void *) Wt, &err);   // u
+    cl_mem WtBuffer = clCreateBuffer(context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, nbits_u, (void *) Wt, &err); // u
     CHECK_ERROR(err);
-    cl_mem HtBuffer = clCreateBuffer (context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, nbits_v, (void *) Ht, &err);    // v
+    cl_mem HtBuffer = clCreateBuffer(context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, nbits_v, (void *) Ht, &err); // v
     CHECK_ERROR(err);
 
     // creating and building kernels
@@ -116,13 +115,13 @@ void cdmf_ocl(smat_t &R, mat_t &W_c, mat_t &H_c, parameter &param, const char* s
     CHECK_ERROR(err);
     cl_kernel RankOneUpdate_DUAL_kernel_v = clCreateKernel(program, "RankOneUpdate_DUAL_kernel_v", &err);
     CHECK_ERROR(err);
-    cl_kernel UpdateRating_DUAL_kernel_NoLoss_r = clCreateKernel (program, "UpdateRating_DUAL_kernel_NoLoss_r", &err);
+    cl_kernel UpdateRating_DUAL_kernel_NoLoss_r = clCreateKernel(program, "UpdateRating_DUAL_kernel_NoLoss_r", &err);
     CHECK_ERROR(err);
-    cl_kernel UpdateRating_DUAL_kernel_NoLoss_c = clCreateKernel (program, "UpdateRating_DUAL_kernel_NoLoss_c", &err);
+    cl_kernel UpdateRating_DUAL_kernel_NoLoss_c = clCreateKernel(program, "UpdateRating_DUAL_kernel_NoLoss_c", &err);
     CHECK_ERROR(err);
-    cl_kernel UpdateRating_DUAL_kernel_NoLoss_r_ = clCreateKernel (program, "UpdateRating_DUAL_kernel_NoLoss_r_", &err);
+    cl_kernel UpdateRating_DUAL_kernel_NoLoss_r_ = clCreateKernel(program, "UpdateRating_DUAL_kernel_NoLoss_r_", &err);
     CHECK_ERROR(err);
-    cl_kernel UpdateRating_DUAL_kernel_NoLoss_c_ = clCreateKernel (program, "UpdateRating_DUAL_kernel_NoLoss_c_", &err);
+    cl_kernel UpdateRating_DUAL_kernel_NoLoss_c_ = clCreateKernel(program, "UpdateRating_DUAL_kernel_NoLoss_c_", &err);
     CHECK_ERROR(err);
 
     // setting kernel arguments
@@ -181,7 +180,7 @@ void cdmf_ocl(smat_t &R, mat_t &W_c, mat_t &H_c, parameter &param, const char* s
     CL_CHECK(clSetKernelArg (UpdateRating_DUAL_kernel_NoLoss_r_, 6, sizeof (unsigned), &rows));
     CL_CHECK(clSetKernelArg (UpdateRating_DUAL_kernel_NoLoss_r_, 7, sizeof (cl_mem), (void *) &row_ptrBuffer));
     CL_CHECK(clSetKernelArg (UpdateRating_DUAL_kernel_NoLoss_r_, 8, sizeof (cl_mem), (void *) &col_idxBuffer));
-    CL_CHECK(clSetKernelArg (UpdateRating_DUAL_kernel_NoLoss_r_, 9, sizeof (cl_mem),    (void *) &val_tBuffer));
+    CL_CHECK(clSetKernelArg (UpdateRating_DUAL_kernel_NoLoss_r_, 9, sizeof (cl_mem), (void *) &val_tBuffer));
 
     CL_CHECK(clSetKernelArg (UpdateRating_DUAL_kernel_NoLoss_c_, 0, sizeof (unsigned), &cols));
     CL_CHECK(clSetKernelArg (UpdateRating_DUAL_kernel_NoLoss_c_, 1, sizeof (cl_mem), (void *) &col_ptrBuffer));
@@ -192,7 +191,7 @@ void cdmf_ocl(smat_t &R, mat_t &W_c, mat_t &H_c, parameter &param, const char* s
     CL_CHECK(clSetKernelArg (UpdateRating_DUAL_kernel_NoLoss_c_, 6, sizeof (unsigned), &rows));
     CL_CHECK(clSetKernelArg (UpdateRating_DUAL_kernel_NoLoss_c_, 7, sizeof (cl_mem), (void *) &row_ptrBuffer));
     CL_CHECK(clSetKernelArg (UpdateRating_DUAL_kernel_NoLoss_c_, 8, sizeof (cl_mem), (void *) &col_idxBuffer));
-    CL_CHECK(clSetKernelArg (UpdateRating_DUAL_kernel_NoLoss_c_, 9, sizeof (cl_mem),    (void *) &val_tBuffer));
+    CL_CHECK(clSetKernelArg (UpdateRating_DUAL_kernel_NoLoss_c_, 9, sizeof (cl_mem), (void *) &val_tBuffer));
 
     size_t gws_row[1] = {rows * nThreadsPerBlock};
     size_t gws_col[1] = {cols * nThreadsPerBlock};
@@ -206,19 +205,15 @@ void cdmf_ocl(smat_t &R, mat_t &W_c, mat_t &H_c, parameter &param, const char* s
     for (int oiter = 1; oiter <= maxiter; ++oiter)
     {
         //printf("[info] the %dth outter iteration.\n", oiter);
-        size_t global_work_size[1] = {nBlocks *nThreadsPerBlock};
+        size_t global_work_size[1] = {nBlocks * nThreadsPerBlock};
         size_t local_work_size[1] = {nThreadsPerBlock};
         for (int t = 0; t < k; ++t)
         {
             // Writing Buffer
             Wt = &(W_c[t][0]); // u
             Ht = &(H_c[t][0]); // v
-            CL_CHECK(clEnqueueWriteBuffer(commandQueue, WtBuffer, CL_TRUE, 0, R.rows * sizeof (VALUE_TYPE), Wt, 0,
-                                          nullptr,
-                                          nullptr));
-            CL_CHECK(clEnqueueWriteBuffer(commandQueue, HtBuffer, CL_TRUE, 0, R.cols * sizeof (VALUE_TYPE), Ht, 0,
-                                          nullptr,
-                                          nullptr));
+            CL_CHECK(clEnqueueWriteBuffer(commandQueue, WtBuffer, CL_TRUE, 0, R.rows * sizeof (VALUE_TYPE), Wt, 0, nullptr, nullptr));
+            CL_CHECK(clEnqueueWriteBuffer(commandQueue, HtBuffer, CL_TRUE, 0, R.cols * sizeof (VALUE_TYPE), Ht, 0, nullptr, nullptr));
         
             if (oiter > 1)
             {
@@ -263,12 +258,8 @@ void cdmf_ocl(smat_t &R, mat_t &W_c, mat_t &H_c, parameter &param, const char* s
                 CL_CHECK(clReleaseEvent (eventPoint1u));
             } 
             // Reading Buffer
-            CL_CHECK(clEnqueueReadBuffer (commandQueue, WtBuffer, CL_TRUE, 0, R.rows * sizeof (VALUE_TYPE), Wt, 0,
-                                          nullptr,
-                                          nullptr));
-            CL_CHECK(clEnqueueReadBuffer (commandQueue, HtBuffer, CL_TRUE, 0, R.cols * sizeof (VALUE_TYPE), Ht, 0,
-                                          nullptr,
-                                          nullptr));
+            CL_CHECK(clEnqueueReadBuffer (commandQueue, WtBuffer, CL_TRUE, 0, R.rows * sizeof (VALUE_TYPE), Wt, 0, nullptr, nullptr));
+            CL_CHECK(clEnqueueReadBuffer (commandQueue, HtBuffer, CL_TRUE, 0, R.cols * sizeof (VALUE_TYPE), Ht, 0, nullptr, nullptr));
             // update the rating matrix in CSC format (-)
             cl_event eventPoint2c, eventPoint2r;
             CL_CHECK(clEnqueueNDRangeKernel (commandQueue,  UpdateRating_DUAL_kernel_NoLoss_c_, 1, nullptr,
@@ -299,22 +290,22 @@ void cdmf_ocl(smat_t &R, mat_t &W_c, mat_t &H_c, parameter &param, const char* s
     calculate_rmse_ocl(W_c, H_c, param, srcdir);
 
     /** Release the context **/
-    CL_CHECK(clReleaseMemObject(row_ptrBuffer));    //Release mem object.
-    CL_CHECK(clReleaseMemObject(col_idxBuffer));    //Release mem object.
-    CL_CHECK(clReleaseMemObject(col_ptrBuffer));    //Release mem object.
+    CL_CHECK(clReleaseMemObject(row_ptrBuffer)); // Release mem object.
+    CL_CHECK(clReleaseMemObject(col_idxBuffer)); // Release mem object.
+    CL_CHECK(clReleaseMemObject(col_ptrBuffer)); // Release mem object.
     CL_CHECK(clReleaseMemObject(row_idxBuffer));
-    CL_CHECK(clReleaseMemObject(valBuffer));    //Release mem object.
+    CL_CHECK(clReleaseMemObject(valBuffer)); // Release mem object.
     CL_CHECK(clReleaseMemObject(val_tBuffer));
-    CL_CHECK(clReleaseMemObject (WtBuffer));
-    CL_CHECK(clReleaseMemObject (HtBuffer));
+    CL_CHECK(clReleaseMemObject(WtBuffer));
+    CL_CHECK(clReleaseMemObject(HtBuffer));
     CL_CHECK(clReleaseCommandQueue(commandQueue));
     CL_CHECK(clReleaseKernel(UpdateRating_DUAL_kernel_NoLoss_c));
     CL_CHECK(clReleaseKernel(UpdateRating_DUAL_kernel_NoLoss_r));
     CL_CHECK(clReleaseKernel(UpdateRating_DUAL_kernel_NoLoss_c_));
     CL_CHECK(clReleaseKernel(UpdateRating_DUAL_kernel_NoLoss_r_));
-    CL_CHECK(clReleaseKernel(RankOneUpdate_DUAL_kernel_u)); //*Release kernel.
-    CL_CHECK(clReleaseKernel(RankOneUpdate_DUAL_kernel_v)); //*Release kernel.
-    CL_CHECK(clReleaseProgram(program));    //Release the program object.
+    CL_CHECK(clReleaseKernel(RankOneUpdate_DUAL_kernel_u)); // *Release kernel.
+    CL_CHECK(clReleaseKernel(RankOneUpdate_DUAL_kernel_v)); // *Release kernel.
+    CL_CHECK(clReleaseProgram(program)); // Release the program object.
     CL_CHECK(clReleaseContext(context));
     free(devices);
 }
