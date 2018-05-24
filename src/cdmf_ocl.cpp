@@ -1,7 +1,5 @@
 #include "util.h"
 
-void calculate_rmse_ocl(const mat_t& W_c, const mat_t& H_c, const parameter& param, const char* srcdir);
-
 void cdmf_ocl(smat_t &R, mat_t &W_c, mat_t &H_c, parameter &param, const char* srcdir)
 {
     char device_type[4]={'g', 'p', 'u', '\0'};
@@ -285,9 +283,6 @@ void cdmf_ocl(smat_t &R, mat_t &W_c, mat_t &H_c, parameter &param, const char* s
     double deltaT = t2 - t1;
     printf("[info] - training time: %lf s\n",  deltaT);
     printf("[info] - rank one updating time: %llu ms , R updating time: %llu ms \n", t_rank_one_update/1000000ULL, t_update_ratings/1000000ULL);
-
-    // making prediction
-    calculate_rmse_ocl(W_c, H_c, param, srcdir);
 
     /** Release the context **/
     CL_CHECK(clReleaseMemObject(row_ptrBuffer)); // Release mem object.

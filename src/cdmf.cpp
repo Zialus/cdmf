@@ -14,6 +14,9 @@ void cdmf_ocl(smat_t &R, mat_t &W, mat_t &H, parameter &param, const char* srcdi
 void cdmf_csr5(smat_t &R, mat_t &W, mat_t &H, parameter &param);
 void cdmf_native(smat_t &R, mat_t &W, mat_t &H, parameter &param, const char* srcdir);
 
+void calculate_rmse_ocl(const mat_t& W_c, const mat_t& H_c, const parameter& param, const char* srcdir);
+void calculate_rmse_native(const mat_t& W_c, const mat_t& H_c, const parameter& param, const char* srcdir);
+
 int main(int argc, char** argv){
     char input_file_name[1024];
     char filename[1024] = {"../kcode/ccd01.cl"};
@@ -46,12 +49,15 @@ int main(int argc, char** argv){
 
 #ifdef V1
     cdmf_native(R, W, H, param, input_file_name);
+    calculate_rmse_native(W, H, param, input_file_name);
 #endif
 #ifdef V2
     cdmf_ocl(R, W, H, param, input_file_name);
+    calculate_rmse_ocl(W, H, param, input_file_name);
 #endif
 #ifdef V3
     cdmf_csr5(R, W, H, param);
+    calculate_rmse_ocl(W, H, param, input_file_name);
 #endif
 
     cout << "------------------------------------------------------" << endl;
