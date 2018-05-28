@@ -9,15 +9,14 @@
 
 using namespace std;
 
-void cdmf_ref(smat_t &R, mat_t &W, mat_t &H, parameter &param);
-void cdmf_ocl(smat_t &R, mat_t &W, mat_t &H, parameter &param, const char* srcdir);
-void cdmf_csr5(smat_t &R, mat_t &W, mat_t &H, parameter &param);
-void cdmf_native(smat_t &R, mat_t &W, mat_t &H, parameter &param, const char* srcdir);
-
+void cdmf_ref(smat_t& R, mat_t& W, mat_t& H, parameter& param);
+void cdmf_ocl(smat_t& R, mat_t& W, mat_t& H, parameter& param, const char* srcdir);
+void cdmf_csr5(smat_t& R, mat_t& W, mat_t& H, parameter& param);
+void cdmf_native(smat_t& R, mat_t& W, mat_t& H, parameter& param, const char* srcdir);
 void calculate_rmse_ocl(const mat_t& W_c, const mat_t& H_c, const parameter& param, const char* srcdir);
 void calculate_rmse_native(const mat_t& W_c, const mat_t& H_c, const parameter& param, const char* srcdir);
 
-int main(int argc, char** argv){
+int main(int argc, char** argv) {
     char input_file_name[1024];
     char filename[1024] = {"../kcode/ccd01.cl"};
     parameter param = parse_command_line(argc, argv, input_file_name, nullptr, filename);
@@ -34,7 +33,7 @@ int main(int argc, char** argv){
     load(input_file_name, R, false, false);
     double t2 = gettime();
     double deltaT = t2 - t1;
-    printf("[info] - loading time: %lf s\n",  deltaT);
+    printf("[info] - loading time: %lf s\n", deltaT);
 
     // W, H  here are k*m, k*n
     cout << "[info] initializ W and H matrix." << endl;

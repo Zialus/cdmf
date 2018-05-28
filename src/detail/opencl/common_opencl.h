@@ -5,9 +5,9 @@
 #include <string>
 
 #ifdef __APPLE__
-#include "OpenCL/opencl.h"
+#include <OpenCL/opencl.h>
 #else
-#include "CL/opencl.h"
+#include <CL/opencl.h>
 #endif
 
 #include "basiccl.h"
