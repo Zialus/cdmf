@@ -18,8 +18,6 @@ set(EXECUTABLE_OUTPUT_PATH "${CMAKE_SOURCE_DIR}/exec/")
 
 #set(CMAKE_VERBOSE_MAKEFILE ON)
 
-# V1: native, V2: thread batching, V3: load balancing
-set(VERSION "-D V2")
 set(NUMRUN "-DNUM_RUN=1")
 set(WARNINGS "-Wno-format -Wno-unused-result -Wno-write-strings -Wno-deprecated-declarations")
 set(VALUE "-DVALUE_TYPE=double")

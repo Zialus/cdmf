@@ -224,6 +224,10 @@ parameter parse_command_line(int argc, char **argv, char *input_file_name, char 
                     param.verbose = atoi(argv[i]);
                     break;
 
+                case 'V':
+                    param.version = atoi(argv[i]);
+                    break;
+
                 case 'N':
                     param.do_nmf = atoi(argv[i]) == 1;
                     break;

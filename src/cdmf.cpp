@@ -47,18 +47,26 @@ int main(int argc, char** argv){
     cout << "------------------------------------------------------" << endl;
     cout << "[info] compute cdmf on the selected ocl device." << endl;
 
-#ifdef V1
-    cdmf_native(R, W, H, param, input_file_name);
-    calculate_rmse_native(W, H, param, input_file_name);
-#endif
-#ifdef V2
-    cdmf_ocl(R, W, H, param, input_file_name);
-    calculate_rmse_ocl(W, H, param, input_file_name);
-#endif
-#ifdef V3
-    cdmf_csr5(R, W, H, param);
-    calculate_rmse_ocl(W, H, param, input_file_name);
-#endif
+    switch (param.version) {
+        case 1:
+            cout << "[info] Picked Version 1: Native" << endl;
+            cdmf_native(R, W, H, param, input_file_name);
+            calculate_rmse_native(W, H, param, input_file_name);
+            break;
+        case 2:
+            cout << "[info] Picked Version 2: Thread Batching" << endl;
+            cdmf_ocl(R, W, H, param, input_file_name);
+            calculate_rmse_ocl(W, H, param, input_file_name);
+            break;
+        case 3:
+            cout << "[info] Picked Version 3: Load Balancing" << endl;
+            cdmf_csr5(R, W, H, param);
+            calculate_rmse_ocl(W, H, param, input_file_name);
+            break;
+        default:
+            printf("Wrong version");
+            break;
+    }
 
     cout << "------------------------------------------------------" << endl;
     cout << "[info] now computing cdmf reference results on a cpu core." << endl;

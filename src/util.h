@@ -109,6 +109,7 @@ inline std::string to_string(T value)
 class parameter 
 {
     public:
+        int version;
         int solver_type;
         unsigned int k;
         int threads;
