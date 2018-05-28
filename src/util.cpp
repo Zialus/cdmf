@@ -290,7 +290,7 @@ void exit_with_help(){
     exit(1);
 }
 
-const char * get_error_string(cl_int err)
+const char* get_error_string(cl_int err)
 {
     switch(err){
         // run-time and JIT compiler errors
@@ -315,7 +315,7 @@ const char * get_error_string(cl_int err)
         case -18: return "CL_DEVICE_PARTITION_FAILED";
         case -19: return "CL_KERNEL_ARG_INFO_NOT_AVAILABLE";
 
-              // compile-time errors
+        // compile-time errors
         case -30: return "CL_INVALID_VALUE";
         case -31: return "CL_INVALID_DEVICE_TYPE";
         case -32: return "CL_INVALID_PLATFORM";
@@ -356,7 +356,7 @@ const char * get_error_string(cl_int err)
         case -67: return "CL_INVALID_LINKER_OPTIONS";
         case -68: return "CL_INVALID_DEVICE_PARTITION_COUNT";
 
-              // extension errors
+        // extension errors
         case -1000: return "CL_INVALID_GL_SHAREGROUP_REFERENCE_KHR";
         case -1001: return "CL_PLATFORM_NOT_FOUND_KHR";
         case -1002: return "CL_INVALID_D3D10_DEVICE_KHR";
