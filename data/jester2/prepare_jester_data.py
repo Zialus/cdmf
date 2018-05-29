@@ -11,50 +11,50 @@ from scipy.sparse import coo_matrix
 
 # In[2]:
 
-train_data_file = "jester_ratings.dat"
+train_data_file = "jester_train.csv"
+test_data_file = "dont_use.csv"
 
-
-# jester file look like
+# jester files look like
 '''
-1		5		0.219
-1		7		-9.281
-1		8		-9.281
-1		13		-6.781
-1		15		0.875
-1		16		-9.656
-1		17		-9.031
+7302,29,7.156
+61815,46,6.375
+31128,96,2.281
+36125,147,-1.781
+18007,60,2.188
+7387,99,3.594
+12007,18,-2.094
 '''
 
 m = 63978
 n = 150
-nnz_train = 1761439
-# nnz_test = 0
+nnz_train = 1000000
+nnz_test = 761439
 
 
 # In[3]:
 
-# print "prepare test data"
+print "prepare test data"
 # 1-based to 0-based
-# test_j,test_i,test_rating = np.loadtxt(test_data_file,dtype=np.int32, skiprows=3, unpack=True)
-# print test_i, test_j, test_rating
-# R_test_coo = coo_matrix((test_rating,(test_i - 1,test_j - 1)))
+test_i, test_j, test_rating = np.loadtxt(test_data_file, delimiter=',', dtype=[('f0', np.int32), ('f1', np.int32), ('f2', np.float)], skiprows=1, unpack=True)
+print test_i, test_j, test_rating
+R_test_coo = coo_matrix((test_rating, (test_i - 1, test_j - 1)))
 
 
 # In[4]:
 
 # for test data, we need COO format to calculate test RMSE
-# assert R_test_coo.nnz == nnz_test
-# R_test_coo.data.astype(np.float32).tofile('R_test_coo.data.bin')
-# R_test_coo.row.tofile('R_test_coo.row.bin')
-# R_test_coo.col.tofile('R_test_coo.col.bin')
+assert R_test_coo.nnz == nnz_test
+R_test_coo.data.astype(np.float32).tofile('R_test_coo.data.bin')
+R_test_coo.row.tofile('R_test_coo.row.bin')
+R_test_coo.col.tofile('R_test_coo.col.bin')
 
 
 # In[5]:
 
 print "prepare training data"
 # 1-based to 0-based
-train_i, train_j, train_rating = np.loadtxt(train_data_file, dtype=[('f0', np.int32), ('f1', np.int32), ('f2', np.float)], skiprows=0, unpack=True)
-print train_j, train_i, train_rating
+train_i, train_j, train_rating = np.loadtxt(train_data_file, delimiter=',', dtype=[('f0', np.int32), ('f1', np.int32), ('f2', np.float)], skiprows=1, unpack=True)
+print train_i, train_j, train_rating
 R_train_coo = coo_matrix((train_rating, (train_i - 1, train_j - 1)))
 
 
