@@ -29,33 +29,33 @@ matrix:
   include:
 
     ######## OSX CLANG ########
-#    - os: osx
-#      osx_image: xcode9.3
-#      env:
-#        - MATRIX_EVAL="CC=clang-3.9 && CXX=clang++"
-#      before_script:
-#        - brew update
-#        - brew cask uninstall oclint
-#        - brew install llvm@3.9 && brew link --overwrite llvm@3.9 --force
-#        - brew install clinfo
-#    - os: osx
-#      osx_image: xcode9.3
-#      env:
-#        - MATRIX_EVAL="CC=clang-4.0 && CXX=clang++"
-#      before_script:
-#        - brew update
-#        - brew cask uninstall oclint
-#        - brew install llvm@4 && brew link --overwrite llvm@4 --force
-#        - brew install clinfo
-#    - os: osx
-#      osx_image: xcode9.3
-#      env:
-#        - MATRIX_EVAL="CC=clang-5.0 && CXX=clang++"
-#      before_script:
-#        - brew update
-#        - brew cask uninstall oclint
-#        - brew install llvm@5 && brew link --overwrite llvm@5 --force
-#        - brew install clinfo
+    - os: osx
+      osx_image: xcode9.3
+      env:
+        - MATRIX_EVAL="CC=clang-3.9 && CXX=clang++"
+      before_script:
+        - brew update
+        - brew cask uninstall oclint
+        - brew install llvm@3.9 && brew link --overwrite llvm@3.9 --force
+        - brew install clinfo
+    - os: osx
+      osx_image: xcode9.3
+      env:
+        - MATRIX_EVAL="CC=clang-4.0 && CXX=clang++"
+      before_script:
+        - brew update
+        - brew cask uninstall oclint
+        - brew install llvm@4 && brew link --overwrite llvm@4 --force
+        - brew install clinfo
+    - os: osx
+      osx_image: xcode9.3
+      env:
+        - MATRIX_EVAL="CC=clang-5.0 && CXX=clang++"
+      before_script:
+        - brew update
+        - brew cask uninstall oclint
+        - brew install llvm@5 && brew link --overwrite llvm@5 --force
+        - brew install clinfo
     - os: osx
       osx_image: xcode9.3
       env:
@@ -67,24 +67,24 @@ matrix:
         - brew install clinfo
 
     ######## OSX GCC ########
-#    - os: osx
-#      osx_image: xcode9.3
-#      env:
-#        - MATRIX_EVAL="CC=gcc-4.9 && CXX=g++-4.9"
-#      before_script:
-#        - brew update
-#        - brew cask uninstall oclint
-#        - brew install gcc@4.9
-#        - brew install clinfo
-#    - os: osx
-#      osx_image: xcode9.3
-#      env:
-#        - MATRIX_EVAL="CC=gcc-5 && CXX=g++-5"
-#      before_script:
-#        - brew update
-#        - brew cask uninstall oclint
-#        - brew install gcc@5
-#        - brew install clinfo
+    - os: osx
+      osx_image: xcode9.3
+      env:
+        - MATRIX_EVAL="CC=gcc-4.9 && CXX=g++-4.9"
+      before_script:
+        - brew update
+        - brew cask uninstall oclint
+        - brew install gcc@4.9
+        - brew install clinfo
+    - os: osx
+      osx_image: xcode9.3
+      env:
+        - MATRIX_EVAL="CC=gcc-5 && CXX=g++-5"
+      before_script:
+        - brew update
+        - brew cask uninstall oclint
+        - brew install gcc@5
+        - brew install clinfo
     - os: osx
       osx_image: xcode9.3
       env:
@@ -94,24 +94,24 @@ matrix:
         - brew cask uninstall oclint
         - brew install gcc@6
         - brew install clinfo
-#    - os: osx
-#      osx_image: xcode9.3
-#      env:
-#        - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
-#      before_script:
-#        - brew update
-#        - brew cask uninstall oclint
-#        - brew install gcc@7
-#        - brew install clinfo
-#    - os: osx
-#      osx_image: xcode9.3
-#      env:
-#        - MATRIX_EVAL="CC=gcc-8 && CXX=g++-8"
-#      before_script:
-#        - brew update
-#        - brew cask uninstall oclint
-#        - brew install gcc@8
-#        - brew install clinfo
+    - os: osx
+      osx_image: xcode9.3
+      env:
+        - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
+      before_script:
+        - brew update
+        - brew cask uninstall oclint
+        - brew install gcc@7
+        - brew install clinfo
+    - os: osx
+      osx_image: xcode9.3
+      env:
+        - MATRIX_EVAL="CC=gcc-8 && CXX=g++-8"
+      before_script:
+        - brew update
+        - brew cask uninstall oclint
+        - brew install gcc@8
+        - brew install clinfo
 
     ######## LINUX CLANG ########
 #    - os: linux
@@ -175,39 +175,39 @@ matrix:
 #        - sudo apt install ocl-icd-opencl-dev opencl-headers clinfo
 
     ######## LINUX GCC ########
-#    - os: linux
-#      addons:
-#        apt:
-#          sources:
-#            - ubuntu-toolchain-r-test
-#          packages:
-#            - g++-4.9
-#      env:
-#         - MATRIX_EVAL="CC=gcc-4.9 && CXX=g++-4.9"
-#      before_script:
-#        - sudo apt install ocl-icd-opencl-dev opencl-headers clinfo
-#    - os: linux
-#      addons:
-#        apt:
-#          sources:
-#            - ubuntu-toolchain-r-test
-#          packages:
-#            - g++-5
-#      env:
-#         - MATRIX_EVAL="CC=gcc-5 && CXX=g++-5"
-#      before_script:
-#        - sudo apt install ocl-icd-opencl-dev opencl-headers clinfo
-#    - os: linux
-#      addons:
-#        apt:
-#          sources:
-#            - ubuntu-toolchain-r-test
-#          packages:
-#            - g++-6
-#      env:
-#        - MATRIX_EVAL="CC=gcc-6 && CXX=g++-6"
-#      before_script:
-#        - sudo apt install ocl-icd-opencl-dev opencl-headers clinfo
+    - os: linux
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-4.9
+      env:
+         - MATRIX_EVAL="CC=gcc-4.9 && CXX=g++-4.9"
+      before_script:
+        - sudo apt install ocl-icd-opencl-dev opencl-headers clinfo
+    - os: linux
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-5
+      env:
+         - MATRIX_EVAL="CC=gcc-5 && CXX=g++-5"
+      before_script:
+        - sudo apt install ocl-icd-opencl-dev opencl-headers clinfo
+    - os: linux
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-6
+      env:
+        - MATRIX_EVAL="CC=gcc-6 && CXX=g++-6"
+      before_script:
+        - sudo apt install ocl-icd-opencl-dev opencl-headers clinfo
     - os : linux
       addons:
         apt:
