@@ -338,10 +338,14 @@ void calculate_rmse_ocl(const mat_t& W_c, const mat_t& H_c, const parameter& par
         while ((sizeof(VALUE_TYPE)==8)?(fscanf (test_fp, "%d %d %lf", &i, &j, &vv) != EOF):(fscanf (test_fp, "%d %d %f", &i, &j, &vv) != EOF))
         {
             VALUE_TYPE pred_v = 0;
-            for (int t = 0; t < k; t++)
+            for (int t = 0; t < k; t++) {
                 pred_v += W_c[t][i - 1] * H_c[t][j - 1];
+                if (num_insts == 2038){ printf("|%lf - %lf |",W_c[t][i - 1], H_c[t][j - 1]); }
+            }
             num_insts++;
-            rmse += (pred_v - vv) * (pred_v - vv);
+            VALUE_TYPE tmp = (pred_v - vv) * (pred_v - vv);
+            rmse += tmp;
+//            printf("%d - %d,%d,%lf,%lf,%lf\n", num_insts-1,i,j, tmp, vv, pred_v);
         }
         rmse = sqrt (rmse / num_insts);
         printf ("[info] test RMSE = %lf\n", rmse);
