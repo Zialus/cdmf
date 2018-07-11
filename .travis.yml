@@ -48,7 +48,7 @@ matrix:
 #        - brew install llvm@4 && brew link --overwrite llvm@4 --force
 #        - brew install clinfo
     - os: osx
-      osx_image: xcode9.4
+      osx_image: xcode9
       env:
         - MATRIX_EVAL="CC=clang-5.0 && CXX=clang++"
       before_script:
@@ -104,7 +104,7 @@ matrix:
 #       - brew install gcc@7
 #       - brew install clinfo
     - os: osx
-      osx_image: xcode9.4
+      osx_image: xcode9
       env:
        - MATRIX_EVAL="CC=gcc-8 && CXX=g++-8"
       before_script:
