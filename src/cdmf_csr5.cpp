@@ -143,7 +143,7 @@ void cdmf_csr5(smat_t &R, mat_t &W_c, mat_t &H_c, parameter &param)
     CHECK_ERROR(err);
 
     // setting kernel arguments
-    CL_CHECK(clSetKernelArg (UpdateRating_DUAL_kernel_NoLoss_r, 0, sizeof (unsigned), &cols)); 
+    CL_CHECK(clSetKernelArg (UpdateRating_DUAL_kernel_NoLoss_r, 0, sizeof (unsigned), &cols));
     CL_CHECK(clSetKernelArg (UpdateRating_DUAL_kernel_NoLoss_r, 1, sizeof (cl_mem), (void *) &col_ptrBuffer));
     CL_CHECK(clSetKernelArg (UpdateRating_DUAL_kernel_NoLoss_r, 2, sizeof (cl_mem), (void *) &row_idxBuffer));
     CL_CHECK(clSetKernelArg (UpdateRating_DUAL_kernel_NoLoss_r, 3, sizeof (cl_mem), (void *) &valBuffer));
@@ -154,7 +154,7 @@ void cdmf_csr5(smat_t &R, mat_t &W_c, mat_t &H_c, parameter &param)
     CL_CHECK(clSetKernelArg (UpdateRating_DUAL_kernel_NoLoss_r, 8, sizeof (cl_mem), (void *) &col_idxBuffer));
     CL_CHECK(clSetKernelArg (UpdateRating_DUAL_kernel_NoLoss_r, 9, sizeof (cl_mem), (void *) &val_tBuffer));
 
-    CL_CHECK(clSetKernelArg (UpdateRating_DUAL_kernel_NoLoss_c, 0, sizeof (unsigned), &cols)); 
+    CL_CHECK(clSetKernelArg (UpdateRating_DUAL_kernel_NoLoss_c, 0, sizeof (unsigned), &cols));
     CL_CHECK(clSetKernelArg (UpdateRating_DUAL_kernel_NoLoss_c, 1, sizeof (cl_mem), (void *) &col_ptrBuffer));
     CL_CHECK(clSetKernelArg (UpdateRating_DUAL_kernel_NoLoss_c, 2, sizeof (cl_mem), (void *) &row_idxBuffer));
     CL_CHECK(clSetKernelArg (UpdateRating_DUAL_kernel_NoLoss_c, 3, sizeof (cl_mem), (void *) &valBuffer));
@@ -214,7 +214,7 @@ void cdmf_csr5(smat_t &R, mat_t &W_c, mat_t &H_c, parameter &param)
     CL_CHECK(Av.asCSR5());
     CL_CHECK(clFinish(commandQueue));
     cout << "Av: CSR->CSR5 time = " << asCSR5_timer.stop() << " ms." << endl;
-    
+
     anonymouslibHandle<int, unsigned int, VALUE_TYPE> Au(rows, cols);
     CL_CHECK(err = Au.setOCLENV(context, commandQueue, devices));
     CL_CHECK(Au.inputCSR(nnz, row_ptrBuffer, col_idxBuffer, val_tBuffer));
@@ -223,7 +223,7 @@ void cdmf_csr5(smat_t &R, mat_t &W_c, mat_t &H_c, parameter &param)
     CL_CHECK(Au.asCSR5());
     CL_CHECK(clFinish(commandQueue));
     cout << "Au: CSR->CSR5 time = " << asCSR5_timer.stop() << " ms." << endl;
-            
+
     CL_CHECK(Av.setX(WBuffer)); // you only need to do it once!
     CL_CHECK(Au.setX(HBuffer)); // you only need to do it once!
 
@@ -255,20 +255,20 @@ void cdmf_csr5(smat_t &R, mat_t &W_c, mat_t &H_c, parameter &param)
                 //Au.asCSR_();
                 // update the rating matrix in CSC format (+)
                 cl_event eventPoint;
-                CL_CHECK(clEnqueueNDRangeKernel (commandQueue, UpdateRating_DUAL_kernel_NoLoss_c, 1, 
+                CL_CHECK(clEnqueueNDRangeKernel (commandQueue, UpdateRating_DUAL_kernel_NoLoss_c, 1,
                             NULL, gws_col, local_work_size, 0, NULL, &eventPoint));
                 CL_CHECK(clWaitForEvents (1, &eventPoint));
                 clGetEventProfilingInfo(eventPoint, CL_PROFILING_COMMAND_START, sizeof(cl_ulong), &t_start, NULL);
                 clGetEventProfilingInfo(eventPoint, CL_PROFILING_COMMAND_END, sizeof(cl_ulong), &t_end, NULL);
-                t_update_ratings += t_end - t_start;              
+                t_update_ratings += t_end - t_start;
 
                 // update the rating matrix in CSR format (+)
-                CL_CHECK(clEnqueueNDRangeKernel (commandQueue, UpdateRating_DUAL_kernel_NoLoss_r, 1, 
+                CL_CHECK(clEnqueueNDRangeKernel (commandQueue, UpdateRating_DUAL_kernel_NoLoss_r, 1,
                             NULL, gws_row, local_work_size, 0, NULL, &eventPoint));
                 CL_CHECK(clWaitForEvents (1, &eventPoint));
                 clGetEventProfilingInfo(eventPoint, CL_PROFILING_COMMAND_START, sizeof(cl_ulong), &t_start, NULL);
                 clGetEventProfilingInfo(eventPoint, CL_PROFILING_COMMAND_END, sizeof(cl_ulong), &t_end, NULL);
-                t_update_ratings += t_end - t_start;              
+                t_update_ratings += t_end - t_start;
                 CL_CHECK(clReleaseEvent (eventPoint));
 
                 //Av.asCSR5_();
@@ -285,14 +285,14 @@ void cdmf_csr5(smat_t &R, mat_t &W_c, mat_t &H_c, parameter &param)
                 CL_CHECK(clWaitForEvents (1, &eventPoint1v));
 
                 // update vector u
-                CL_CHECK(Au.spmv(1.0, WtBuffer, WbBuffer, &time));              
+                CL_CHECK(Au.spmv(1.0, WtBuffer, WbBuffer, &time));
                 CL_CHECK(clEnqueueNDRangeKernel (commandQueue, _kernel_CALU, 1, nullptr, gws_row, local_work_size, 0,
                                                  nullptr, &eventPoint1u));
                 CL_CHECK(clWaitForEvents (1, &eventPoint1u));
 
                 CL_CHECK(clReleaseEvent (eventPoint1v));
                 CL_CHECK(clReleaseEvent (eventPoint1u));
-            } 
+            }
             // Reading Buffer
             CL_CHECK(clEnqueueReadBuffer (commandQueue, WBuffer, CL_TRUE, 0, R.rows * sizeof (VALUE_TYPE), Wt, 0,
                                           nullptr,

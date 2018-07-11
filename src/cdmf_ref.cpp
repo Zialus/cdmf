@@ -4,20 +4,20 @@
 
 #define kind dynamic,500
 
-// CCD rank-one 
+// CCD rank-one
 
 inline VALUE_TYPE RankOneUpdate(const smat_t &R, const int j, const vec_t &u, const VALUE_TYPE lambda, const VALUE_TYPE vj, VALUE_TYPE *redvar, int do_nmf)
 {
     VALUE_TYPE g=0, h=lambda;
     if(R.col_ptr[j+1]==R.col_ptr[j]) return 0;
-    for(long idx=R.col_ptr[j]; idx < R.col_ptr[j+1]; ++idx) 
+    for(long idx=R.col_ptr[j]; idx < R.col_ptr[j+1]; ++idx)
     {
         int i = R.row_idx[idx];
-        g += u[i]*R.val[idx]; 
+        g += u[i]*R.val[idx];
         h += u[i]*u[i];
     }
     VALUE_TYPE newvj = g/h, tmp = 0, delta = 0, fundec = 0;
-    if(do_nmf>0 & newvj < 0) 
+    if(do_nmf>0 & newvj < 0)
     {
         newvj = 0;
         delta = vj; // old - new
@@ -29,13 +29,13 @@ inline VALUE_TYPE RankOneUpdate(const smat_t &R, const int j, const vec_t &u, co
     //double delta = vj - newvj;
     //double fundec = h*delta*delta;
     //double lossdec = fundec - lambda*delta*(vj+newvj);
-    //double gnorm = (g-h*vj)*(g-h*vj); 
+    //double gnorm = (g-h*vj)*(g-h*vj);
     *redvar += fundec;
     //*redvar += lossdec;
     return newvj;
 }
 
-inline VALUE_TYPE UpdateRating(smat_t &R, const vec_t &Wt, const vec_t &Ht, const vec_t &oldWt, const vec_t &oldHt) 
+inline VALUE_TYPE UpdateRating(smat_t &R, const vec_t &Wt, const vec_t &Ht, const vec_t &oldWt, const vec_t &oldHt)
 {
     VALUE_TYPE loss=0;
 #pragma omp parallel for  schedule(kind) reduction(+:loss)
@@ -49,10 +49,10 @@ inline VALUE_TYPE UpdateRating(smat_t &R, const vec_t &Wt, const vec_t &Ht, cons
         }
         loss += loss_inner;
     }
-    return loss;    
+    return loss;
 }
 
-inline VALUE_TYPE UpdateRating(smat_t &R, const vec_t &Wt2, const vec_t &Ht2) 
+inline VALUE_TYPE UpdateRating(smat_t &R, const vec_t &Wt2, const vec_t &Ht2)
 {
     VALUE_TYPE loss=0;
 #pragma omp parallel for schedule(kind) reduction(+:loss)
@@ -66,13 +66,13 @@ inline VALUE_TYPE UpdateRating(smat_t &R, const vec_t &Wt2, const vec_t &Ht2)
         }
         loss += loss_inner;
     }
-    return loss;    
+    return loss;
 }
 
-inline VALUE_TYPE UpdateRating(smat_t &R, const vec_t &Wt, const vec_t &Ht, bool add) 
+inline VALUE_TYPE UpdateRating(smat_t &R, const vec_t &Wt, const vec_t &Ht, bool add)
 {
     VALUE_TYPE loss=0;
-    if(add) 
+    if(add)
     {
 #pragma omp parallel for schedule(kind) reduction(+:loss)
         for(int c =0; c < R.cols; ++c)
@@ -85,9 +85,9 @@ inline VALUE_TYPE UpdateRating(smat_t &R, const vec_t &Wt, const vec_t &Ht, bool
             }
             loss += loss_inner;
         }
-        return loss;    
-    } 
-    else 
+        return loss;
+    }
+    else
     {
 #pragma omp parallel for schedule(kind) reduction(+:loss)
         for(int c =0; c < R.cols; ++c)
@@ -100,11 +100,11 @@ inline VALUE_TYPE UpdateRating(smat_t &R, const vec_t &Wt, const vec_t &Ht, bool
             }
             loss += loss_inner;
         }
-        return loss;    
+        return loss;
     }
 }
 
-// Matrix Factorization based on Coordinate Descent 
+// Matrix Factorization based on Coordinate Descent
 void cdmf_ref(smat_t &R, mat_t &W, mat_t &H, parameter &param)
 {
     int k = param.k;
@@ -124,19 +124,19 @@ void cdmf_ref(smat_t &R, mat_t &W, mat_t &H, parameter &param)
     Rt = R.transpose();
     // initial value of the regularization term
     // H is a zero matrix now.
-    for(int t=0;t<k;++t) for(long c=0;c<R.cols;++c) H[t][c] = 0; 
+    for(int t=0;t<k;++t) for(long c=0;c<R.cols;++c) H[t][c] = 0;
     for(int t=0;t<k;++t) for(long r=0;r<R.rows;++r) reg += W[t][r]*W[t][r]*R.nnz_of_row(r);
 
     vec_t oldWt(R.rows), oldHt(R.cols);
     vec_t u(R.rows), v(R.cols);
     double t1 = gettime ();
-    for(int oiter = 1; oiter <= maxiter; ++oiter) 
+    for(int oiter = 1; oiter <= maxiter; ++oiter)
     {
         VALUE_TYPE gnorm = 0, initgnorm=0;
         VALUE_TYPE rankfundec = 0;
         VALUE_TYPE fundec_max = 0;
         int early_stop = 0;
-        for(int tt=0; tt < k; ++tt) 
+        for(int tt=0; tt < k; ++tt)
         {
             int t = tt;
             //if(early_stop >= 5) break;
@@ -149,16 +149,16 @@ void cdmf_ref(smat_t &R, mat_t &W, mat_t &H, parameter &param)
             for(int i = 0; i < R.cols; ++i) {v[i]= Ht[i]; oldHt[i] = (oiter == 1)? 0: v[i];}
 
             // Create Rhat = R - Wt Ht^T
-            if (oiter > 1) 
+            if (oiter > 1)
             {
                 UpdateRating(R, Wt, Ht, true);
                 UpdateRating(Rt, Ht, Wt, true);
-            } 
+            }
             Itime += omp_get_wtime() - start;
 
             gnorm = 0, initgnorm=0;
             VALUE_TYPE innerfundec_cur = 0, innerfundec_max = 0;
-            int maxit = inneriter;  
+            int maxit = inneriter;
             //  if(oiter > 1) maxit *= 2;
             for(int iter = 1; iter <= param.maxinneriter; ++iter)
             {
@@ -167,7 +167,7 @@ void cdmf_ref(smat_t &R, mat_t &W, mat_t &H, parameter &param)
                 gnorm = 0;
                 innerfundec_cur = 0;
                 //#pragma omp parallel for schedule(kind) shared(u,v) reduction(+:innerfundec_cur)
-#pragma omp parallel for schedule(kind) shared(u,v) 
+#pragma omp parallel for schedule(kind) shared(u,v)
                 for(long c = 0; c < R.cols; ++c)
                     v[c] = RankOneUpdate(R, c, u, lambda*(R.col_ptr[c+1]-R.col_ptr[c]), v[c], &innerfundec_cur, param.do_nmf);
                 num_updates += R.cols;
@@ -180,7 +180,7 @@ void cdmf_ref(smat_t &R, mat_t &W, mat_t &H, parameter &param)
                 num_updates += Rt.cols;
                 /*  if((innerfundec_cur < fundec_max*eps))  {
                     if(iter==1) early_stop+=1;
-                    break; 
+                    break;
                     }
                     rankfundec += innerfundec_cur;
                     innerfundec_max = max(innerfundec_max, innerfundec_cur);
@@ -212,10 +212,10 @@ void cdmf_ref(smat_t &R, mat_t &W, mat_t &H, parameter &param)
                 printf("iter %d rank %d time %.10g loss %.10g obj %.10g diff %.10g gnorm %.6g reg %.7g ",
                         oiter,t+1, Htime+Wtime+Rtime, loss, obj, oldobj - obj, initgnorm, reg);
             oldobj = obj;
-            //if(T.nnz!=0 and param.do_predict){ 
+            //if(T.nnz!=0 and param.do_predict){
             /*if(NULL){  // comments by Jianbin
               if(param.verbose)
-              printf("rmse %.10g", calrmse_r1(T, Wt, Ht, oldWt, oldHt)); 
+              printf("rmse %.10g", calrmse_r1(T, Wt, Ht, oldWt, oldHt));
               }*/
             if(param.verbose) puts("");
             fflush(stdout);
