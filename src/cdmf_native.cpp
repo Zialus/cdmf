@@ -330,7 +330,7 @@ void calculate_rmse_native(const mat_t& W_c, const mat_t& H_c, const parameter& 
         size_t num_insts = 0;
         long vvv;
         FILE *test_fp = fopen (input_test_file, "r");
-        if (test_fp == NULL)
+        if (test_fp == nullptr)
         {
             printf ("can't open test file.\n");
             exit (1);
