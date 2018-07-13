@@ -441,11 +441,11 @@ VALUE_TYPE calrmse_r1(testset_t &testset, vec_t &Wt, vec_t &Ht, vec_t &oldWt, ve
 
 void initial_col(mat_t &X, unsigned k, unsigned n){
     X = mat_t(k, vec_t(n));
-//    srand(0L);
+    srand(0L);
     for(unsigned i = 0; i < n; ++i)
         for(unsigned j = 0; j < k; ++j)
-//            X[j][i] = 0.1*(VALUE_TYPE(rand()) / RAND_MAX)+0.001;
-            X[j][i] = 0.01;
+            X[j][i] = 0.1*(VALUE_TYPE(rand()) / RAND_MAX)+0.001;
+//            X[j][i] = 0.01;
 }
 
 void golden_compare(mat_t W, mat_t W_ref, unsigned k, unsigned m)
