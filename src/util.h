@@ -113,8 +113,8 @@ class parameter
         int solver_type;
         unsigned int k;
         int threads;
-        unsigned int maxinneriter;
-        unsigned int maxiter;
+        int maxinneriter;
+        int maxiter;
         VALUE_TYPE lambda;
         VALUE_TYPE rho;
         VALUE_TYPE eps; // for the fundec stop-cond in ccdr1
@@ -124,8 +124,8 @@ class parameter
         int platform_id;
         int do_nmf;  // non-negative matrix factorization
         bool enable_cuda;
-        unsigned int nBlocks;
-        unsigned int nThreadsPerBlock;
+        int nBlocks;
+        int nThreadsPerBlock;
         parameter() {
             solver_type = CCDR1;
             k = 10;
