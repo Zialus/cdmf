@@ -127,6 +127,7 @@ class parameter
         int nBlocks;
         int nThreadsPerBlock;
         parameter() {
+            version = 1;
             solver_type = CCDR1;
             k = 10;
             rho = 1e-3f;
