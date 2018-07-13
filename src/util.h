@@ -70,85 +70,80 @@ parameter parse_command_line(int argc, char **argv, char *input_file_name, char 
 
 void exit_with_help();
 
-const char * get_error_string(cl_int err);
+const char* get_error_string(cl_int err);
 
-inline double gettime()
-{
+inline double gettime() {
     struct timeval t;
-    gettimeofday (&t, nullptr);
+    gettimeofday(&t, nullptr);
     return t.tv_sec + t.tv_usec * 1e-6;
 }
 
-inline char * getT(unsigned sz)
-{
-    if(sz==8) return (char *)"double";
-    if(sz==4) return (char *)"float";
-    return (char *)"float";
+inline char* getT(unsigned sz) {
+    if (sz == 8) { return (char*) "double"; }
+    if (sz == 4) { return (char*) "float"; }
+    return (char*) "float";
 }
 
 template<typename iT, typename vT>
-double getB(const iT m, const iT nnz)
-{
-    return (double)((m + 1 + nnz) * sizeof(iT) + (2 * nnz + m) * sizeof(vT));
+double getB(const iT m, const iT nnz) {
+    return (double) ((m + 1 + nnz) * sizeof(iT) + (2 * nnz + m) * sizeof(vT));
 }
 
 template<typename iT>
-double getFLOP(const iT nnz)
-{
-    return (double)(2 * nnz);
+double getFLOP(const iT nnz) {
+    return (double) (2 * nnz);
 }
 
-template <typename T>
-inline std::string to_string(T value)
-{
-    std::ostringstream os ;
-    os << value ;
-    return os.str() ;
+template<typename T>
+inline std::string to_string(T value) {
+    std::ostringstream os;
+    os << value;
+    return os.str();
 }
 
-class parameter 
-{
-    public:
-        int version;
-        int solver_type;
-        unsigned int k;
-        int threads;
-        int maxinneriter;
-        int maxiter;
-        VALUE_TYPE lambda;
-        VALUE_TYPE rho;
-        VALUE_TYPE eps; // for the fundec stop-cond in ccdr1
-        VALUE_TYPE eta0, betaup, betadown;  // learning rate parameters used in DSGD
-        int lrate_method, num_blocks; 
-        int do_predict, verbose;
-        int platform_id;
-        int do_nmf;  // non-negative matrix factorization
-        bool enable_cuda;
-        int nBlocks;
-        int nThreadsPerBlock;
-        parameter() {
-            version = 1;
-            solver_type = CCDR1;
-            k = 10;
-            rho = 1e-3f;
-            maxiter = 5;
-            maxinneriter = 5;
-            lambda = 0.1f;
-            threads = 4;
-            eps = 1e-3f;
-            eta0 = 1e-3f; // initial eta0
-            betaup = 1.05f;
-            betadown = 0.5f;
-            num_blocks = 30;  // number of blocks used in dsgd
-            lrate_method = BOLDDRIVER;
-            do_predict = 0;
-            platform_id = 0;
-            verbose = 0;
-            do_nmf = 0;
-            enable_cuda = false;
-            nBlocks = 16;
-            nThreadsPerBlock = 32;
-        }
+class parameter {
+public:
+    int version;
+    int solver_type;
+    unsigned int k;
+    int threads;
+    int maxinneriter;
+    int maxiter;
+    VALUE_TYPE lambda;
+    VALUE_TYPE rho;
+    VALUE_TYPE eps; // for the fundec stop-cond in ccdr1
+    VALUE_TYPE eta0, betaup, betadown;  // learning rate parameters used in DSGD
+    int lrate_method, num_blocks;
+    int do_predict, verbose;
+    int platform_id;
+    int do_nmf;  // non-negative matrix factorization
+    bool enable_cuda;
+    int nBlocks;
+    int nThreadsPerBlock;
+
+    parameter() {
+        version = 1;
+        solver_type = CCDR1;
+        k = 10;
+        rho = 1e-3f;
+        maxiter = 5;
+        maxinneriter = 5;
+        lambda = 0.1f;
+        threads = 4;
+        eps = 1e-3f;
+        eta0 = 1e-3f; // initial eta0
+        betaup = 1.05f;
+        betadown = 0.5f;
+        num_blocks = 30;  // number of blocks used in dsgd
+        lrate_method = BOLDDRIVER;
+        do_predict = 0;
+        platform_id = 0;
+        verbose = 0;
+        do_nmf = 0;
+        enable_cuda = false;
+        nBlocks = 16;
+        nThreadsPerBlock = 32;
+    }
 };
 
 class rate_t
