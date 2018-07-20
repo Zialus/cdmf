@@ -329,7 +329,7 @@ void cdmf_csr5(smat_t &R, mat_t &W_c, mat_t &H_c, parameter &param)
     double t2 = gettime ();
     double deltaT = t2 - t1;
     printf("[info] - training time: %lf s\n",  deltaT);
-    printf("[info] - rank one updating time: %ld, R updating time: %ld\n", t_rank_one_update, t_update_ratings);
+    printf("[info] - rank one updating time: %llu ms, R updating time: %llu ms\n", t_rank_one_update/1000000ULL, t_update_ratings/1000000ULL);
 
     // Release the context
     Au.destroy();
