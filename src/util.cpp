@@ -163,7 +163,7 @@ parameter parse_command_line(int argc, char **argv, char *input_file_name, char 
 
                 case 'c':
                     //param.k = atoi(argv[i]);
-                    sprintf(kernel_code, argv[i]);
+                    sprintf(kernel_code,"%s", argv[i]);
                     break;
 
                 case 'k':
@@ -264,7 +264,7 @@ parameter parse_command_line(int argc, char **argv, char *input_file_name, char 
     strcpy(src,  argv[0]);
     src[strlen(argv[0]) - toCut+1] = '\0';
     argv[0] = src;
-    sprintf(input_file_name, argv[i]);
+    sprintf(input_file_name, "%s",argv[i]);
     return param;
 }
 
