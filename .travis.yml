@@ -29,24 +29,24 @@ matrix:
   include:
 
   ######## OSX CLANG ########
-  - os: osx
-    osx_image: xcode9.2
-    env:
-    - MATRIX_EVAL="CC=clang-3.9 && CXX=clang++"
-    before_script:
-    - brew update
-    - brew cask uninstall oclint
-    - brew install llvm@3.9 && brew link --overwrite llvm@3.9 --force
-    - brew install clinfo
-  - os: osx
-    osx_image: xcode9.2
-    env:
-    - MATRIX_EVAL="CC=clang-4.0 && CXX=clang++"
-    before_script:
-    - brew update
-    - brew cask uninstall oclint
-    - brew install llvm@4 && brew link --overwrite llvm@4 --force
-    - brew install clinfo
+#  - os: osx
+#    osx_image: xcode9.2
+#    env:
+#    - MATRIX_EVAL="CC=clang-3.9 && CXX=clang++"
+#    before_script:
+#    - brew update
+#    - brew cask uninstall oclint
+#    - brew install llvm@3.9 && brew link --overwrite llvm@3.9 --force
+#    - brew install clinfo
+#  - os: osx
+#    osx_image: xcode9.2
+#    env:
+#    - MATRIX_EVAL="CC=clang-4.0 && CXX=clang++"
+#    before_script:
+#    - brew update
+#    - brew cask uninstall oclint
+#    - brew install llvm@4 && brew link --overwrite llvm@4 --force
+#    - brew install clinfo
   - os: osx
     osx_image: xcode9.2
     env:
@@ -67,33 +67,33 @@ matrix:
     - brew install clinfo
 
   ######## OSX GCC ########
-  - os: osx
-    osx_image: xcode9.2
-    env:
-    - MATRIX_EVAL="CC=gcc-4.9 && CXX=g++-4.9"
-    before_script:
-    - brew update
-    - brew cask uninstall oclint
-    - brew install gcc@4.9
-    - brew install clinfo
-  - os: osx
-    osx_image: xcode9.2
-    env:
-    - MATRIX_EVAL="CC=gcc-5 && CXX=g++-5"
-    before_script:
-    - brew update
-    - brew cask uninstall oclint
-    - brew install gcc@5
-    - brew install clinfo
-  - os: osx
-    osx_image: xcode9.2
-    env:
-    - MATRIX_EVAL="CC=gcc-6 && CXX=g++-6"
-    before_script:
-    - brew update
-    - brew cask uninstall oclint
-    - brew install gcc@6
-    - brew install clinfo
+#  - os: osx
+#    osx_image: xcode9.2
+#    env:
+#    - MATRIX_EVAL="CC=gcc-4.9 && CXX=g++-4.9"
+#    before_script:
+#    - brew update
+#    - brew cask uninstall oclint
+#    - brew install gcc@4.9
+#    - brew install clinfo
+#  - os: osx
+#    osx_image: xcode9.2
+#    env:
+#    - MATRIX_EVAL="CC=gcc-5 && CXX=g++-5"
+#    before_script:
+#    - brew update
+#    - brew cask uninstall oclint
+#    - brew install gcc@5
+#    - brew install clinfo
+#  - os: osx
+#    osx_image: xcode9.2
+#    env:
+#    - MATRIX_EVAL="CC=gcc-6 && CXX=g++-6"
+#    before_script:
+#    - brew update
+#    - brew cask uninstall oclint
+#    - brew install gcc@6
+#    - brew install clinfo
   - os: osx
     osx_image: xcode9.2
     env:
@@ -114,34 +114,34 @@ matrix:
     - brew install clinfo
 
   ######## LINUX CLANG ########
-  - os: linux
-    addons:
-      apt:
-        sources:
-        - sourceline: 'deb https://apt.llvm.org/xenial/ llvm-toolchain-xenial-3.9 main'
-          key_url: 'https://apt.llvm.org/llvm-snapshot.gpg.key'
-        packages:
-        - clang-3.9
-    env:
-    - MATRIX_EVAL="CC=clang-3.9 && CXX=clang++-3.9"
-    before_script:
-    - sudo apt install libomp-dev
-    - sudo apt install opencl-headers clinfo
-    - sudo sh .travis-opencl-install.sh
-  - os: linux
-    addons:
-      apt:
-        sources:
-        - sourceline: 'deb https://apt.llvm.org/xenial/ llvm-toolchain-xenial-4.0 main'
-          key_url: 'https://apt.llvm.org/llvm-snapshot.gpg.key'
-        packages:
-        - clang-4.0
-    env:
-    - MATRIX_EVAL="CC=clang-4.0 && CXX=clang++-4.0"
-    before_script:
-    - sudo apt install libomp-dev
-    - sudo apt install opencl-headers clinfo
-    - sudo sh .travis-opencl-install.sh
+#  - os: linux
+#    addons:
+#      apt:
+#        sources:
+#        - sourceline: 'deb https://apt.llvm.org/xenial/ llvm-toolchain-xenial-3.9 main'
+#          key_url: 'https://apt.llvm.org/llvm-snapshot.gpg.key'
+#        packages:
+#        - clang-3.9
+#    env:
+#    - MATRIX_EVAL="CC=clang-3.9 && CXX=clang++-3.9"
+#    before_script:
+#    - sudo apt install libomp-dev
+#    - sudo apt install opencl-headers clinfo
+#    - sudo sh .travis-opencl-install.sh
+#  - os: linux
+#    addons:
+#      apt:
+#        sources:
+#        - sourceline: 'deb https://apt.llvm.org/xenial/ llvm-toolchain-xenial-4.0 main'
+#          key_url: 'https://apt.llvm.org/llvm-snapshot.gpg.key'
+#        packages:
+#        - clang-4.0
+#    env:
+#    - MATRIX_EVAL="CC=clang-4.0 && CXX=clang++-4.0"
+#    before_script:
+#    - sudo apt install libomp-dev
+#    - sudo apt install opencl-headers clinfo
+#    - sudo sh .travis-opencl-install.sh
   - os: linux
     addons:
       apt:
@@ -172,42 +172,42 @@ matrix:
     - sudo sh .travis-opencl-install.sh
 
   ######## LINUX GCC ########
-  - os: linux
-    addons:
-      apt:
-        sources:
-        - sourceline: 'ppa:ubuntu-toolchain-r/test'
-        packages:
-        - g++-4.9
-    env:
-    - MATRIX_EVAL="CC=gcc-4.9 && CXX=g++-4.9"
-    before_script:
-    - sudo apt install opencl-headers clinfo
-    - sudo apt install ocl-icd-opencl-dev
-  - os: linux
-    addons:
-      apt:
-        sources:
-        - sourceline: 'ppa:ubuntu-toolchain-r/test'
-        packages:
-        - g++-5
-    env:
-    - MATRIX_EVAL="CC=gcc-5 && CXX=g++-5"
-    before_script:
-    - sudo apt install opencl-headers clinfo
-    - sudo sh .travis-opencl-install.sh
-  - os: linux
-    addons:
-      apt:
-        sources:
-        - sourceline: 'ppa:ubuntu-toolchain-r/test'
-        packages:
-        - g++-6
-    env:
-    - MATRIX_EVAL="CC=gcc-6 && CXX=g++-6"
-    before_script:
-    - sudo apt install opencl-headers clinfo
-    - sudo sh .travis-opencl-install.sh
+#  - os: linux
+#    addons:
+#      apt:
+#        sources:
+#        - sourceline: 'ppa:ubuntu-toolchain-r/test'
+#        packages:
+#        - g++-4.9
+#    env:
+#    - MATRIX_EVAL="CC=gcc-4.9 && CXX=g++-4.9"
+#    before_script:
+#    - sudo apt install opencl-headers clinfo
+#    - sudo apt install ocl-icd-opencl-dev
+#  - os: linux
+#    addons:
+#      apt:
+#        sources:
+#        - sourceline: 'ppa:ubuntu-toolchain-r/test'
+#        packages:
+#        - g++-5
+#    env:
+#    - MATRIX_EVAL="CC=gcc-5 && CXX=g++-5"
+#    before_script:
+#    - sudo apt install opencl-headers clinfo
+#    - sudo sh .travis-opencl-install.sh
+#  - os: linux
+#    addons:
+#      apt:
+#        sources:
+#        - sourceline: 'ppa:ubuntu-toolchain-r/test'
+#        packages:
+#        - g++-6
+#    env:
+#    - MATRIX_EVAL="CC=gcc-6 && CXX=g++-6"
+#    before_script:
+#    - sudo apt install opencl-headers clinfo
+#    - sudo sh .travis-opencl-install.sh
   - os: linux
     addons:
       apt:
