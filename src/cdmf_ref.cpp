@@ -21,7 +21,7 @@ inline VALUE_TYPE RankOneUpdate(const smat_t &R, const int j, const vec_t &u, co
     {
         newvj = 0;
         delta = vj; // old - new
-        fundec = -2*g*vj; + h*vj*vj;
+        fundec = -2*g*vj; //+ h*vj*vj;
     } else {
         delta = vj - newvj;
         fundec = h*delta*delta;
