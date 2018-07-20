@@ -18,9 +18,9 @@
 #include <sstream>
 
 #ifdef __APPLE__
-    #include <OpenCL/opencl.h>
+    #include <OpenCL/cl.h>
 #else
-    #include <CL/cl.hpp>
+    #include <CL/cl.h>
 #endif
 
 #include <sys/time.h>
