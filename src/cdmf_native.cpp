@@ -328,6 +328,7 @@ void calculate_rmse_native(const mat_t& W_c, const mat_t& H_c, const parameter& 
         int i, j;
         double vv, rmse = 0;
         size_t num_insts = 0;
+        int nans_count = 0;
         long vvv;
         FILE *test_fp = fopen (input_test_file, "r");
         if (test_fp == nullptr)
@@ -340,13 +341,18 @@ void calculate_rmse_native(const mat_t& W_c, const mat_t& H_c, const parameter& 
             double pred_v = 0;
             for (int t = 0; t < k; t++) {
                 pred_v += W_c[t][i - 1] * H_c[t][j - 1];
-                if (num_insts == 2038){ printf("|%lf - %lf |",W_c[t][i - 1], H_c[t][j - 1]); }
             }
             num_insts++;
             double tmp = (pred_v - vv) * (pred_v - vv);
-            rmse += tmp;
+            if (tmp == tmp) {
+                rmse += tmp;
+            } else {
+                nans_count++;
+            }
 //            printf("%d - %d,%d,%lf,%lf,%lf\n", num_insts-1,i,j, tmp, vv, pred_v);
         }
+        double nans_percentage = (double) nans_count / (double) num_insts;
+        printf("NaNs percetange: %lf, NaNs Count: %d, Total Insts:%lu\n",nans_percentage,nans_count,num_insts);
         rmse = sqrt (rmse / num_insts);
         printf ("[info] test RMSE = %lf\n", rmse);
         double t6 = gettime ();
