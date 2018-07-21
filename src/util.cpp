@@ -15,13 +15,16 @@ void load(const char* srcdir, smat_t& R, bool ifALS, bool with_weights) {
     char filename[1024], buf[1024];
     sprintf(filename, "%s/meta", srcdir);
     FILE* fp = fopen(filename, "r");
+    if (fp == nullptr) {
+        printf("Can't open input file.\n");
+        exit(1);
+    }
     unsigned m, n, nnz;
     fscanf(fp, "%u %u", &m, &n);
     fscanf(fp, "%u %s", &nnz, buf);
     sprintf(filename, "%s/%s", srcdir, buf);
     R.load(m, n, nnz, filename, ifALS, with_weights);
     fclose(fp);
-    return;
 }
 
 int convertToString(const char* filename, string& s) {
