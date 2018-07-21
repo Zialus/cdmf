@@ -12,9 +12,7 @@ using namespace std;
 void cdmf_ref(smat_t& R, mat_t& W, mat_t& H, parameter& param);
 void cdmf_ocl(smat_t& R, mat_t& W, mat_t& H, parameter& param, char filename[]);
 void cdmf_csr5(smat_t& R, mat_t& W, mat_t& H, parameter& param, char filename[]);
-void cdmf_native(smat_t& R, mat_t& W, mat_t& H, parameter& param, char filename[]);
 void calculate_rmse_ocl(const mat_t& W_c, const mat_t& H_c, const parameter& param, const char* srcdir);
-void calculate_rmse_native(const mat_t& W_c, const mat_t& H_c, const parameter& param, const char* srcdir);
 
 int main(int argc, char** argv) {
     char input_file_name[1024];
@@ -49,8 +47,8 @@ int main(int argc, char** argv) {
         case 1: {
             cout << "[info] Picked Version 1: Native" << endl;
             char kcode_filename[1024] = {"../kcode/ccd01.cl"};
-            cdmf_native(R, W, H, param, kcode_filename);
-            calculate_rmse_native(W, H, param, input_file_name);
+            cdmf_ocl(R, W, H, param, kcode_filename);
+            calculate_rmse_ocl(W, H, param, input_file_name);
             break;
         }
         case 2: {
