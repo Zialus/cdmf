@@ -1,10 +1,9 @@
 #include "util.h"
 #include "anonymouslib_opencl.h"
 
-void cdmf_csr5(smat_t &R, mat_t &W_c, mat_t &H_c, parameter &param)
+void cdmf_csr5(smat_t &R, mat_t &W_c, mat_t &H_c, parameter &param, char filename[])
 {
     char device_type[4]={'g', 'p', 'u', '\0'};
-    char filename[1024] = {"../kcode/ccd033.cl"};
 
     // create context and build the kernel code
     cl_int status, err;

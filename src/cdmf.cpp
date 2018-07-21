@@ -10,16 +10,15 @@
 using namespace std;
 
 void cdmf_ref(smat_t& R, mat_t& W, mat_t& H, parameter& param);
-void cdmf_ocl(smat_t& R, mat_t& W, mat_t& H, parameter& param);
-void cdmf_csr5(smat_t& R, mat_t& W, mat_t& H, parameter& param);
-void cdmf_native(smat_t& R, mat_t& W, mat_t& H, parameter& param);
+void cdmf_ocl(smat_t& R, mat_t& W, mat_t& H, parameter& param, char filename[]);
+void cdmf_csr5(smat_t& R, mat_t& W, mat_t& H, parameter& param, char filename[]);
+void cdmf_native(smat_t& R, mat_t& W, mat_t& H, parameter& param, char filename[]);
 void calculate_rmse_ocl(const mat_t& W_c, const mat_t& H_c, const parameter& param, const char* srcdir);
 void calculate_rmse_native(const mat_t& W_c, const mat_t& H_c, const parameter& param, const char* srcdir);
 
 int main(int argc, char** argv) {
     char input_file_name[1024];
-    char filename[1024] = {"../kcode/ccd01.cl"};
-    parameter param = parse_command_line(argc, argv, input_file_name, nullptr, filename);
+    parameter param = parse_command_line(argc, argv, input_file_name, nullptr, nullptr);
 
     // reading rating matrix
     smat_t R;   // val: csc, val_t: csr
@@ -47,24 +46,31 @@ int main(int argc, char** argv) {
     cout << "[info] compute cdmf on the selected ocl device." << endl;
 
     switch (param.version) {
-        case 1:
+        case 1: {
             cout << "[info] Picked Version 1: Native" << endl;
-            cdmf_native(R, W, H, param);
+            char kcode_filename[1024] = {"../kcode/ccd01.cl"};
+            cdmf_native(R, W, H, param, kcode_filename);
             calculate_rmse_native(W, H, param, input_file_name);
             break;
-        case 2:
+        }
+        case 2: {
             cout << "[info] Picked Version 2: Thread Batching" << endl;
-            cdmf_ocl(R, W, H, param);
+            char kcode_filename[1024] = {"../kcode/ccd033.cl"};
+            cdmf_ocl(R, W, H, param, kcode_filename);
             calculate_rmse_ocl(W, H, param, input_file_name);
             break;
-        case 3:
+        }
+        case 3: {
             cout << "[info] Picked Version 3: Load Balancing" << endl;
-            cdmf_csr5(R, W, H, param);
+            char kcode_filename[1024] = {"../kcode/ccd033.cl"};
+            cdmf_csr5(R, W, H, param, kcode_filename);
             calculate_rmse_ocl(W, H, param, input_file_name);
             break;
-        default:
+        }
+        default: {
             printf("Wrong version");
             break;
+        }
     }
 
     cout << "------------------------------------------------------" << endl;

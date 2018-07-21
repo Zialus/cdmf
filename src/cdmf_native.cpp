@@ -1,9 +1,8 @@
 #include "util.h"
 
-void cdmf_native(smat_t &R, mat_t &W_c, mat_t &H_c, parameter &param)
+void cdmf_native(smat_t &R, mat_t &W_c, mat_t &H_c, parameter &param, char filename[])
 {
     char device_type[4]={'g', 'p', 'u', '\0'};
-    char filename[1024] = {"../kcode/ccd01.cl"};
 
     // create context and build the kernel code
     cl_int status, err;
