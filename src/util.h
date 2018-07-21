@@ -53,7 +53,7 @@ typedef vector<VALUE_TYPE> vec_t;
 typedef vector<vec_t> mat_t;
 
 /* interface declaration */
-void load(const char* srcdir, smat_t &R, bool ifALS, bool with_weights = false);
+void load(const char* srcdir, smat_t &R, bool ifALS, bool with_weights);
 void initial_col(mat_t &X, unsigned int k, unsigned int n);
 
 /** convert the kernel file into a string */
