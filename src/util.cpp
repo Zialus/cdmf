@@ -364,99 +364,97 @@ const char* get_error_string(cl_int err)
 }
 
 
-
-VALUE_TYPE dot(const vec_t &a, const vec_t &b)
-{
+VALUE_TYPE dot(const vec_t& a, const vec_t& b) {
     VALUE_TYPE ret = 0;
-#pragma omp parallel for 
-    for(int i = a.size()-1; i >=0; --i)
-        ret+=a[i]*b[i];
+#pragma omp parallel for
+    for (int i = a.size() - 1; i >= 0; --i) {
+        ret += a[i] * b[i];
+    }
     return ret;
 }
-VALUE_TYPE dot(const mat_t &W, const int i, const mat_t &H, const int j)
-{
+
+VALUE_TYPE dot(const mat_t& W, const int i, const mat_t& H, const int j) {
     int k = W.size();
     VALUE_TYPE ret = 0;
-    for(int t = 0; t < k; ++t)
-        ret+=W[t][i]*H[t][j];
+    for (int t = 0; t < k; ++t) {
+        ret += W[t][i] * H[t][j];
+    }
     return ret;
 }
-VALUE_TYPE dot(const mat_t &W, const int i, const vec_t &H_j)
-{
+
+VALUE_TYPE dot(const mat_t& W, const int i, const vec_t& H_j) {
     int k = H_j.size();
     VALUE_TYPE ret = 0;
-    for(int t = 0; t < k; ++t)
-        ret+=W[t][i]*H_j[t];
+    for (int t = 0; t < k; ++t) {
+        ret += W[t][i] * H_j[t];
+    }
     return ret;
 }
-VALUE_TYPE calrmse(testset_t &testset, const mat_t &W, const mat_t &H, bool iscol)
-{
+
+VALUE_TYPE calrmse(testset_t& testset, const mat_t& W, const mat_t& H, bool iscol) {
     size_t nnz = testset.nnz;
     VALUE_TYPE rmse = 0, err;
-    for(size_t idx = 0; idx < nnz; ++idx)
-    {
+    for (size_t idx = 0; idx < nnz; ++idx) {
         err = -testset[idx].v;
-        if(iscol)
+        if (iscol) {
             err += dot(W, testset[idx].i, H, testset[idx].j);
-        else 
+        } else {
             err += dot(W[testset[idx].i], H[testset[idx].j]);
-        rmse += err*err;
+        }
+        rmse += err * err;
     }
-    return sqrt(rmse/nnz);
+    return sqrt(rmse / nnz);
 }
 
-VALUE_TYPE calrmse_r1(testset_t &testset, vec_t &Wt, vec_t &Ht)
-{
+VALUE_TYPE calrmse_r1(testset_t& testset, vec_t& Wt, vec_t& Ht) {
     size_t nnz = testset.nnz;
     VALUE_TYPE rmse = 0, err;
 #pragma omp parallel for reduction(+:rmse)
-    for(size_t idx = 0; idx < nnz; ++idx)
-    {
-        testset[idx].v -= Wt[testset[idx].i]*Ht[testset[idx].j];
-        rmse += testset[idx].v*testset[idx].v;
+    for (size_t idx = 0; idx < nnz; ++idx) {
+        testset[idx].v -= Wt[testset[idx].i] * Ht[testset[idx].j];
+        rmse += testset[idx].v * testset[idx].v;
     }
-    return sqrt(rmse/nnz);
+    return sqrt(rmse / nnz);
 }
 
-VALUE_TYPE calrmse_r1(testset_t &testset, vec_t &Wt, vec_t &Ht, vec_t &oldWt, vec_t &oldHt)
-{
+VALUE_TYPE calrmse_r1(testset_t& testset, vec_t& Wt, vec_t& Ht, vec_t& oldWt, vec_t& oldHt) {
     size_t nnz = testset.nnz;
     VALUE_TYPE rmse = 0, err;
 #pragma omp parallel for reduction(+:rmse)
-    for(size_t idx = 0; idx < nnz; ++idx)
-    {
-        testset[idx].v -= Wt[testset[idx].i]*Ht[testset[idx].j] - oldWt[testset[idx].i]*oldHt[testset[idx].j];
-        rmse += testset[idx].v*testset[idx].v;
+    for (size_t idx = 0; idx < nnz; ++idx) {
+        testset[idx].v -= Wt[testset[idx].i] * Ht[testset[idx].j] - oldWt[testset[idx].i] * oldHt[testset[idx].j];
+        rmse += testset[idx].v * testset[idx].v;
     }
-    return sqrt(rmse/nnz);
+    return sqrt(rmse / nnz);
 }
 
-void initial_col(mat_t &X, unsigned k, unsigned n){
+void initial_col(mat_t& X, unsigned k, unsigned n) {
     X = mat_t(k, vec_t(n));
     srand(0L);
-    for(unsigned i = 0; i < n; ++i)
-        for(unsigned j = 0; j < k; ++j)
-            X[j][i] = 0.1*(VALUE_TYPE(rand()) / RAND_MAX)+0.001;
-//            X[j][i] = 0.01;
+    for (unsigned i = 0; i < n; ++i) {
+        for (unsigned j = 0; j < k; ++j) {
+            X[j][i] = 0.1 * (VALUE_TYPE(rand()) / RAND_MAX) + 0.001;
+            //X[j][i] = 0.01;
+        }
+    }
 }
 
-void golden_compare(mat_t W, mat_t W_ref, unsigned k, unsigned m)
-{
+void golden_compare(mat_t W, mat_t W_ref, unsigned k, unsigned m) {
     int error_count = 0;
-    for (unsigned i = 0; i < k; i++)
-    {
-        for(unsigned j = 0; j < m; j++)
-            if (fabs((double)W[i][j] - (double)W_ref[i][j]) > 0.1 * fabs((double)W_ref[i][j]))
-            {
+    for (unsigned i = 0; i < k; i++) {
+        for (unsigned j = 0; j < m; j++) {
+            if (fabs((double) W[i][j] - (double) W_ref[i][j]) > 0.1 * fabs((double) W_ref[i][j])) {
 //                cout << i << "|" << j << "\t";
 //                cout << W[i][j] << "," << W_ref[i][j] << "\t";
                 error_count++;
             }
+        }
 //        cout << endl;
     }
 //    cout << endl;
-    if (error_count == 0)
+    if (error_count == 0) {
         cout << "Check... PASS!" << endl;
-    else
-        cout << "Check... NO PASS! #Error = " << error_count << " out of " << k*m << " entries." << endl;
+    } else {
+        cout << "Check... NO PASS! #Error = " << error_count << " out of " << k * m << " entries." << endl;
+    }
 }
