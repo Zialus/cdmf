@@ -24,36 +24,36 @@ print "Done."
 #file.write(head)
 
 for x in range(m):
-	if x+1 == 1:
-		for y in range(n):
-			uid = x+1
-			iid = y+1
-			score = random.randint(1,5)
-			file.write(str(uid))
-			file.write("\t")
-			file.write(str(iid))
-			file.write("\t")
-			file.write(str(score))
-			file.write("\n")
-	else:
-		uid = x+1
-		iid = 1
-		score = random.randint(1,5)
-		file.write(str(uid))
-		file.write("\t")
-		file.write(str(iid))
-		file.write("\t")
-		file.write(str(score))
-		file.write("\n")
-		uid = x+1
-		iid = random.randint(2,n)
-		score = random.randint(1,5)
-		file.write(str(uid))
-		file.write("\t")
-		file.write(str(iid))
-		file.write("\t")
-		file.write(str(score))
-		file.write("\n")
+    if x+1 == 1:
+        for y in range(n):
+            uid = x+1
+            iid = y+1
+            score = random.randint(1,5)
+            file.write(str(uid))
+            file.write("\t")
+            file.write(str(iid))
+            file.write("\t")
+            file.write(str(score))
+            file.write("\n")
+    else:
+        uid = x+1
+        iid = 1
+        score = random.randint(1,5)
+        file.write(str(uid))
+        file.write("\t")
+        file.write(str(iid))
+        file.write("\t")
+        file.write(str(score))
+        file.write("\n")
+        uid = x+1
+        iid = random.randint(2,n)
+        score = random.randint(1,5)
+        file.write(str(uid))
+        file.write("\t")
+        file.write(str(iid))
+        file.write("\t")
+        file.write(str(score))
+        file.write("\n")
 
 file.close()
 print "end."
