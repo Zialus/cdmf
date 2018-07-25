@@ -75,10 +75,6 @@ int main(int argc, char** argv) {
     cout << "[info] now computing cdmf reference results on a cpu core." << endl;
     cdmf_ref(R, W_ref, H_ref, param);
 
-    for (int t = 0; t < param.k; t++) {
-        printf("|%lf - %lf |", W_ref[t][56915 - 1], H_ref[t][62245 - 1]);
-    }
-
     // compare reference and anonymouslib results
     cout << "[info] validate the results." << endl;
     golden_compare(W, W_ref, param.k, R.rows);
