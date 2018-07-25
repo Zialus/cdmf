@@ -42,9 +42,6 @@ using namespace std;
     exit(-1); \
 }
 
-enum {ROWMAJOR, COLMAJOR};
-enum {CCDR1};
-enum {BOLDDRIVER, EXPDECAY};
 
 class smat_t;
 class parameter;
@@ -104,7 +101,7 @@ inline std::string to_string(T value) {
 class parameter {
 public:
     int version;
-    unsigned int k;
+    int k;
     int threads;
     int maxinneriter;
     int maxiter;
@@ -394,52 +391,7 @@ class smat_t
         }
 };
 
-// Test set format
-class testset_t
-{
-    public:
-        unsigned rows, cols, nnz;
-        vector<rate_t> T;
-        testset_t(): rows(0), cols(0), nnz(0){}
-        inline rate_t& operator[](const unsigned &idx) {return T[idx];}
-        void load(unsigned _rows, unsigned _cols, unsigned _nnz, const char *filename) 
-        {
-            int r, c; 
-            VALUE_TYPE v;
-            rows = _rows; cols = _cols; nnz = _nnz;
-            T = vector<rate_t>(nnz);
-            FILE *fp = fopen(filename, "r");
-            for(unsigned idx = 0; idx < nnz; ++idx){
-                fscanf(fp, "%d %d %lg", &r, &c, &v); 
-                T[idx] = rate_t(r-1,c-1,v);
-            }
-            fclose(fp);
-        }
-        void load_from_iterator(unsigned _rows, unsigned _cols, unsigned _nnz, entry_iterator_t* entry_it)
-        { 
-            rows =_rows,cols=_cols,nnz=_nnz;
-            T = vector<rate_t>(nnz);
-            for(size_t idx=0; idx < nnz; ++idx) 
-                T[idx] = entry_it->next();
-        }
-        VALUE_TYPE get_global_mean()
-        {
-            VALUE_TYPE sum=0;
-            for(unsigned i=0; i<nnz; ++i) sum+=T[i].v;
-            return sum/nnz;
-        }
-        void remove_bias(VALUE_TYPE bias=0)
-        {
-            if(bias) for(unsigned i=0; i<nnz; ++i) T[i].v-=bias;
-        }
-};
 
-VALUE_TYPE dot(const vec_t &a, const vec_t &b);
-VALUE_TYPE dot(const mat_t &W, const int i, const mat_t &H, const int j);
-VALUE_TYPE dot(const mat_t &W, const int i, const vec_t &H_j);
-VALUE_TYPE calrmse(testset_t &testset, const mat_t &W, const mat_t &H, bool iscol=false);
-VALUE_TYPE calrmse_r1(testset_t &testset, vec_t &Wt, vec_t &H_t);
-VALUE_TYPE calrmse_r1(testset_t &testset, vec_t &Wt, vec_t &Ht, vec_t &oldWt, vec_t &oldHt);
 void golden_compare(mat_t W, mat_t W_ref, unsigned k, unsigned m);
 
 #endif // UTIL_H

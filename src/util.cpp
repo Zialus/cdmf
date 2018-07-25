@@ -189,26 +189,19 @@ parameter parse_command_line(int argc, char **argv, char *input_file_name, char 
 
 void exit_with_help(){
     printf(
-            "Usage: omp-pmf-train [options] data_dir [model_filename]\n"
+            "Usage: cdmf [options] data_dir\n"
             "options:\n"
-            "    -s type : set type of solver (default 0)\n"
             "    -c : full path to the kernel code (default x)\n"
-            "        0 -- CCDR1 with fundec stopping condition\n"
             "    -k rank : set the rank (default 10)\n"
             "    -n threads : set the number of threads (default 4)\n"
             "    -l lambda : set the regularization parameter lambda (default 0.1)\n"
             "    -t max_iter: set the number of iterations (default 5)\n"
             "    -T max_iter: set the number of inner iterations used in CCDR1 (default 5)\n"
             "    -e epsilon : set inner termination criterion epsilon of CCDR1 (default 1e-3)\n"
-            "    -p platform_id: select a platform (default 0)\n"
+            "    -P platform_id: select a platform (default 0)\n"
             "    -q verbose: show information or not (default 0)\n"
-            "    -N do_nmf: do nmf (default 0)\n"
-            "    -runOriginal: Flag to run libpmf original implementation\n"
-            "    -Cuda: Flag to enable cuda\n"
             "    -nBlocks: Number of blocks on cuda (default 16)\n"
             "    -nThreadsPerBlock: Number of threads per block on cuda (default 32)\n"
-            "    -ALS: Flag to enable ALS algorithm, if not present CCD++ is used\n"
-
             );
     exit(1);
 }
@@ -290,70 +283,6 @@ const char* get_error_string(cl_int err)
     }
 }
 
-
-VALUE_TYPE dot(const vec_t& a, const vec_t& b) {
-    VALUE_TYPE ret = 0;
-#pragma omp parallel for
-    for (int i = a.size() - 1; i >= 0; --i) {
-        ret += a[i] * b[i];
-    }
-    return ret;
-}
-
-VALUE_TYPE dot(const mat_t& W, const int i, const mat_t& H, const int j) {
-    int k = W.size();
-    VALUE_TYPE ret = 0;
-    for (int t = 0; t < k; ++t) {
-        ret += W[t][i] * H[t][j];
-    }
-    return ret;
-}
-
-VALUE_TYPE dot(const mat_t& W, const int i, const vec_t& H_j) {
-    int k = H_j.size();
-    VALUE_TYPE ret = 0;
-    for (int t = 0; t < k; ++t) {
-        ret += W[t][i] * H_j[t];
-    }
-    return ret;
-}
-
-VALUE_TYPE calrmse(testset_t& testset, const mat_t& W, const mat_t& H, bool iscol) {
-    size_t nnz = testset.nnz;
-    VALUE_TYPE rmse = 0, err;
-    for (size_t idx = 0; idx < nnz; ++idx) {
-        err = -testset[idx].v;
-        if (iscol) {
-            err += dot(W, testset[idx].i, H, testset[idx].j);
-        } else {
-            err += dot(W[testset[idx].i], H[testset[idx].j]);
-        }
-        rmse += err * err;
-    }
-    return sqrt(rmse / nnz);
-}
-
-VALUE_TYPE calrmse_r1(testset_t& testset, vec_t& Wt, vec_t& Ht) {
-    size_t nnz = testset.nnz;
-    VALUE_TYPE rmse = 0, err;
-#pragma omp parallel for reduction(+:rmse)
-    for (size_t idx = 0; idx < nnz; ++idx) {
-        testset[idx].v -= Wt[testset[idx].i] * Ht[testset[idx].j];
-        rmse += testset[idx].v * testset[idx].v;
-    }
-    return sqrt(rmse / nnz);
-}
-
-VALUE_TYPE calrmse_r1(testset_t& testset, vec_t& Wt, vec_t& Ht, vec_t& oldWt, vec_t& oldHt) {
-    size_t nnz = testset.nnz;
-    VALUE_TYPE rmse = 0, err;
-#pragma omp parallel for reduction(+:rmse)
-    for (size_t idx = 0; idx < nnz; ++idx) {
-        testset[idx].v -= Wt[testset[idx].i] * Ht[testset[idx].j] - oldWt[testset[idx].i] * oldHt[testset[idx].j];
-        rmse += testset[idx].v * testset[idx].v;
-    }
-    return sqrt(rmse / nnz);
-}
 
 void initial_col(mat_t& X, unsigned k, unsigned n) {
     X = mat_t(k, vec_t(n));
