@@ -307,55 +307,51 @@ void calculate_rmse_ocl(const mat_t& W_c, const mat_t& H_c, const parameter& par
 
     int k = param.k;
 
-    if(param.do_predict == 1)
-    {
+    char input_test_file[1024];
 
-        char input_test_file[1024];
+    char meta_filename[1024], buf[1024], buf_test[1024];
+    sprintf(meta_filename, "%s/meta", srcdir);
+    FILE* fp = fopen(meta_filename, "r");
+    unsigned m, n, nnz, nnz_test;
+    fscanf(fp, "%u %u", &m, &n);
+    fscanf(fp, "%u %s", &nnz, buf);
+    fscanf(fp, "%u %s", &nnz_test, buf_test);
+    sprintf(input_test_file, "%s/%s", srcdir, buf_test);
+    fclose(fp);
 
-        char meta_filename[1024], buf[1024], buf_test[1024];
-        sprintf(meta_filename,"%s/meta",srcdir);
-        FILE *fp = fopen(meta_filename,"r");
-        unsigned m, n, nnz, nnz_test;
-        fscanf(fp, "%u %u", &m, &n);
-        fscanf(fp, "%u %s", &nnz, buf);
-        fscanf(fp, "%u %s", &nnz_test, buf_test);
-        sprintf(input_test_file,"%s/%s", srcdir, buf_test);
-        fclose(fp);
-
-        double t5 = gettime ();
-        int i, j;
-        VALUE_TYPE vv, rmse = 0;
-        size_t num_insts = 0;
-        int nans_count = 0;
-        long vvv;
-        FILE *test_fp = fopen (input_test_file, "r");
-        if (test_fp == nullptr)
-        {
-            printf ("can't open test file.\n");
-            exit (1);
-        }
-        while ((sizeof(VALUE_TYPE)==8)?(fscanf (test_fp, "%d %d %lf", &i, &j, &vv) != EOF):(fscanf (test_fp, "%d %d %f", &i, &j, &vv) != EOF))
-        {
-            VALUE_TYPE pred_v = 0;
-            for (int t = 0; t < k; t++) {
-                pred_v += W_c[t][i - 1] * H_c[t][j - 1];
-            }
-            num_insts++;
-            VALUE_TYPE tmp = (pred_v - vv) * (pred_v - vv);
-            if (tmp == tmp) {
-                rmse += tmp;
-            } else {
-                nans_count++;
-            }
-//            printf("%d - %d,%d,%lf,%lf,%lf\n", num_insts-1,i,j, tmp, vv, pred_v);
-        }
-        double nans_percentage = (double) nans_count / (double) num_insts;
-        printf("NaNs percetange: %lf, NaNs Count: %d, Total Insts:%lu\n",nans_percentage,nans_count,num_insts);
-        rmse = sqrt (rmse / num_insts);
-        printf ("[info] test RMSE = %lf\n", rmse);
-        double t6 = gettime ();
-        double deltaT2 = t6 - t5;
-        printf("[info] Predict time: %lf s\n", deltaT2);
-        fclose(test_fp);
+    double t5 = gettime();
+    int i, j;
+    VALUE_TYPE vv, rmse = 0;
+    size_t num_insts = 0;
+    int nans_count = 0;
+    long vvv;
+    FILE* test_fp = fopen(input_test_file, "r");
+    if (test_fp == nullptr) {
+        printf("can't open test file.\n");
+        exit(1);
     }
+    while ((sizeof(VALUE_TYPE) == 8) ? (fscanf(test_fp, "%d %d %lf", &i, &j, &vv) != EOF) : (
+            fscanf(test_fp, "%d %d %f", &i, &j, &vv) != EOF)) {
+        VALUE_TYPE pred_v = 0;
+        for (int t = 0; t < k; t++) {
+            pred_v += W_c[t][i - 1] * H_c[t][j - 1];
+        }
+        num_insts++;
+        VALUE_TYPE tmp = (pred_v - vv) * (pred_v - vv);
+        if (tmp == tmp) {
+            rmse += tmp;
+        } else {
+            nans_count++;
+        }
+//            printf("%d - %d,%d,%lf,%lf,%lf\n", num_insts-1,i,j, tmp, vv, pred_v);
+    }
+    double nans_percentage = (double) nans_count / (double) num_insts;
+    printf("NaNs percetange: %lf, NaNs Count: %d, Total Insts:%lu\n", nans_percentage, nans_count, num_insts);
+    rmse = sqrt(rmse / num_insts);
+    printf("[info] test RMSE = %lf\n", rmse);
+    double t6 = gettime();
+    double deltaT2 = t6 - t5;
+    printf("[info] Predict time: %lf s\n", deltaT2);
+    fclose(test_fp);
+
 }

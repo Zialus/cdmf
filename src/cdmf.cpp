@@ -16,6 +16,7 @@ void calculate_rmse_ocl(const mat_t& W_c, const mat_t& H_c, const parameter& par
 
 int main(int argc, char** argv) {
     char input_file_name[1024];
+//    char kcode_filename[1024];
     parameter param = parse_command_line(argc, argv, input_file_name, nullptr);
 
     // reading rating matrix
@@ -48,21 +49,18 @@ int main(int argc, char** argv) {
             cout << "[info] Picked Version 1: Native" << endl;
             char kcode_filename[1024] = {"../kcode/ccd01.cl"};
             cdmf_ocl(R, W, H, param, kcode_filename);
-            calculate_rmse_ocl(W, H, param, input_file_name);
             break;
         }
         case 2: {
             cout << "[info] Picked Version 2: Thread Batching" << endl;
             char kcode_filename[1024] = {"../kcode/ccd033.cl"};
             cdmf_ocl(R, W, H, param, kcode_filename);
-            calculate_rmse_ocl(W, H, param, input_file_name);
             break;
         }
         case 3: {
             cout << "[info] Picked Version 3: Load Balancing" << endl;
             char kcode_filename[1024] = {"../kcode/ccd033.cl"};
             cdmf_csr5(R, W, H, param, kcode_filename);
-            calculate_rmse_ocl(W, H, param, input_file_name);
             break;
         }
         default: {
@@ -71,15 +69,21 @@ int main(int argc, char** argv) {
         }
     }
 
-    cout << "------------------------------------------------------" << endl;
-    cout << "[info] now computing cdmf reference results on a cpu core." << endl;
-    cdmf_ref(R, W_ref, H_ref, param);
 
-    // compare reference and anonymouslib results
-    cout << "[info] validate the results." << endl;
-    golden_compare(W, W_ref, param.k, R.rows);
-    golden_compare(H, H_ref, param.k, R.cols);
+    if (param.do_predict == 1) {
+        calculate_rmse_ocl(W, H, param, input_file_name);
+    }
 
+    if (param.do_ref == 1) {
+        cout << "------------------------------------------------------" << endl;
+        cout << "[info] now computing cdmf reference results on a cpu core." << endl;
+        cdmf_ref(R, W_ref, H_ref, param);
+
+        // compare reference and anonymouslib results
+        cout << "[info] validate the results." << endl;
+        golden_compare(W, W_ref, param.k, R.rows);
+        golden_compare(H, H_ref, param.k, R.cols);
+    }
     cout << "------------------------------------------------------" << endl;
 
     return 0;

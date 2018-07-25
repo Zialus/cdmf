@@ -116,6 +116,7 @@ public:
     int do_nmf;  // non-negative matrix factorization
     int nBlocks;
     int nThreadsPerBlock;
+    int do_ref;
 
     parameter() {
         version = 1;
@@ -128,6 +129,7 @@ public:
         do_predict = 0;
         platform_id = 0;
         verbose = 0;
+        do_ref = 0;
         do_nmf = 0;
         nBlocks = 16;
         nThreadsPerBlock = 32;

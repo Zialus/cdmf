@@ -159,6 +159,9 @@ parameter parse_command_line(int argc, char **argv, char *input_file_name, char 
                 case 'p':
                     param.do_predict = atoi(argv[i]);
                     break;
+                case 'r':
+                    param.do_ref = atoi(argv[i]);
+                    break;
                 case 'q':
                     param.verbose = atoi(argv[i]);
                     break;
