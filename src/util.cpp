@@ -132,103 +132,45 @@ parameter parse_command_line(int argc, char **argv, char *input_file_name, char 
         else if (strcmp(argv[i - 1], "-nThreadsPerBlock") == 0){
             param.nThreadsPerBlock = atoi(argv[i]);
         }
-        else if (strcmp(argv[i - 1], "-Cuda") == 0){
-            param.enable_cuda = true;
-            --i;
-        }
-        else if (strcmp(argv[i - 1], "-runOriginal") == 0){
-            param.solver_type = 1;
-            --i;
-        }else if (strcmp(argv[i - 1], "-ALS") == 0){
-            param.solver_type = 2;
-            --i;
-        }
         else{
             switch (argv[i - 1][1])
             {
-                //case 's':
-                //  param.solver_type = atoi(argv[i]);
-                //  if (param.solver_type == 0){
-                //      param.solver_type = CCDR1;
-                //  }
-                //  break;
-
                 case 'c':
-                    //param.k = atoi(argv[i]);
                     sprintf(kernel_code,"%s", argv[i]);
                     break;
-
                 case 'k':
                     param.k = atoi(argv[i]);
                     break;
-
                 case 'n':
                     param.threads = atoi(argv[i]);
                     break;
-
                 case 'l':
                     param.lambda = atof(argv[i]);
                     break;
-
-                case 'r':
-                    param.rho = atof(argv[i]);
-                    break;
-
                 case 't':
                     param.maxiter = atoi(argv[i]);
                     break;
-
                 case 'T':
                     param.maxinneriter = atoi(argv[i]);
                     break;
-
                 case 'e':
                     param.eps = atof(argv[i]);
-                    param.eta0 = atof(argv[i]);
                     break;
-
-                case 'B':
-                    param.num_blocks = atoi(argv[i]);
-                    break;
-
-                case 'm':
-                    param.lrate_method = atoi(argv[i]);
-                    break;
-
-                case 'u':
-                    param.betaup = atof(argv[i]);
-                    break;
-
-                case 'd':
-                    param.betadown = atof(argv[i]);
-                    break;
-
                 case 'P':
                     param.platform_id = atoi(argv[i]);
-                    //param.do_predict = atoi(argv[i]);
                     break;
                 case 'p':
-                    //param.platform_id = atoi(argv[i]);
                     param.do_predict = atoi(argv[i]);
                     break;
-
                 case 'q':
                     param.verbose = atoi(argv[i]);
                     break;
-
                 case 'V':
                     param.version = atoi(argv[i]);
                     break;
-
                 case 'N':
                     param.do_nmf = atoi(argv[i]) == 1;
                     break;
-
-                    //case 'C':
-                    //  param.enable_cuda = atoi(argv[i]) == 1 ? true : false;
-                    //  break;
-
-
                 default:
                     fprintf(stderr, "unknown option: -%c\n", argv[i - 1][1]);
                     exit_with_help();
@@ -238,24 +180,9 @@ parameter parse_command_line(int argc, char **argv, char *input_file_name, char 
 
     }
 
-    //if (param.do_predict!=0) 
-    //  param.verbose = 1;
-
-    // determine filenames
     if(i>=argc)
         exit_with_help();
 
-    int toCut = 0;//begin remove exe____ Andre
-    for (int index=strlen(argv[0])-1;index>0;index--){
-        toCut++;
-        if (argv[0][index]=='\\'|| argv[0][index]=='/'){
-            index = 0;
-        }
-    }
-    char src[5120], dest[5120];
-    strcpy(src,  argv[0]);
-    src[strlen(argv[0]) - toCut+1] = '\0';
-    argv[0] = src;
     sprintf(input_file_name, "%s",argv[i]);
     return param;
 }

@@ -104,43 +104,31 @@ inline std::string to_string(T value) {
 class parameter {
 public:
     int version;
-    int solver_type;
     unsigned int k;
     int threads;
     int maxinneriter;
     int maxiter;
     VALUE_TYPE lambda;
-    VALUE_TYPE rho;
     VALUE_TYPE eps; // for the fundec stop-cond in ccdr1
-    VALUE_TYPE eta0, betaup, betadown;  // learning rate parameters used in DSGD
-    int lrate_method, num_blocks;
-    int do_predict, verbose;
+    int do_predict;
+    int verbose;
     int platform_id;
     int do_nmf;  // non-negative matrix factorization
-    bool enable_cuda;
     int nBlocks;
     int nThreadsPerBlock;
 
     parameter() {
         version = 1;
-        solver_type = CCDR1;
         k = 10;
-        rho = 1e-3f;
         maxiter = 5;
         maxinneriter = 5;
         lambda = 0.1f;
         threads = 4;
         eps = 1e-3f;
-        eta0 = 1e-3f; // initial eta0
-        betaup = 1.05f;
-        betadown = 0.5f;
-        num_blocks = 30;  // number of blocks used in dsgd
-        lrate_method = BOLDDRIVER;
         do_predict = 0;
         platform_id = 0;
         verbose = 0;
         do_nmf = 0;
-        enable_cuda = false;
         nBlocks = 16;
         nThreadsPerBlock = 32;
     }
