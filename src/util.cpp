@@ -112,7 +112,7 @@ cl_device_id* getCl_device_id(cl_platform_id& platform, char* device_type) {
     return devices;
 }
 
-parameter parse_command_line(int argc, char **argv, char *input_file_name, char *model_file_name, char *kernel_code)
+parameter parse_command_line(int argc, char **argv, char *input_file_name, char *kernel_code)
 {
     parameter param;   // default values have been set by the constructor   
     int i;

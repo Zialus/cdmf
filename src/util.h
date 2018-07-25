@@ -66,7 +66,7 @@ int getPlatform(cl_platform_id &platform, int id);
 cl_device_id *getCl_device_id(cl_platform_id &platform, char* device_type);
 
 /** parsing the commandline arguments **/
-parameter parse_command_line(int argc, char **argv, char *input_file_name, char *model_file_name, char *kernel_code);
+parameter parse_command_line(int argc, char **argv, char *input_file_name, char *kernel_code);
 
 void exit_with_help();
 

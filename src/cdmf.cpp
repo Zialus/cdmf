@@ -16,7 +16,7 @@ void calculate_rmse_ocl(const mat_t& W_c, const mat_t& H_c, const parameter& par
 
 int main(int argc, char** argv) {
     char input_file_name[1024];
-    parameter param = parse_command_line(argc, argv, input_file_name, nullptr, nullptr);
+    parameter param = parse_command_line(argc, argv, input_file_name, nullptr);
 
     // reading rating matrix
     smat_t R;   // val: csc, val_t: csr
