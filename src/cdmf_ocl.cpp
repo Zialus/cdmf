@@ -330,8 +330,7 @@ void calculate_rmse_ocl(const mat_t& W_c, const mat_t& H_c, const parameter& par
         printf("can't open test file.\n");
         exit(1);
     }
-    while ((sizeof(VALUE_TYPE) == 8) ? (fscanf(test_fp, "%d %d %lf", &i, &j, &vv) != EOF) : (
-            fscanf(test_fp, "%d %d %f", &i, &j, &vv) != EOF)) {
+    while ((sizeof(VALUE_TYPE) == 8) ? (fscanf(test_fp, "%d %d %lf", &i, &j, &vv) != EOF) : (fscanf(test_fp, "%d %d %f", &i, &j, &vv) != EOF)) {
         VALUE_TYPE pred_v = 0;
         for (int t = 0; t < k; t++) {
             pred_v += W_c[t][i - 1] * H_c[t][j - 1];
