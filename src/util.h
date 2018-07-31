@@ -42,6 +42,15 @@ using namespace std;
     exit(-1); \
 }
 
+#define CHECK_FSCAN(err,num)    if(err != num){ \
+    perror("FSCANF"); \
+    exit(-1); \
+}
+
+#define CHECK_FGET(err)    if(err == nullptr){ \
+    perror("FGET"); \
+    exit(-1); \
+}
 
 class smat_t;
 class parameter;
@@ -162,7 +171,7 @@ class entry_iterator_t
             VALUE_TYPE v = 0, w = 1.0;
             if (nnz > 0)    
             {
-                fgets(buf, 1000, fp);
+                CHECK_FGET(fgets(buf, 1000, fp));
                 if (with_weights)
                     (sizeof(VALUE_TYPE)==8)?(sscanf(buf, "%d %d %lf %lf", &i, &j, &v, &w)):(sscanf(buf, "%d %d %f %f", &i, &j, &v, &w));
                 else

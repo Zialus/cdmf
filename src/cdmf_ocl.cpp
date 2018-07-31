@@ -313,9 +313,9 @@ void calculate_rmse_ocl(const mat_t& W_c, const mat_t& H_c, const parameter& par
     sprintf(meta_filename, "%s/meta", srcdir);
     FILE* fp = fopen(meta_filename, "r");
     unsigned m, n, nnz, nnz_test;
-    fscanf(fp, "%u %u", &m, &n);
-    fscanf(fp, "%u %s", &nnz, buf);
-    fscanf(fp, "%u %s", &nnz_test, buf_test);
+    CHECK_FSCAN(fscanf(fp, "%u %u", &m, &n),2);
+    CHECK_FSCAN(fscanf(fp, "%u %1023s", &nnz, buf),2);
+    CHECK_FSCAN(fscanf(fp, "%u %1023s", &nnz_test, buf_test),2);
     sprintf(input_test_file, "%s/%s", srcdir, buf_test);
     fclose(fp);
 

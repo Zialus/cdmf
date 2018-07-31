@@ -20,8 +20,8 @@ void load(const char* srcdir, smat_t& R, bool ifALS, bool with_weights) {
         exit(1);
     }
     unsigned m, n, nnz;
-    fscanf(fp, "%u %u", &m, &n);
-    fscanf(fp, "%u %s", &nnz, buf);
+    CHECK_FSCAN(fscanf(fp, "%u %u", &m, &n),2);
+    CHECK_FSCAN(fscanf(fp, "%u %1023s", &nnz, buf),2);
     sprintf(filename, "%s/%s", srcdir, buf);
     R.load(m, n, nnz, filename, ifALS, with_weights);
     fclose(fp);
