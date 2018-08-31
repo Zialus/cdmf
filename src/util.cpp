@@ -314,3 +314,13 @@ void golden_compare(mat_t W, mat_t W_ref, unsigned k, unsigned m) {
         cout << "Check... NO PASS! #Error = " << error_count << " out of " << k * m << " entries." << endl;
     }
 }
+
+void print_matrix(mat_t M, unsigned k, unsigned n) {
+    printf("-----------------------------------------\n");
+    for (unsigned i = 0; i < n; ++i) {
+        for (unsigned j = 0; j < k; ++j) {
+            printf("|%f",M[j][i]);
+        }
+        printf("\n-----------------------------------------\n");
+    }
+}

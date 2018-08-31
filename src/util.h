@@ -74,6 +74,8 @@ cl_device_id *getCl_device_id(cl_platform_id &platform, char* device_type);
 /** parsing the commandline arguments **/
 parameter parse_command_line(int argc, char **argv, char *input_file_name, char *kernel_code);
 
+void print_matrix(mat_t M, unsigned k, unsigned n);
+
 void exit_with_help();
 
 const char* get_error_string(cl_int err);

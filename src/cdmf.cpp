@@ -85,5 +85,13 @@ int main(int argc, char** argv) {
     }
     cout << "------------------------------------------------------" << endl;
 
+    // Some print debugging
+    print_matrix(W,param.k,R.rows);
+    print_matrix(H,param.k,R.cols);
+
+
+    print_matrix(W_ref,param.k,R.rows);
+    print_matrix(H_ref,param.k,R.cols);
+
     return 0;
 }
