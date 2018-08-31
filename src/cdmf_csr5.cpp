@@ -3,54 +3,48 @@
 
 void cdmf_csr5(smat_t &R, mat_t &W_c, mat_t &H_c, parameter &param, char filename[])
 {
-    char device_type[4]={'g', 'p', 'u', '\0'};
+    char device_type[4] = {'g', 'p', 'u', '\0'};
 
     // create context and build the kernel code
-    cl_int status, err;
+    cl_int status;
+    cl_int err;
     cl_uint NumDevice;
     cl_platform_id platform;
-    if(param.platform_id == 0)
-    {
+    if (param.platform_id == 0) {
         device_type[0] = 'g';
         device_type[1] = 'p';
         device_type[2] = 'u';
-    }
-    else if(param.platform_id == 1)
-    {
+    } else if (param.platform_id == 1) {
         device_type[0] = 'c';
         device_type[1] = 'p';
         device_type[2] = 'u';
-    }
-    else if(param.platform_id == 2)
-    {
+    } else if (param.platform_id == 2) {
         device_type[0] = 'm';
         device_type[1] = 'i';
         device_type[2] = 'c';
-    }
-    else
-    {
+    } else {
         printf("[info] unknown device type!\n");
         exit(-1);
     }
 
-    getPlatform (platform, param.platform_id);
+    getPlatform(platform, param.platform_id);
     printf("[info] - the selected platform: %d, device type: %s\n", param.platform_id, device_type);
-    cl_device_id * devices = getCl_device_id (platform, device_type);
-    cl_context context = clCreateContext (nullptr, 1, devices, nullptr, nullptr, nullptr);
-    CL_CHECK(clGetContextInfo (context, CL_CONTEXT_NUM_DEVICES, sizeof (cl_uint), &NumDevice, nullptr));
+    cl_device_id* devices = getCl_device_id(platform, device_type);
+    cl_context context = clCreateContext(nullptr, 1, devices, nullptr, nullptr, nullptr);
+    CL_CHECK(clGetContextInfo(context, CL_CONTEXT_NUM_DEVICES, sizeof(cl_uint), &NumDevice, nullptr));
     printf("[info] - %d devices found!\n", NumDevice);
-    cl_command_queue commandQueue = clCreateCommandQueue (context, devices[0], CL_QUEUE_PROFILING_ENABLE, nullptr);
+    cl_command_queue commandQueue = clCreateCommandQueue(context, devices[0], CL_QUEUE_PROFILING_ENABLE, nullptr);
 
-    string sourceStr;
-    status = convertToString (filename, sourceStr);
-    if (status == -1) { exit(-1); }
     printf("[info] - The kernel to be compiled: %s\n", filename);
-    const char *source = sourceStr.c_str ();
-    size_t sourceSize[] = { strlen(source)};
-    cl_program program = clCreateProgramWithSource (context, 1, &source, sourceSize, nullptr);
+    string sourceStr;
+    status = convertToString(filename, sourceStr);
+    if (status == -1) { exit(-1); }
+    const char* source = sourceStr.c_str();
+    size_t sourceSize[] = {strlen(source)};
+    cl_program program = clCreateProgramWithSource(context, 1, &source, sourceSize, nullptr);
     char options[1024];
     sprintf(options, "-DWG_SIZE=%d -DVALUE_TYPE=%s", param.nThreadsPerBlock, getT(sizeof(VALUE_TYPE)));
-    status = clBuildProgram (program, 1, devices, options, nullptr, nullptr);
+    status = clBuildProgram(program, 1, devices, options, nullptr, nullptr);
 
     size_t length;
     clGetProgramBuildInfo(program, devices[0], CL_PROGRAM_BUILD_LOG, 0, nullptr, &length);
@@ -62,10 +56,12 @@ void cdmf_csr5(smat_t &R, mat_t &W_c, mat_t &H_c, parameter &param, char filenam
         free(buffer);
     }
 
-    if (status == CL_SUCCESS) {
-        printf ("[build info]: Compilation successful \n");
+    if (status != CL_SUCCESS) {
+        std::cout << "ERROR: Could not compile OpenCl code !\n";
+        exit(1);
+    } else {
+        std::cout << "[build info]: Compiled OpenCl code !\n";
     }
-
 
     for (int t = 0; t < param.k; ++t)
         for (unsigned c = 0; c < R.cols; ++c)

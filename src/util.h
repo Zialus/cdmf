@@ -253,7 +253,9 @@ class smat_t
         }
         void load_from_iterator(unsigned int _rows, unsigned int _cols, unsigned int _nnz, entry_iterator_t* entry_it, unsigned int ifALS) 
         {
-            rows =_rows,cols=_cols,nnz=_nnz;
+            rows = _rows;
+            cols = _cols;
+            nnz = _nnz;
             mem_alloc_by_me = true;
             with_weights = entry_it->with_weights;
             val = MALLOC(VALUE_TYPE, nnz); val_t = MALLOC(VALUE_TYPE, nnz);
