@@ -37,12 +37,13 @@ void cdmf_csr5(smat_t &R, mat_t &W_c, mat_t &H_c, parameter &param, char filenam
     printf("[info] - the selected platform: %d, device type: %s\n", param.platform_id, device_type);
     cl_device_id * devices = getCl_device_id (platform, device_type);
     cl_context context = clCreateContext (nullptr, 1, devices, nullptr, nullptr, nullptr);
-    status = clGetContextInfo (context, CL_CONTEXT_NUM_DEVICES, sizeof (cl_uint), &NumDevice, nullptr);
+    CL_CHECK(clGetContextInfo (context, CL_CONTEXT_NUM_DEVICES, sizeof (cl_uint), &NumDevice, nullptr));
     printf("[info] - %d devices found!\n", NumDevice);
     cl_command_queue commandQueue = clCreateCommandQueue (context, devices[0], CL_QUEUE_PROFILING_ENABLE, nullptr);
 
     string sourceStr;
     status = convertToString (filename, sourceStr);
+    if (status == -1) { exit(-1); }
     printf("[info] - The kernel to be compiled: %s\n", filename);
     const char *source = sourceStr.c_str ();
     size_t sourceSize[] = { strlen(source)};
