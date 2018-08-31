@@ -115,120 +115,102 @@ matrix:
 
   ######## LINUX CLANG ########
 #  - os: linux
-#    addons:
-#      apt:
-#        sources:
-#        - sourceline: 'deb https://apt.llvm.org/xenial/ llvm-toolchain-xenial-3.9 main'
-#          key_url: 'https://apt.llvm.org/llvm-snapshot.gpg.key'
-#        packages:
-#        - clang-3.9
 #    env:
 #    - MATRIX_EVAL="CC=clang-3.9 && CXX=clang++-3.9"
 #    before_script:
+#    - wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key|sudo apt-key add -
+#    - sudo apt-add-repository "deb https://apt.llvm.org/xenial/ llvm-toolchain-xenial-3.9 main"
+#    - sudo apt update
+#    - sudo apt install clang-3.9
 #    - sudo apt install libomp-dev
 #    - sudo apt install opencl-headers clinfo
-#    - sudo sh .travis-opencl-install.sh
+#    - source scripts/opencl_install.sh
+#    - source scripts/cmake_install.sh
 #  - os: linux
-#    addons:
-#      apt:
-#        sources:
-#        - sourceline: 'deb https://apt.llvm.org/xenial/ llvm-toolchain-xenial-4.0 main'
-#          key_url: 'https://apt.llvm.org/llvm-snapshot.gpg.key'
-#        packages:
-#        - clang-4.0
 #    env:
 #    - MATRIX_EVAL="CC=clang-4.0 && CXX=clang++-4.0"
 #    before_script:
+#    - wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key|sudo apt-key add -
+#    - sudo apt-add-repository "deb https://apt.llvm.org/xenial/ llvm-toolchain-xenial-4.0 main"
+#    - sudo apt update
+#    - sudo apt install clang-4.0
 #    - sudo apt install libomp-dev
 #    - sudo apt install opencl-headers clinfo
-#    - sudo sh .travis-opencl-install.sh
+#    - source scripts/opencl_install.sh
+#    - source scripts/cmake_install.sh
   - os: linux
-    addons:
-      apt:
-        sources:
-        - sourceline: 'deb https://apt.llvm.org/xenial/ llvm-toolchain-xenial-5.0 main'
-          key_url: 'https://apt.llvm.org/llvm-snapshot.gpg.key'
-        packages:
-        - clang-5.0
     env:
     - MATRIX_EVAL="CC=clang-5.0 && CXX=clang++-5.0"
     before_script:
+    - wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key|sudo apt-key add -
+    - sudo apt-add-repository "deb https://apt.llvm.org/xenial/ llvm-toolchain-xenial-5.0 main"
+    - sudo apt update
+    - sudo apt install clang-5.0
     - sudo apt install libomp-dev
     - sudo apt install opencl-headers clinfo
-    - sudo sh .travis-opencl-install.sh
+    - source scripts/opencl_install.sh
+    - source scripts/cmake_install.sh
   - os: linux
-    addons:
-      apt:
-        sources:
-        - sourceline: 'deb https://apt.llvm.org/xenial/ llvm-toolchain-xenial-6.0 main'
-          key_url: 'https://apt.llvm.org/llvm-snapshot.gpg.key'
-        packages:
-        - clang-6.0
     env:
     - MATRIX_EVAL="CC=clang-6.0 && CXX=clang++-6.0"
     before_script:
+    - wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key|sudo apt-key add -
+    - sudo apt-add-repository "deb https://apt.llvm.org/xenial/ llvm-toolchain-xenial-6.0 main"
+    - sudo apt update
+    - sudo apt install clang-6.0
     - sudo apt install libomp-dev
     - sudo apt install opencl-headers clinfo
-    - sudo sh .travis-opencl-install.sh
+    - source scripts/opencl_install.sh
+    - source scripts/cmake_install.sh
 
   ######## LINUX GCC ########
 #  - os: linux
-#    addons:
-#      apt:
-#        sources:
-#        - sourceline: 'ppa:ubuntu-toolchain-r/test'
-#        packages:
-#        - g++-4.9
 #    env:
 #    - MATRIX_EVAL="CC=gcc-4.9 && CXX=g++-4.9"
 #    before_script:
+#    - sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
+#    - sudo apt-get update
+#    - sudo apt install g++-4.9
 #    - sudo apt install opencl-headers clinfo
-#    - sudo apt install ocl-icd-opencl-dev
+#    - source scripts/opencl_install.sh
+#    - source scripts/cmake_install.sh
 #  - os: linux
-#    addons:
-#      apt:
-#        sources:
-#        - sourceline: 'ppa:ubuntu-toolchain-r/test'
-#        packages:
-#        - g++-5
 #    env:
 #    - MATRIX_EVAL="CC=gcc-5 && CXX=g++-5"
 #    before_script:
+#    - sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
+#    - sudo apt-get update
+#    - sudo apt install g++-5
 #    - sudo apt install opencl-headers clinfo
-#    - sudo sh .travis-opencl-install.sh
+#    - source scripts/opencl_install.sh
+#    - source scripts/cmake_install.sh
 #  - os: linux
-#    addons:
-#      apt:
-#        sources:
-#        - sourceline: 'ppa:ubuntu-toolchain-r/test'
-#        packages:
-#        - g++-6
 #    env:
 #    - MATRIX_EVAL="CC=gcc-6 && CXX=g++-6"
 #    before_script:
+#    - sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
+#    - sudo apt-get update
+#    - sudo apt install g++-6
 #    - sudo apt install opencl-headers clinfo
-#    - sudo sh .travis-opencl-install.sh
+#    - source scripts/opencl_install.sh
+#    - source scripts/cmake_install.sh
   - os: linux
-    addons:
-      apt:
-        sources:
-        - sourceline: 'ppa:ubuntu-toolchain-r/test'
-        packages:
-        - g++-7
     env:
     - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
     before_script:
+    - sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
+    - sudo apt-get update
+    - sudo apt install g++-7
     - sudo apt install opencl-headers clinfo
-    - sudo sh .travis-opencl-install.sh
+    - source scripts/opencl_install.sh
+    - source scripts/cmake_install.sh
   - os: linux
-    addons:
-      apt:
-        sources:
-        - sourceline: 'ppa:ubuntu-toolchain-r/test'
-        packages:
-        - g++-8
     env:
     - MATRIX_EVAL="CC=gcc-8 && CXX=g++-8"
     before_script:
+    - sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
+    - sudo apt-get update
+    - sudo apt install g++-8
     - sudo apt install opencl-headers clinfo
-    - sudo sh .travis-opencl-install.sh
+    - source scripts/opencl_install.sh
+    - source scripts/cmake_install.sh

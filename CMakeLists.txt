@@ -1,11 +1,6 @@
 # Minimal version of CMake
 cmake_minimum_required (VERSION 3.9)
 
-if(UNIX AND NOT APPLE)
-    message("Importing alternative FindOpenCL for Linux")
-    set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
-endif(UNIX AND NOT APPLE)
-
 # Define project name
 project(cdmf)
 
@@ -19,8 +14,7 @@ set(EXECUTABLE_OUTPUT_PATH "${CMAKE_SOURCE_DIR}/exec/")
 #set(CMAKE_VERBOSE_MAKEFILE ON)
 
 set(NUMRUN "-DNUM_RUN=1")
-#set(WARNINGS "-Wno-format -Wno-unused-result -Wno-write-strings -Wno-deprecated-declarations")
-#set(WARNINGS "-Wno-format -Wno-unused-result -Wno-write-strings")
+set(WARNINGS "-Wno-deprecated-declarations -Wno-format")
 set(VALUE "-DVALUE_TYPE=double")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${NUMRUN} ${VERSION} ${VALUE} -m64 ${WARNINGS}")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${NUMRUN} ${VERSION} ${VALUE} -m64 ${WARNINGS}")
@@ -39,9 +33,8 @@ file(GLOB source_hdr "${PROJECT_SOURCE_DIR}/src/*.h" "${PROJECT_SOURCE_DIR}/src/
 
 
 # Set up executable
-include_directories(${OpenCL_INCLUDE_DIR})
 add_executable(cdmf ${source_src} ${source_hdr})
-target_link_libraries(cdmf ${OpenCL_LIBRARIES} OpenMP::OpenMP_CXX)
+target_link_libraries(cdmf OpenCL::OpenCL OpenMP::OpenMP_CXX)
 
 enable_testing()
 add_test(a ../exec/cdmf -k 40 -t 5 -T 5 -n 24 -l 0.05 ../data/a)

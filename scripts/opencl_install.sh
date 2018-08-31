@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -ev
+set -exu
 
 ###########################
 # Get Intel OpenCL Runtime
@@ -13,5 +13,8 @@ PACKAGE_NAME=opencl_runtime_16.1.2_x64_rh_6.4.0.37
 wget -q ${PACKAGE_URL} -O /tmp/opencl_runtime.tgz
 tar -xzf /tmp/opencl_runtime.tgz -C /tmp
 sed 's/decline/accept/g' -i /tmp/${PACKAGE_NAME}/silent.cfg
-apt-get install -yq cpio
-/tmp/${PACKAGE_NAME}/install.sh -s /tmp/${PACKAGE_NAME}/silent.cfg
+sudo /tmp/${PACKAGE_NAME}/install.sh -s /tmp/${PACKAGE_NAME}/silent.cfg
+
+export AMDAPPSDKROOT=/opt/intel/opencl/
+
+set +exu
