@@ -20,8 +20,8 @@ void load(const char* srcdir, smat_t& R, bool ifALS, bool with_weights) {
         exit(1);
     }
     unsigned m, n, nnz;
-    CHECK_FSCAN(fscanf(fp, "%u %u", &m, &n),2);
-    CHECK_FSCAN(fscanf(fp, "%u %1023s", &nnz, buf),2);
+    CHECK_FSCAN(fscanf(fp, "%u %u", &m, &n), 2);
+    CHECK_FSCAN(fscanf(fp, "%u %1023s", &nnz, buf), 2);
     sprintf(filename, "%s/%s", srcdir, buf);
     R.load(m, n, nnz, filename, ifALS, with_weights);
     fclose(fp);
@@ -109,31 +109,26 @@ cl_device_id* getCl_device_id(cl_platform_id& platform, char* device_type) {
     return devices;
 }
 
-parameter parse_command_line(int argc, char **argv, char *input_file_name, char *kernel_code)
-{
+parameter parse_command_line(int argc, char** argv, char* input_file_name, char* kernel_code) {
     parameter param;   // default values have been set by the constructor   
     int i;
 
     // parse options
-    for(i=1;i<argc;i++)
-    {
-        if (argv[i][0] != '-'){
+    for (i = 1; i < argc; i++) {
+        if (argv[i][0] != '-') {
             break;
         }
-        if (++i >= argc){
+        if (++i >= argc) {
             exit_with_help();
         }
-        if (strcmp(argv[i - 1], "-nBlocks") == 0){
+        if (strcmp(argv[i - 1], "-nBlocks") == 0) {
             param.nBlocks = atoi(argv[i]);
-        }
-        else if (strcmp(argv[i - 1], "-nThreadsPerBlock") == 0){
+        } else if (strcmp(argv[i - 1], "-nThreadsPerBlock") == 0) {
             param.nThreadsPerBlock = atoi(argv[i]);
-        }
-        else{
-            switch (argv[i - 1][1])
-            {
+        } else {
+            switch (argv[i - 1][1]) {
                 case 'c':
-                    sprintf(kernel_code,"%s", argv[i]);
+                    sprintf(kernel_code, "%s", argv[i]);
                     break;
                 case 'k':
                     param.k = atoi(argv[i]);
@@ -180,14 +175,15 @@ parameter parse_command_line(int argc, char **argv, char *input_file_name, char 
 
     }
 
-    if(i>=argc)
+    if (i >= argc) {
         exit_with_help();
+    }
 
-    sprintf(input_file_name, "%s",argv[i]);
+    sprintf(input_file_name, "%s", argv[i]);
     return param;
 }
 
-void exit_with_help(){
+void exit_with_help() {
     printf(
             "Usage: cdmf [options] data_dir\n"
             "options:\n"
@@ -202,7 +198,7 @@ void exit_with_help(){
             "    -q verbose: show information or not (default 0)\n"
             "    -nBlocks: Number of blocks on cuda (default 16)\n"
             "    -nThreadsPerBlock: Number of threads per block on cuda (default 32)\n"
-            );
+    );
     exit(1);
 }
 
@@ -319,7 +315,7 @@ void print_matrix(mat_t M, unsigned k, unsigned n) {
     printf("-----------------------------------------\n");
     for (unsigned i = 0; i < n; ++i) {
         for (unsigned j = 0; j < k; ++j) {
-            printf("|%f",M[j][i]);
+            printf("|%f", M[j][i]);
         }
         printf("\n-----------------------------------------\n");
     }
