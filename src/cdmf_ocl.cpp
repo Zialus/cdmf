@@ -278,7 +278,7 @@ void cdmf_ocl(smat_t &R, mat_t &W_c, mat_t &H_c, parameter &param, char filename
     double t2 = gettime ();
     double deltaT = t2 - t1;
     printf("[info] - training time: %lf s\n",  deltaT);
-    printf("[info] - rank one updating time: %llu ms, R updating time: %llu ms\n", t_rank_one_update/1000000ULL, t_update_ratings/1000000ULL);
+    printf("[info] - rank one updating time: %llu s, R updating time: %llu s\n", t_rank_one_update/1000000000ULL, t_update_ratings/1000000000ULL);
 
     /** Release the context **/
     CL_CHECK(clReleaseMemObject(row_ptrBuffer));
@@ -301,33 +301,36 @@ void cdmf_ocl(smat_t &R, mat_t &W_c, mat_t &H_c, parameter &param, char filename
     free(devices);
 }
 
-void calculate_rmse_ocl(const mat_t& W_c, const mat_t& H_c, const parameter& param, const char* srcdir) {
-
-    int k = param.k;
-
-    char input_test_file[1024];
-
-    char meta_filename[1024], buf[1024], buf_test[1024];
-    sprintf(meta_filename, "%s/meta", srcdir);
-    FILE* fp = fopen(meta_filename, "r");
-    unsigned m, n, nnz, nnz_test;
-    CHECK_FSCAN(fscanf(fp, "%u %u", &m, &n),2);
-    CHECK_FSCAN(fscanf(fp, "%u %1023s", &nnz, buf),2);
-    CHECK_FSCAN(fscanf(fp, "%u %1023s", &nnz_test, buf_test),2);
-    sprintf(input_test_file, "%s/%s", srcdir, buf_test);
-    fclose(fp);
-
+void calculate_rmse_ocl(const mat_t& W_c, const mat_t& H_c, const int k, const char* srcdir) {
     double t5 = gettime();
     int i, j;
     VALUE_TYPE vv, rmse = 0;
     size_t num_insts = 0;
     int nans_count = 0;
-    long vvv;
-    FILE* test_fp = fopen(input_test_file, "r");
-    if (test_fp == nullptr) {
-        printf("can't open test file.\n");
+
+    char meta_filename[1024];
+    sprintf(meta_filename, "%s/meta", srcdir);
+    FILE* fp = fopen(meta_filename, "r");
+    if (fp == nullptr) {
+        printf("Can't open meta input file.\n");
         exit(1);
     }
+
+    char buf_train[1024], buf_test[1024], test_file_name[1024], train_file_name[1024];
+    unsigned m, n, nnz, nnz_test;
+    CHECK_FSCAN(fscanf(fp, "%u %u", &m, &n),2);
+    CHECK_FSCAN(fscanf(fp, "%u %1023s", &nnz, buf_train),2);
+    CHECK_FSCAN(fscanf(fp, "%u %1023s", &nnz_test, buf_test),2);
+    sprintf(test_file_name, "%s/%s", srcdir, buf_test);
+    sprintf(train_file_name, "%s/%s", srcdir, buf_train);
+    fclose(fp);
+
+    FILE* test_fp = fopen(test_file_name, "r");
+    if (test_fp == nullptr) {
+        printf("Can't open test file.\n");
+        exit(1);
+    }
+
     while ((sizeof(VALUE_TYPE) == 8) ? (fscanf(test_fp, "%d %d %lf", &i, &j, &vv) != EOF) : (fscanf(test_fp, "%d %d %f", &i, &j, &vv) != EOF)) {
         VALUE_TYPE pred_v = 0;
         for (int t = 0; t < k; t++) {
@@ -342,6 +345,8 @@ void calculate_rmse_ocl(const mat_t& W_c, const mat_t& H_c, const parameter& par
         }
 //            printf("%d - %d,%d,%lf,%lf,%lf\n", num_insts-1,i,j, tmp, vv, pred_v);
     }
+    fclose(test_fp);
+
     double nans_percentage = (double) nans_count / (double) num_insts;
     printf("NaNs percetange: %lf, NaNs Count: %d, Total Insts:%lu\n", nans_percentage, nans_count, num_insts);
     rmse = sqrt(rmse / num_insts);
@@ -349,6 +354,5 @@ void calculate_rmse_ocl(const mat_t& W_c, const mat_t& H_c, const parameter& par
     double t6 = gettime();
     double deltaT2 = t6 - t5;
     printf("[info] Predict time: %lf s\n", deltaT2);
-    fclose(test_fp);
 
 }

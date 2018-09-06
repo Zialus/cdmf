@@ -12,7 +12,7 @@ using namespace std;
 void cdmf_ref(smat_t& R, mat_t& W, mat_t& H, parameter& param);
 void cdmf_ocl(smat_t& R, mat_t& W, mat_t& H, parameter& param, char filename[]);
 void cdmf_csr5(smat_t& R, mat_t& W, mat_t& H, parameter& param, char filename[]);
-void calculate_rmse_ocl(const mat_t& W_c, const mat_t& H_c, const parameter& param, const char* srcdir);
+void calculate_rmse_ocl(const mat_t& W_c, const mat_t& H_c, const int k, const char* srcdir);
 
 int main(int argc, char** argv) {
     char scr_dir[1024];
@@ -71,7 +71,7 @@ int main(int argc, char** argv) {
 
 
     if (param.do_predict == 1) {
-        calculate_rmse_ocl(W, H, param, scr_dir);
+        calculate_rmse_ocl(W, H, param.k, scr_dir);
     }
 
     // compare reference and OpenCL results
