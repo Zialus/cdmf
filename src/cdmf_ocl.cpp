@@ -305,7 +305,7 @@ void calculate_rmse_ocl(const mat_t& W_c, const mat_t& H_c, const int k, const c
     double t5 = gettime();
     int i, j;
     VALUE_TYPE vv, rmse = 0;
-    size_t num_insts = 0;
+    int num_insts = 0;
     int nans_count = 0;
 
     char meta_filename[1024];
@@ -348,7 +348,7 @@ void calculate_rmse_ocl(const mat_t& W_c, const mat_t& H_c, const int k, const c
     fclose(test_fp);
 
     double nans_percentage = (double) nans_count / (double) num_insts;
-    printf("NaNs percetange: %lf, NaNs Count: %d, Total Insts:%lu\n", nans_percentage, nans_count, num_insts);
+    printf("NaNs percentage: %lf, NaNs Count: %d, Total Insts: %d\n", nans_percentage, nans_count, num_insts);
     rmse = sqrt(rmse / num_insts);
     printf("[info] test RMSE = %lf\n", rmse);
     double t6 = gettime();
