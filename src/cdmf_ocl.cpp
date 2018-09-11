@@ -32,7 +32,7 @@ void cdmf_ocl(smat_t &R, mat_t &W_c, mat_t &H_c, parameter &param, char filename
     cl_context context = clCreateContext(nullptr, 1, devices, nullptr, nullptr, nullptr);
     CL_CHECK(clGetContextInfo(context, CL_CONTEXT_NUM_DEVICES, sizeof(cl_uint), &NumDevice, nullptr));
     printf("[info] - %d devices found!\n", NumDevice);
-    cl_command_queue commandQueue = clCreateCommandQueue(context, devices[0], 0, nullptr);
+    cl_command_queue commandQueue = clCreateCommandQueue(context, devices[0], CL_QUEUE_PROFILING_ENABLE, nullptr);
 
     printf("[info] - The kernel to be compiled: %s\n", filename);
     string sourceStr;
@@ -278,7 +278,7 @@ void cdmf_ocl(smat_t &R, mat_t &W_c, mat_t &H_c, parameter &param, char filename
     double t2 = gettime ();
     double deltaT = t2 - t1;
     printf("[info] - training time: %lf s\n",  deltaT);
-    printf("[info] - rank one updating time: %llu s, R updating time: %llu s\n", t_rank_one_update/1000000000ULL, t_update_ratings/1000000000ULL);
+    printf("[info] - rank one updating time: %llu ms, R updating time: %llu ms\n", t_rank_one_update/1000000ULL, t_update_ratings/1000000ULL);
 
     /** Release the context **/
     CL_CHECK(clReleaseMemObject(row_ptrBuffer));
