@@ -3,13 +3,13 @@
 
 void cdmf_csr5(smat_t &R, mat_t &W_c, mat_t &H_c, parameter &param, char filename[])
 {
-    char device_type[4] = {'g', 'p', 'u', '\0'};
+    char device_type[4] = {'\0', '\0', '\0', '\0'};
 
     // create context and build the kernel code
     cl_int status;
     cl_int err;
-    cl_uint NumDevice;
     cl_platform_id platform;
+
     if (param.platform_id == 0) {
         device_type[0] = 'g';
         device_type[1] = 'p';
@@ -26,13 +26,21 @@ void cdmf_csr5(smat_t &R, mat_t &W_c, mat_t &H_c, parameter &param, char filenam
         printf("[info] unknown device type!\n");
         exit(-1);
     }
+    printf("[info] - selected device type: %s\n", device_type);
 
-    getPlatform(platform, param.platform_id);
-    printf("[info] - the selected platform: %d, device type: %s\n", param.platform_id, device_type);
-    cl_device_id* devices = getCl_device_id(platform, device_type);
-    cl_context context = clCreateContext(nullptr, 1, devices, nullptr, nullptr, nullptr);
+    if (param.verbose) {
+        print_all_the_platforms();
+        print_all_the_info();
+    }
+
+    getPlatform(platform, 0);
+    cl_device_id* devices = getDevice(platform, device_type);
+
+    cl_context context = clCreateContext(nullptr, 1, devices, nullptr, nullptr, &err);
+    CHECK_ERROR(err);
+    cl_uint NumDevice;
     CL_CHECK(clGetContextInfo(context, CL_CONTEXT_NUM_DEVICES, sizeof(cl_uint), &NumDevice, nullptr));
-    printf("[info] - %d devices found!\n", NumDevice);
+    assert(NumDevice == 1);
     cl_command_queue commandQueue = clCreateCommandQueue(context, devices[0], CL_QUEUE_PROFILING_ENABLE, nullptr);
 
     printf("[info] - The kernel to be compiled: %s\n", filename);
@@ -52,7 +60,7 @@ void cdmf_csr5(smat_t &R, mat_t &W_c, mat_t &H_c, parameter &param, char filenam
     clGetProgramBuildInfo(program, devices[0], CL_PROGRAM_BUILD_LOG, length, buffer, nullptr);
 
     if (buffer != nullptr) {
-        printf("[build info]: %s\n", buffer);
+        printf("[build info]:\n%s", buffer);
         free(buffer);
     }
 

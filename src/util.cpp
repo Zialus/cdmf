@@ -49,33 +49,144 @@ int convertToString(const char* filename, string& s) {
     return -1;
 }
 
-int getPlatform(cl_platform_id& platform, int id) {
-    platform = nullptr;
-    cl_uint numPlatforms;
-    cl_int status = clGetPlatformIDs(0, nullptr, &numPlatforms);
-    if (status != CL_SUCCESS) {
-        cout << "ERROR:Getting platforms!\n";
-        return -1;
-    }
-    if (numPlatforms > 0) {
-        cl_platform_id* platforms = (cl_platform_id*) malloc(numPlatforms * sizeof(cl_platform_id));
-        status = clGetPlatformIDs(numPlatforms, platforms, nullptr);
-        if (status != CL_SUCCESS) {
-            cout << "ERROR:Getting platform IDs!\n";
-            free(platforms);
-            return -1;
+void print_all_the_info(){
+    int i, j;
+    char* value;
+    size_t valueSize;
+    cl_uint platformCount;
+    cl_platform_id* platforms;
+    cl_uint deviceCount;
+    cl_device_id* devices;
+    cl_uint maxComputeUnits;
+
+    // get all platforms
+    clGetPlatformIDs(0, nullptr, &platformCount);
+    platforms = (cl_platform_id*) malloc(sizeof(cl_platform_id) * platformCount);
+    clGetPlatformIDs(platformCount, platforms, nullptr);
+
+    for (i = 0; i < platformCount; i++) {
+
+        // get all devices
+        clGetDeviceIDs(platforms[i], CL_DEVICE_TYPE_ALL, 0, NULL, &deviceCount);
+        devices = (cl_device_id*) malloc(sizeof(cl_device_id) * deviceCount);
+        clGetDeviceIDs(platforms[i], CL_DEVICE_TYPE_ALL, deviceCount, devices, NULL);
+
+        // for each device print critical attributes
+        for (j = 0; j < deviceCount; j++) {
+
+            // print device name
+            clGetDeviceInfo(devices[j], CL_DEVICE_NAME, 0, NULL, &valueSize);
+            value = (char*) malloc(valueSize);
+            clGetDeviceInfo(devices[j], CL_DEVICE_NAME, valueSize, value, NULL);
+            printf("%d. Device: %s\n", j+1, value);
+            free(value);
+
+            // print hardware device version
+            clGetDeviceInfo(devices[j], CL_DEVICE_VERSION, 0, NULL, &valueSize);
+            value = (char*) malloc(valueSize);
+            clGetDeviceInfo(devices[j], CL_DEVICE_VERSION, valueSize, value, NULL);
+            printf(" %d.%d Hardware version: %s\n", j+1, 1, value);
+            free(value);
+
+            // print software driver version
+            clGetDeviceInfo(devices[j], CL_DRIVER_VERSION, 0, NULL, &valueSize);
+            value = (char*) malloc(valueSize);
+            clGetDeviceInfo(devices[j], CL_DRIVER_VERSION, valueSize, value, NULL);
+            printf(" %d.%d Software version: %s\n", j+1, 2, value);
+            free(value);
+
+            // print c version supported by compiler for device
+            clGetDeviceInfo(devices[j], CL_DEVICE_OPENCL_C_VERSION, 0, NULL, &valueSize);
+            value = (char*) malloc(valueSize);
+            clGetDeviceInfo(devices[j], CL_DEVICE_OPENCL_C_VERSION, valueSize, value, NULL);
+            printf(" %d.%d OpenCL C version: %s\n", j+1, 3, value);
+            free(value);
+
+            // print parallel compute units
+            clGetDeviceInfo(devices[j], CL_DEVICE_MAX_COMPUTE_UNITS,
+                            sizeof(maxComputeUnits), &maxComputeUnits, NULL);
+            printf(" %d.%d Parallel compute units: %d\n", j+1, 4, maxComputeUnits);
+
         }
-        platform = platforms[id];
-        free(platforms);
-        return 0;
-    } else {
-        return -1;
+
+        free(devices);
+
     }
+
+    free(platforms);
 }
 
-cl_device_id* getCl_device_id(cl_platform_id& platform, char* device_type) {
-    cl_uint numDevices = 0;
+void print_all_the_platforms() {
+    int i, j;
+    char* info;
+    size_t infoSize;
+    cl_uint platformCount;
+    cl_platform_id *platforms;
+    const char* attributeNames[5] = { "Name", "Vendor",
+                                      "Version", "Profile", "Extensions" };
+    const cl_platform_info attributeTypes[5] = { CL_PLATFORM_NAME, CL_PLATFORM_VENDOR,
+                                                 CL_PLATFORM_VERSION, CL_PLATFORM_PROFILE, CL_PLATFORM_EXTENSIONS };
+    const int attributeCount = sizeof(attributeNames) / sizeof(char*);
+
+    // get platform count
+    clGetPlatformIDs(0, nullptr, &platformCount);
+
+    // get all platforms
+    platforms = (cl_platform_id*) malloc(sizeof(cl_platform_id) * platformCount);
+    clGetPlatformIDs(platformCount, platforms, nullptr);
+
+    // for each platform print all attributes
+    for (i = 0; i < platformCount; i++) {
+
+        printf("%d. Platform \n", i+1);
+
+        for (j = 0; j < attributeCount; j++) {
+
+            // get platform attribute value size
+            clGetPlatformInfo(platforms[i], attributeTypes[j], 0, nullptr, &infoSize);
+            info = (char*) malloc(infoSize);
+
+            // get platform attribute value
+            clGetPlatformInfo(platforms[i], attributeTypes[j], infoSize, info, nullptr);
+
+            printf(" %d.%d %-11s: %s\n", i+1, j+1, attributeNames[j], info);
+            free(info);
+
+        }
+
+        printf("\n");
+
+    }
+
+    free(platforms);
+
+}
+
+int getPlatform(cl_platform_id& platform, int id) {
+    cl_int status;
+    cl_int err;
+    cl_uint numPlatforms;
+    cl_platform_id* platforms;
+
+    status = clGetPlatformIDs(0, nullptr, &numPlatforms);
+    CL_CHECK(status);
+
+    assert(numPlatforms > 0);
+
+    platforms = (cl_platform_id*) malloc(numPlatforms * sizeof(cl_platform_id));
+    status = clGetPlatformIDs(numPlatforms, platforms, nullptr);
+    CL_CHECK(status);
+
+    platform = platforms[id];
+    free(platforms);
+    return 0;
+
+}
+
+cl_device_id* getDevice(cl_platform_id& platform, char* device_type) {
     cl_int status = 0;
+    cl_int err;
+    cl_uint numDevices = 0;
     cl_device_id* devices = nullptr;
 
     if ((device_type[0] == 'm') && (device_type[1] == 'i') && (device_type[2] == 'c')) {
@@ -86,26 +197,21 @@ cl_device_id* getCl_device_id(cl_platform_id& platform, char* device_type) {
         status = clGetDeviceIDs(platform, CL_DEVICE_TYPE_GPU, 0, nullptr, &numDevices);
     }
 
-    if (status != CL_SUCCESS) {
-        cout << "ERROR:Getting numDevices from clGetDeviceIDs!\n";
-        exit(1);
+    CL_CHECK(status);
+
+    assert(numDevices > 0);
+
+    devices = (cl_device_id*) malloc(numDevices * sizeof(cl_device_id));
+    if ((device_type[0] == 'm') && (device_type[1] == 'i') && (device_type[2] == 'c')) {
+        status = clGetDeviceIDs(platform, CL_DEVICE_TYPE_ACCELERATOR, numDevices, devices, nullptr);
+    } else if ((device_type[0] == 'c') && (device_type[1] == 'p') && (device_type[2] == 'u')) {
+        status = clGetDeviceIDs(platform, CL_DEVICE_TYPE_CPU, numDevices, devices, nullptr);
+    } else if ((device_type[0] == 'g') && (device_type[1] == 'p') && (device_type[2] == 'u')) {
+        status = clGetDeviceIDs(platform, CL_DEVICE_TYPE_GPU, numDevices, devices, nullptr);
     }
 
-    if (numDevices > 0) {
-        devices = (cl_device_id*) malloc(numDevices * sizeof(cl_device_id));
-        if ((device_type[0] == 'c') && (device_type[1] == 'p') && (device_type[2] == 'u')) {
-            status = clGetDeviceIDs(platform, CL_DEVICE_TYPE_CPU, numDevices, devices, nullptr);
-        } else if ((device_type[0] == 'm') && (device_type[1] == 'i') && (device_type[2] == 'c')) {
-            status = clGetDeviceIDs(platform, CL_DEVICE_TYPE_ACCELERATOR, numDevices, devices, nullptr);
-        } else if ((device_type[0] == 'g') && (device_type[1] == 'p') && (device_type[2] == 'u')) {
-            status = clGetDeviceIDs(platform, CL_DEVICE_TYPE_GPU, numDevices, devices, nullptr);
-        }
-    }
+    CL_CHECK(status);
 
-    if (status != CL_SUCCESS) {
-        cout << "ERROR:Getting devices from clGetDeviceIDs!\n";
-        exit(1);
-    }
     return devices;
 }
 

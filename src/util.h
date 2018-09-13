@@ -65,11 +65,11 @@ void initial_col(mat_t &X, unsigned int k, unsigned int n);
 /** convert the kernel file into a string */
 int convertToString(const char *filename,string& s);
 
-/** Getting platforms and choose an available one.*/
-int getPlatform(cl_platform_id &platform, int id);
+int getPlatform(cl_platform_id& platform, int id);
+cl_device_id* getDevice(cl_platform_id& platform, char* device_type);
 
-/** Query the platform and choose the first GPU device if has one.*/
-cl_device_id *getCl_device_id(cl_platform_id &platform, char* device_type);
+void print_all_the_info();
+void print_all_the_platforms();
 
 /** parsing the commandline arguments **/
 parameter parse_command_line(int argc, char **argv, char *input_file_name, char *kernel_code);
