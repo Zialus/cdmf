@@ -36,7 +36,7 @@ void cdmf_ocl(smat_t &R, mat_t &W_c, mat_t &H_c, parameter &param, char filename
     cl_device_id* devices = getDevice(platform, device_type);
 
     cl_context context = clCreateContext(nullptr, 1, devices, nullptr, nullptr, &err);
-    CHECK_ERROR(err);
+    CL_CHECK(err);
     cl_uint NumDevice;
     CL_CHECK(clGetContextInfo(context, CL_CONTEXT_NUM_DEVICES, sizeof(cl_uint), &NumDevice, nullptr));
     assert(NumDevice == 1);
@@ -63,12 +63,8 @@ void cdmf_ocl(smat_t &R, mat_t &W_c, mat_t &H_c, parameter &param, char filename
         free(buffer);
     }
 
-    if (status != CL_SUCCESS) {
-        std::cout << "ERROR: Could not compile OpenCl code !\n";
-        exit(1);
-    } else {
-        std::cout << "[build info]: Compiled OpenCl code !\n";
-    }
+    CL_CHECK(status)
+    printf("[build info]: Compiled OpenCl code !\n");
 
     for (int t = 0; t < param.k; ++t)
         for (long c = 0; c < R.cols; ++c)
@@ -96,35 +92,35 @@ void cdmf_ocl(smat_t &R, mat_t &W_c, mat_t &H_c, parameter &param, char filename
 
     // creating buffers
     cl_mem row_ptrBuffer = clCreateBuffer(context, CL_MEM_READ_WRITE|CL_MEM_COPY_HOST_PTR, R.nbits_row_ptr,(void *)row_ptr, &err);
-    CHECK_ERROR(err);
+    CL_CHECK(err);
     cl_mem col_idxBuffer = clCreateBuffer(context, CL_MEM_READ_WRITE|CL_MEM_COPY_HOST_PTR ,R.nbits_col_idx, (void *)col_idx, &err);
-    CHECK_ERROR(err);
+    CL_CHECK(err);
     cl_mem col_ptrBuffer = clCreateBuffer(context, CL_MEM_READ_WRITE|CL_MEM_COPY_HOST_PTR, R.nbits_col_ptr,(void *)col_ptr, &err);
-    CHECK_ERROR(err);
+    CL_CHECK(err);
     cl_mem row_idxBuffer = clCreateBuffer(context, CL_MEM_READ_WRITE|CL_MEM_COPY_HOST_PTR ,R.nbits_row_idx, (void *)row_idx, &err);
-    CHECK_ERROR(err);
+    CL_CHECK(err);
     cl_mem valBuffer = clCreateBuffer(context, CL_MEM_READ_WRITE|CL_MEM_COPY_HOST_PTR ,R.nbits_val, (void *)val, &err);
-    CHECK_ERROR(err);
+    CL_CHECK(err);
     cl_mem val_tBuffer = clCreateBuffer(context, CL_MEM_READ_WRITE|CL_MEM_COPY_HOST_PTR ,R.nbits_val, (void *)val_t, &err);
-    CHECK_ERROR(err);
+    CL_CHECK(err);
     cl_mem WtBuffer = clCreateBuffer(context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, nbits_u, (void *) Wt, &err); // u
-    CHECK_ERROR(err);
+    CL_CHECK(err);
     cl_mem HtBuffer = clCreateBuffer(context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, nbits_v, (void *) Ht, &err); // v
-    CHECK_ERROR(err);
+    CL_CHECK(err);
 
     // creating and building kernels
     cl_kernel RankOneUpdate_DUAL_kernel_u = clCreateKernel(program, "RankOneUpdate_DUAL_kernel_u", &err);
-    CHECK_ERROR(err);
+    CL_CHECK(err);
     cl_kernel RankOneUpdate_DUAL_kernel_v = clCreateKernel(program, "RankOneUpdate_DUAL_kernel_v", &err);
-    CHECK_ERROR(err);
+    CL_CHECK(err);
     cl_kernel UpdateRating_DUAL_kernel_NoLoss_r = clCreateKernel(program, "UpdateRating_DUAL_kernel_NoLoss_r", &err);
-    CHECK_ERROR(err);
+    CL_CHECK(err);
     cl_kernel UpdateRating_DUAL_kernel_NoLoss_c = clCreateKernel(program, "UpdateRating_DUAL_kernel_NoLoss_c", &err);
-    CHECK_ERROR(err);
+    CL_CHECK(err);
     cl_kernel UpdateRating_DUAL_kernel_NoLoss_r_ = clCreateKernel(program, "UpdateRating_DUAL_kernel_NoLoss_r_", &err);
-    CHECK_ERROR(err);
+    CL_CHECK(err);
     cl_kernel UpdateRating_DUAL_kernel_NoLoss_c_ = clCreateKernel(program, "UpdateRating_DUAL_kernel_NoLoss_c_", &err);
-    CHECK_ERROR(err);
+    CL_CHECK(err);
 
     // setting kernel arguments
     CL_CHECK(clSetKernelArg(RankOneUpdate_DUAL_kernel_u, 0, sizeof(unsigned), &cols));
