@@ -66,6 +66,8 @@ cl_device_id* getDevice(cl_platform_id& platform, char* device_type);
 void print_all_the_info();
 void print_all_the_platforms();
 
+int report_device(cl_device_id device_id);
+
 /** parsing the commandline arguments **/
 parameter parse_command_line(int argc, char **argv, char *input_file_name, char *kernel_code);
 

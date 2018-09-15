@@ -9,21 +9,19 @@ void cdmf_ocl(smat_t &R, mat_t &W_c, mat_t &H_c, parameter &param, char filename
     cl_int err;
     cl_platform_id platform;
 
-    if (param.platform_id == 0) {
-        device_type[0] = 'g';
-        device_type[1] = 'p';
-        device_type[2] = 'u';
-    } else if (param.platform_id == 1) {
-        device_type[0] = 'c';
-        device_type[1] = 'p';
-        device_type[2] = 'u';
-    } else if (param.platform_id == 2) {
-        device_type[0] = 'm';
-        device_type[1] = 'i';
-        device_type[2] = 'c';
-    } else {
-        printf("[info] unknown device type!\n");
-        exit(-1);
+    switch (param.platform_id) {
+        case 0:
+            snprintf(device_type, sizeof(device_type), "gpu");
+            break;
+        case 1:
+            snprintf(device_type, sizeof(device_type), "cpu");
+            break;
+        case 2:
+            snprintf(device_type, sizeof(device_type), "mic");
+            break;
+        default:
+            printf("[info] unknown device type!\n");
+            break;
     }
     printf("[info] - selected device type: %s\n", device_type);
 
@@ -34,7 +32,7 @@ void cdmf_ocl(smat_t &R, mat_t &W_c, mat_t &H_c, parameter &param, char filename
 
     getPlatform(platform, 0);
     cl_device_id* devices = getDevice(platform, device_type);
-
+    report_device(devices[0]);
     cl_context context = clCreateContext(nullptr, 1, devices, nullptr, nullptr, &err);
     CL_CHECK(err);
     cl_uint NumDevice;
