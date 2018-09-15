@@ -18,9 +18,9 @@
 #include <sstream>
 
 #ifdef __APPLE__
-    #include <OpenCL/cl.h>
+#include <OpenCL/cl.h>
 #else
-    #include <CL/cl.h>
+#include <CL/cl.h>
 #endif
 
 #include <sys/time.h>
@@ -37,7 +37,7 @@ using namespace std;
     {if (res != CL_SUCCESS) {fprintf(stderr,"Error \"%s\" (%d) in file %s on line %d\n", \
         get_error_string(res), res, __FILE__,__LINE__); abort();}}
 
-#define CHECK_FSCAN(err,num)    if(err != num){ \
+#define CHECK_FSCAN(err, num)    if(err != num){ \
     perror("FSCANF"); \
     exit(-1); \
 }
@@ -53,12 +53,10 @@ class parameter;
 typedef vector<VALUE_TYPE> vec_t;
 typedef vector<vec_t> mat_t;
 
-/* interface declaration */
-void load(const char* srcdir, smat_t &R, bool ifALS, bool with_weights);
-void initial_col(mat_t &X, unsigned int k, unsigned int n);
+void load(const char* srcdir, smat_t& R, bool ifALS, bool with_weights);
+void initial_col(mat_t& X, unsigned int k, unsigned int n);
 
-/** convert the kernel file into a string */
-int convertToString(const char *filename,string& s);
+int convertToString(const char* filename, string& s);
 
 int getPlatform(cl_platform_id& platform, int id);
 cl_device_id* getDevice(cl_platform_id& platform, char* device_type);
@@ -68,8 +66,7 @@ void print_all_the_platforms();
 
 int report_device(cl_device_id device_id);
 
-/** parsing the commandline arguments **/
-parameter parse_command_line(int argc, char **argv, char *input_file_name, char *kernel_code);
+parameter parse_command_line(int argc, char** argv, char* input_file_name, char* kernel_code);
 
 void print_matrix(mat_t M, unsigned k, unsigned n);
 
