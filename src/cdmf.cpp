@@ -6,6 +6,7 @@
 #include <fstream>
 
 #include "util.h"
+#include "tools.h"
 
 using namespace std;
 

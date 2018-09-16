@@ -1,11 +1,4 @@
-#include <cstring>
-#include <cstdio>
-#include <cstdlib>
-
-#include <iostream>
-#include <string>
-#include <fstream>
-
+#include "tools.h"
 #include "util.h"
 
 using namespace std;

@@ -1,4 +1,5 @@
 #include "util.h"
+#include "tools.h"
 
 void cdmf_ocl(smat_t& R, mat_t& W_c, mat_t& H_c, parameter& param, char filename[]) {
     char device_type[4] = {'\0', '\0', '\0', '\0'};
