@@ -187,6 +187,11 @@ void cdmf_ocl(smat_t& R, mat_t& W_c, mat_t& H_c, parameter& param, char filename
     size_t local_work_size[1] = {param.nThreadsPerBlock};
     printf("[info] - threads per block: %u\n", param.nThreadsPerBlock);
 
+    size_t local;
+    CL_CHECK(clGetKernelWorkGroupInfo(RankOneUpdate_DUAL_kernel_u, devices[0], CL_KERNEL_WORK_GROUP_SIZE, sizeof(local), &local, NULL));
+    printf("local_work_size for RankOneUpdate_DUAL_kernel_u should be: %zu\n",local);
+    CL_CHECK(clGetKernelWorkGroupInfo(RankOneUpdate_DUAL_kernel_v, devices[0], CL_KERNEL_WORK_GROUP_SIZE, sizeof(local), &local, NULL));
+    printf("local_work_size for RankOneUpdate_DUAL_kernel_u should be: %zu\n",local);
 
     cl_ulong t_update_ratings = 0;
     cl_ulong t_rank_one_update = 0;
