@@ -401,5 +401,8 @@ class smat_t
 
 void golden_compare(mat_t W, mat_t W_ref, unsigned k, unsigned m);
 
+void calculate_rmse_ocl(const mat_t& W_c, const mat_t& H_c, const int k, const char* srcdir);
+
+
 #endif // UTIL_H
 

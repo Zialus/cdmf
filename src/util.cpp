@@ -421,6 +421,62 @@ void golden_compare(mat_t W, mat_t W_ref, unsigned k, unsigned m) {
     }
 }
 
+void calculate_rmse_ocl(const mat_t& W_c, const mat_t& H_c, const int k, const char* srcdir) {
+    double t5 = gettime();
+    int i, j;
+    VALUE_TYPE vv, rmse = 0;
+    int num_insts = 0;
+    int nans_count = 0;
+
+    char meta_filename[1024];
+    sprintf(meta_filename, "%s/meta", srcdir);
+    FILE* fp = fopen(meta_filename, "r");
+    if (fp == nullptr) {
+        printf("Can't open meta input file.\n");
+        exit(1);
+    }
+
+    char buf_train[1024], buf_test[1024], test_file_name[1024], train_file_name[1024];
+    unsigned m, n, nnz, nnz_test;
+    CHECK_FSCAN(fscanf(fp, "%u %u", &m, &n),2);
+    CHECK_FSCAN(fscanf(fp, "%u %1023s", &nnz, buf_train),2);
+    CHECK_FSCAN(fscanf(fp, "%u %1023s", &nnz_test, buf_test),2);
+    sprintf(test_file_name, "%s/%s", srcdir, buf_test);
+    sprintf(train_file_name, "%s/%s", srcdir, buf_train);
+    fclose(fp);
+
+    FILE* test_fp = fopen(test_file_name, "r");
+    if (test_fp == nullptr) {
+        printf("Can't open test file.\n");
+        exit(1);
+    }
+
+    while ((sizeof(VALUE_TYPE) == 8) ? (fscanf(test_fp, "%d %d %lf", &i, &j, &vv) != EOF) : (fscanf(test_fp, "%d %d %f", &i, &j, &vv) != EOF)) {
+        VALUE_TYPE pred_v = 0;
+        for (int t = 0; t < k; t++) {
+            pred_v += W_c[t][i - 1] * H_c[t][j - 1];
+        }
+        num_insts++;
+        VALUE_TYPE tmp = (pred_v - vv) * (pred_v - vv);
+        if (tmp == tmp) {
+            rmse += tmp;
+        } else {
+            nans_count++;
+        }
+//            printf("%d - %d,%d,%lf,%lf,%lf\n", num_insts-1,i,j, tmp, vv, pred_v);
+    }
+    fclose(test_fp);
+
+    double nans_percentage = (double) nans_count / (double) num_insts;
+    printf("NaNs percentage: %lf, NaNs Count: %d, Total Insts: %d\n", nans_percentage, nans_count, num_insts);
+    rmse = sqrt(rmse / num_insts);
+    printf("[info] test RMSE = %lf\n", rmse);
+    double t6 = gettime();
+    double deltaT2 = t6 - t5;
+    printf("[info] Predict time: %lf s\n", deltaT2);
+
+}
+
 void print_matrix(mat_t M, unsigned k, unsigned n) {
     printf("-----------------------------------------\n");
     for (unsigned i = 0; i < n; ++i) {
