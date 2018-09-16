@@ -14,7 +14,7 @@ set(EXECUTABLE_OUTPUT_PATH "${CMAKE_SOURCE_DIR}/exec/")
 #set(CMAKE_VERBOSE_MAKEFILE ON)
 
 set(NUMRUN "-DNUM_RUN=1")
-set(WARNINGS "-Wno-deprecated-declarations -Wno-format")
+#set(WARNINGS "-Wno-deprecated-declarations -Wno-format")
 set(VALUE "-DVALUE_TYPE=double")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${NUMRUN} ${VERSION} ${VALUE} -m64 ${WARNINGS}")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${NUMRUN} ${VERSION} ${VALUE} -m64 ${WARNINGS}")
