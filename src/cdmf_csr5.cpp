@@ -43,8 +43,7 @@ void cdmf_csr5(smat_t &R, mat_t &W_c, mat_t &H_c, parameter &param, char filenam
 
     printf("[info] - The kernel to be compiled: %s\n", filename);
     string sourceStr;
-    status = convertToString(filename, sourceStr);
-    if (status == -1) { exit(-1); }
+    convertToString(filename, sourceStr);
     const char* source = sourceStr.c_str();
     size_t sourceSize[] = {strlen(source)};
     cl_program program = clCreateProgramWithSource(context, 1, &source, sourceSize, nullptr);

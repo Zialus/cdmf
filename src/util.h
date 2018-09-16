@@ -56,7 +56,7 @@ typedef vector<vec_t> mat_t;
 void load(const char* srcdir, smat_t& R, bool ifALS, bool with_weights);
 void initial_col(mat_t& X, unsigned int k, unsigned int n);
 
-int convertToString(const char* filename, string& s);
+void convertToString(const char* filename, string& s);
 
 int getPlatform(cl_platform_id& platform, int id);
 cl_device_id* getDevice(cl_platform_id& platform, char* device_type);

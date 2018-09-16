@@ -27,26 +27,25 @@ void load(const char* srcdir, smat_t& R, bool ifALS, bool with_weights) {
     fclose(fp);
 }
 
-int convertToString(const char* filename, string& s) {
-    size_t size;
-    char* str;
+void convertToString(const char* filename, string& s) {
     fstream f(filename, (fstream::in | fstream::binary));
 
     if (f.is_open()) {
+        size_t size;
         size_t fileSize;
         f.seekg(0, fstream::end);
         size = fileSize = (size_t) f.tellg();
         f.seekg(0, fstream::beg);
-        str = new char[size + 1];
+        char* str = new char[size + 1];
         f.read(str, fileSize);
         f.close();
         str[size] = '\0';
         s = str;
         delete[] str;
-        return 0;
+    } else {
+        cout << "Error:failed to open file:" << filename << "\n";
+        exit(EXIT_FAILURE);
     }
-    cout << "Error:failed to open file:" << filename << "\n";
-    return -1;
 }
 
 void print_all_the_info() {
