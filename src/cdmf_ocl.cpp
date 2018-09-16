@@ -81,12 +81,12 @@ void cdmf_ocl(smat_t& R, mat_t& W_c, mat_t& H_c, parameter& param, char filename
     unsigned* row_idx = R.row_idx, * col_idx = R.col_idx;
     VALUE_TYPE* val = R.val;
     VALUE_TYPE* val_t = R.val_t;
-    size_t nbits_u = R.rows * sizeof(VALUE_TYPE);
-    size_t nbits_v = R.cols * sizeof(VALUE_TYPE);
-    printf("[info] - blocks: %u, threads per block: %u\n", nBlocks, nThreadsPerBlock);
 
     VALUE_TYPE* Wt = (VALUE_TYPE*) malloc(R.rows * sizeof(VALUE_TYPE));
     VALUE_TYPE* Ht = (VALUE_TYPE*) malloc(R.cols * sizeof(VALUE_TYPE));
+
+    size_t nbits_u = R.rows * sizeof(VALUE_TYPE);
+    size_t nbits_v = R.cols * sizeof(VALUE_TYPE);
 
     // creating buffers
     cl_mem row_ptrBuffer = clCreateBuffer(context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, R.nbits_row_ptr, (void*) row_ptr, &err);
@@ -192,6 +192,10 @@ void cdmf_ocl(smat_t& R, mat_t& W_c, mat_t& H_c, parameter& param, char filename
     size_t gws_row[1] = {rows * nThreadsPerBlock};
     size_t gws_col[1] = {cols * nThreadsPerBlock};
 
+    size_t global_work_size[1] = {nBlocks * nThreadsPerBlock};
+    size_t local_work_size[1] = {nThreadsPerBlock};
+
+    printf("[info] - blocks: %u, threads per block: %u\n", nBlocks, nThreadsPerBlock);
     cl_ulong t_update_ratings = 0;
     cl_ulong t_rank_one_update = 0;
     cl_ulong t_start;
@@ -200,8 +204,6 @@ void cdmf_ocl(smat_t& R, mat_t& W_c, mat_t& H_c, parameter& param, char filename
     double t1 = gettime();
     for (int oiter = 1; oiter <= maxiter; ++oiter) {
         //printf("[info] the %dth outter iteration.\n", oiter);
-        size_t global_work_size[1] = {nBlocks * nThreadsPerBlock};
-        size_t local_work_size[1] = {nThreadsPerBlock};
         for (int t = 0; t < k; ++t) {
             // Writing Buffer
             Wt = &(W_c[t][0]); // u
