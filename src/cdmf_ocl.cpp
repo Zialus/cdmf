@@ -1,7 +1,6 @@
 #include "util.h"
 
-void cdmf_ocl(smat_t &R, mat_t &W_c, mat_t &H_c, parameter &param, char filename[])
-{
+void cdmf_ocl(smat_t& R, mat_t& W_c, mat_t& H_c, parameter& param, char filename[]) {
     char device_type[4] = {'\0', '\0', '\0', '\0'};
 
     // create context and build the kernel code
@@ -63,9 +62,11 @@ void cdmf_ocl(smat_t &R, mat_t &W_c, mat_t &H_c, parameter &param, char filename
     CL_CHECK(status)
     printf("[build info]: Compiled OpenCl code !\n");
 
-    for (int t = 0; t < param.k; ++t)
-        for (long c = 0; c < R.cols; ++c)
+    for (int t = 0; t < param.k; ++t) {
+        for (long c = 0; c < R.cols; ++c) {
             H_c[t][c] = 0;
+        }
+    }
 
     unsigned num_updates = 0;
     unsigned k = param.k;
@@ -88,21 +89,21 @@ void cdmf_ocl(smat_t &R, mat_t &W_c, mat_t &H_c, parameter &param, char filename
     VALUE_TYPE* Ht = (VALUE_TYPE*) malloc(R.cols * sizeof(VALUE_TYPE));
 
     // creating buffers
-    cl_mem row_ptrBuffer = clCreateBuffer(context, CL_MEM_READ_WRITE|CL_MEM_COPY_HOST_PTR, R.nbits_row_ptr,(void *)row_ptr, &err);
+    cl_mem row_ptrBuffer = clCreateBuffer(context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, R.nbits_row_ptr, (void*) row_ptr, &err);
     CL_CHECK(err);
-    cl_mem col_idxBuffer = clCreateBuffer(context, CL_MEM_READ_WRITE|CL_MEM_COPY_HOST_PTR ,R.nbits_col_idx, (void *)col_idx, &err);
+    cl_mem col_idxBuffer = clCreateBuffer(context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, R.nbits_col_idx, (void*) col_idx, &err);
     CL_CHECK(err);
-    cl_mem col_ptrBuffer = clCreateBuffer(context, CL_MEM_READ_WRITE|CL_MEM_COPY_HOST_PTR, R.nbits_col_ptr,(void *)col_ptr, &err);
+    cl_mem col_ptrBuffer = clCreateBuffer(context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, R.nbits_col_ptr, (void*) col_ptr, &err);
     CL_CHECK(err);
-    cl_mem row_idxBuffer = clCreateBuffer(context, CL_MEM_READ_WRITE|CL_MEM_COPY_HOST_PTR ,R.nbits_row_idx, (void *)row_idx, &err);
+    cl_mem row_idxBuffer = clCreateBuffer(context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, R.nbits_row_idx, (void*) row_idx, &err);
     CL_CHECK(err);
-    cl_mem valBuffer = clCreateBuffer(context, CL_MEM_READ_WRITE|CL_MEM_COPY_HOST_PTR ,R.nbits_val, (void *)val, &err);
+    cl_mem valBuffer = clCreateBuffer(context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, R.nbits_val, (void*) val, &err);
     CL_CHECK(err);
-    cl_mem val_tBuffer = clCreateBuffer(context, CL_MEM_READ_WRITE|CL_MEM_COPY_HOST_PTR ,R.nbits_val, (void *)val_t, &err);
+    cl_mem val_tBuffer = clCreateBuffer(context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, R.nbits_val, (void*) val_t, &err);
     CL_CHECK(err);
-    cl_mem WtBuffer = clCreateBuffer(context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, nbits_u, (void *) Wt, &err); // u
+    cl_mem WtBuffer = clCreateBuffer(context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, nbits_u, (void*) Wt, &err); // u
     CL_CHECK(err);
-    cl_mem HtBuffer = clCreateBuffer(context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, nbits_v, (void *) Ht, &err); // v
+    cl_mem HtBuffer = clCreateBuffer(context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, nbits_v, (void*) Ht, &err); // v
     CL_CHECK(err);
 
     // creating and building kernels
@@ -196,92 +197,81 @@ void cdmf_ocl(smat_t &R, mat_t &W_c, mat_t &H_c, parameter &param, char filename
     cl_ulong t_start;
     cl_ulong t_end;
 
-    double t1 = gettime ();
-    for (int oiter = 1; oiter <= maxiter; ++oiter)
-    {
+    double t1 = gettime();
+    for (int oiter = 1; oiter <= maxiter; ++oiter) {
         //printf("[info] the %dth outter iteration.\n", oiter);
         size_t global_work_size[1] = {nBlocks * nThreadsPerBlock};
         size_t local_work_size[1] = {nThreadsPerBlock};
-        for (int t = 0; t < k; ++t)
-        {
+        for (int t = 0; t < k; ++t) {
             // Writing Buffer
             Wt = &(W_c[t][0]); // u
             Ht = &(H_c[t][0]); // v
-            CL_CHECK(clEnqueueWriteBuffer(commandQueue, WtBuffer, CL_TRUE, 0, R.rows * sizeof (VALUE_TYPE), Wt, 0, nullptr, nullptr));
-            CL_CHECK(clEnqueueWriteBuffer(commandQueue, HtBuffer, CL_TRUE, 0, R.cols * sizeof (VALUE_TYPE), Ht, 0, nullptr, nullptr));
+            CL_CHECK(clEnqueueWriteBuffer(commandQueue, WtBuffer, CL_TRUE, 0, R.rows * sizeof(VALUE_TYPE), Wt, 0, nullptr, nullptr));
+            CL_CHECK(clEnqueueWriteBuffer(commandQueue, HtBuffer, CL_TRUE, 0, R.cols * sizeof(VALUE_TYPE), Ht, 0, nullptr, nullptr));
 
-            if (oiter > 1)
-            {
+            if (oiter > 1) {
                 // update the rating matrix in CSC format (+)
                 cl_event eventPoint;
-                CL_CHECK(clEnqueueNDRangeKernel (commandQueue, UpdateRating_DUAL_kernel_NoLoss_c, 1,
-                                                 nullptr, gws_col, local_work_size, 0, nullptr, &eventPoint));
-                CL_CHECK(clWaitForEvents (1, &eventPoint));
+                CL_CHECK(clEnqueueNDRangeKernel(commandQueue, UpdateRating_DUAL_kernel_NoLoss_c, 1, nullptr, gws_col, local_work_size, 0, nullptr, &eventPoint));
+                CL_CHECK(clWaitForEvents(1, &eventPoint));
                 clGetEventProfilingInfo(eventPoint, CL_PROFILING_COMMAND_START, sizeof(cl_ulong), &t_start, nullptr);
                 clGetEventProfilingInfo(eventPoint, CL_PROFILING_COMMAND_END, sizeof(cl_ulong), &t_end, nullptr);
                 t_update_ratings += t_end - t_start;
 
                 // update the rating matrix in CSR format (+)
-                CL_CHECK(clEnqueueNDRangeKernel (commandQueue, UpdateRating_DUAL_kernel_NoLoss_r, 1,
-                                                 nullptr, gws_row, local_work_size, 0, nullptr, &eventPoint));
-                CL_CHECK(clWaitForEvents (1, &eventPoint));
+                CL_CHECK(clEnqueueNDRangeKernel(commandQueue, UpdateRating_DUAL_kernel_NoLoss_r, 1, nullptr, gws_row, local_work_size, 0, nullptr, &eventPoint));
+                CL_CHECK(clWaitForEvents(1, &eventPoint));
                 clGetEventProfilingInfo(eventPoint, CL_PROFILING_COMMAND_START, sizeof(cl_ulong), &t_start, nullptr);
                 clGetEventProfilingInfo(eventPoint, CL_PROFILING_COMMAND_END, sizeof(cl_ulong), &t_end, nullptr);
                 t_update_ratings += t_end - t_start;
-                CL_CHECK(clReleaseEvent (eventPoint));
+                CL_CHECK(clReleaseEvent(eventPoint));
             }
-            for (int iter = 1; iter <= inneriter; ++iter)
-            {
+            for (int iter = 1; iter <= inneriter; ++iter) {
                 // update vector v
                 cl_event eventPoint1v, eventPoint1u;
-                CL_CHECK(clEnqueueNDRangeKernel (commandQueue,  RankOneUpdate_DUAL_kernel_v, 1, nullptr,
-                    gws_col, local_work_size, 0, nullptr, &eventPoint1v));
-                CL_CHECK(clWaitForEvents (1, &eventPoint1v));
+                CL_CHECK(clEnqueueNDRangeKernel(commandQueue, RankOneUpdate_DUAL_kernel_v, 1, nullptr, gws_col, local_work_size, 0, nullptr, &eventPoint1v));
+                CL_CHECK(clWaitForEvents(1, &eventPoint1v));
                 clGetEventProfilingInfo(eventPoint1v, CL_PROFILING_COMMAND_START, sizeof(cl_ulong), &t_start, nullptr);
                 clGetEventProfilingInfo(eventPoint1v, CL_PROFILING_COMMAND_END, sizeof(cl_ulong), &t_end, nullptr);
                 t_rank_one_update += t_end - t_start;
 
                 // update vector u
-                CL_CHECK(clEnqueueNDRangeKernel (commandQueue,  RankOneUpdate_DUAL_kernel_u, 1, nullptr,
-                    gws_row, local_work_size, 0, nullptr, &eventPoint1u));
-                CL_CHECK(clWaitForEvents (1, &eventPoint1u));
+                CL_CHECK(clEnqueueNDRangeKernel(commandQueue, RankOneUpdate_DUAL_kernel_u, 1, nullptr, gws_row, local_work_size, 0, nullptr, &eventPoint1u));
+                CL_CHECK(clWaitForEvents(1, &eventPoint1u));
                 clGetEventProfilingInfo(eventPoint1u, CL_PROFILING_COMMAND_START, sizeof(cl_ulong), &t_start, nullptr);
                 clGetEventProfilingInfo(eventPoint1u, CL_PROFILING_COMMAND_END, sizeof(cl_ulong), &t_end, nullptr);
                 t_rank_one_update += t_end - t_start;
 
-                CL_CHECK(clReleaseEvent (eventPoint1v));
-                CL_CHECK(clReleaseEvent (eventPoint1u));
+                CL_CHECK(clReleaseEvent(eventPoint1v));
+                CL_CHECK(clReleaseEvent(eventPoint1u));
             }
             // Reading Buffer
-            CL_CHECK(clEnqueueReadBuffer (commandQueue, WtBuffer, CL_TRUE, 0, R.rows * sizeof (VALUE_TYPE), Wt, 0, nullptr, nullptr));
-            CL_CHECK(clEnqueueReadBuffer (commandQueue, HtBuffer, CL_TRUE, 0, R.cols * sizeof (VALUE_TYPE), Ht, 0, nullptr, nullptr));
+            CL_CHECK(clEnqueueReadBuffer(commandQueue, WtBuffer, CL_TRUE, 0, R.rows * sizeof(VALUE_TYPE), Wt, 0, nullptr, nullptr));
+            CL_CHECK(clEnqueueReadBuffer(commandQueue, HtBuffer, CL_TRUE, 0, R.cols * sizeof(VALUE_TYPE), Ht, 0, nullptr, nullptr));
             // update the rating matrix in CSC format (-)
             cl_event eventPoint2c, eventPoint2r;
-            CL_CHECK(clEnqueueNDRangeKernel (commandQueue,  UpdateRating_DUAL_kernel_NoLoss_c_, 1, nullptr,
-                gws_col, local_work_size, 0, nullptr, &eventPoint2c));
-            CL_CHECK(clWaitForEvents (1, &eventPoint2c));
+            CL_CHECK(clEnqueueNDRangeKernel(commandQueue, UpdateRating_DUAL_kernel_NoLoss_c_, 1, nullptr, gws_col, local_work_size, 0, nullptr, &eventPoint2c));
+            CL_CHECK(clWaitForEvents(1, &eventPoint2c));
             clGetEventProfilingInfo(eventPoint2c, CL_PROFILING_COMMAND_START, sizeof(cl_ulong), &t_start, nullptr);
             clGetEventProfilingInfo(eventPoint2c, CL_PROFILING_COMMAND_END, sizeof(cl_ulong), &t_end, nullptr);
             t_update_ratings += t_end - t_start;
 
             // update the rating matrix in CSR format (-)
-            CL_CHECK(clEnqueueNDRangeKernel (commandQueue, UpdateRating_DUAL_kernel_NoLoss_r_, 1, nullptr,
-                gws_row, local_work_size, 0, nullptr, &eventPoint2r));
-            CL_CHECK(clWaitForEvents (1, &eventPoint2r));
+            CL_CHECK(clEnqueueNDRangeKernel(commandQueue, UpdateRating_DUAL_kernel_NoLoss_r_, 1, nullptr, gws_row, local_work_size, 0, nullptr, &eventPoint2r));
+            CL_CHECK(clWaitForEvents(1, &eventPoint2r));
             clGetEventProfilingInfo(eventPoint2r, CL_PROFILING_COMMAND_START, sizeof(cl_ulong), &t_start, nullptr);
             clGetEventProfilingInfo(eventPoint2r, CL_PROFILING_COMMAND_END, sizeof(cl_ulong), &t_end, nullptr);
             t_update_ratings += t_end - t_start;
-            CL_CHECK(clReleaseEvent (eventPoint2c));
-            CL_CHECK(clReleaseEvent (eventPoint2r));
+            CL_CHECK(clReleaseEvent(eventPoint2c));
+            CL_CHECK(clReleaseEvent(eventPoint2r));
 
         }
     }
-    double t2 = gettime ();
+    double t2 = gettime();
     double deltaT = t2 - t1;
-    printf("[info] - training time: %lf s\n",  deltaT);
-    printf("[info] - rank one updating time: %llu ms, R updating time: %llu ms\n", t_rank_one_update/1000000ULL, t_update_ratings/1000000ULL);
+    printf("[info] - training time: %lf s\n", deltaT);
+    printf("[info] - rank one updating time: %llu ms, R updating time: %llu ms\n", t_rank_one_update / 1000000ULL, t_update_ratings / 1000000ULL);
 
-    /** Release the context **/
     CL_CHECK(clReleaseMemObject(row_ptrBuffer));
     CL_CHECK(clReleaseMemObject(col_idxBuffer));
     CL_CHECK(clReleaseMemObject(col_ptrBuffer));

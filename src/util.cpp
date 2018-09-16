@@ -397,7 +397,6 @@ void initial_col(mat_t& X, unsigned k, unsigned n) {
     for (unsigned i = 0; i < n; ++i) {
         for (unsigned j = 0; j < k; ++j) {
             X[j][i] = 0.1 * (VALUE_TYPE(rand()) / RAND_MAX) + 0.001;
-            //X[j][i] = 0.01;
         }
     }
 }
