@@ -47,8 +47,8 @@ class anonymouslibHandle
         cl_kernel           _ocl_kernel_spmv_csr5_calibrate;
         cl_kernel           _ocl_kernel_spmv_csr5_tail_partition;
 
-        string _ocl_source_code_string_format_const;
-        string _ocl_source_code_string_csr5_spmv_const;
+        std::string _ocl_source_code_string_format_const;
+        std::string _ocl_source_code_string_csr5_spmv_const;
 
         int computeSigma();
         int _format;
@@ -180,7 +180,7 @@ int anonymouslibHandle<ANONYMOUSLIB_IT, ANONYMOUSLIB_UIT, ANONYMOUSLIB_VT>::asCS
 
         // compute sigma
         _csr5_sigma = computeSigma();
-        cout << "omega = " << ANONYMOUSLIB_CSR5_OMEGA << ", sigma = " << _csr5_sigma << ". ";
+        std::cout << "omega = " << ANONYMOUSLIB_CSR5_OMEGA << ", sigma = " << _csr5_sigma << ". ";
 
         // compute how many bits required for `y_offset' and `carry_offset'
         int base = 2;
@@ -196,11 +196,11 @@ int anonymouslibHandle<ANONYMOUSLIB_IT, ANONYMOUSLIB_UIT, ANONYMOUSLIB_VT>::asCS
 
         int bit_all = _bit_y_offset + _bit_scansum_offset + _csr5_sigma;
         _num_packet = ceil((double)bit_all / (double)(sizeof(ANONYMOUSLIB_UIT) * 8));
-        //cout << "#num_packet = " << _num_packet << endl;
+        //std::cout << "#num_packet = " << _num_packet << std::endl;
 
         // calculate the number of partitions
         _p = ceil((double)_nnz / (double)(ANONYMOUSLIB_CSR5_OMEGA * _csr5_sigma));
-        //cout << "#partition = " << _p << endl;
+        //std::cout << "#partition = " << _p << std::endl;
 
         malloc_timer.start();
         // malloc the newly added arrays for CSR5
@@ -242,7 +242,7 @@ int anonymouslibHandle<ANONYMOUSLIB_IT, ANONYMOUSLIB_UIT, ANONYMOUSLIB_VT>::asCS
         malloc_time += malloc_timer.stop();
 
         _tail_partition_start = (tail << 1) >> 1;
-        //cout << "_tail_partition_start = " << _tail_partition_start << endl;
+        //std::cout << "_tail_partition_start = " << _tail_partition_start << std::endl;
 
         // step 2. generate partition descriptor
         //tile_desc_timer.start();
@@ -265,7 +265,7 @@ int anonymouslibHandle<ANONYMOUSLIB_IT, ANONYMOUSLIB_UIT, ANONYMOUSLIB_VT>::asCS
 
         if (_num_offsets)
         {
-            //cout << "has empty rows, _num_offsets = " << _num_offsets << endl;
+            //std::cout << "has empty rows, _num_offsets = " << _num_offsets << std::endl;
 
             malloc_timer.start();
 
@@ -304,10 +304,10 @@ int anonymouslibHandle<ANONYMOUSLIB_IT, ANONYMOUSLIB_UIT, ANONYMOUSLIB_VT>::asCS
         //transpose_time += transpose_timer.stop();
         transpose_time += time;
 
-        cout << endl << "CSR->CSR5 malloc time = " << malloc_time << " ms." << endl;
-        cout << "CSR->CSR5 tile_ptr time = " << tile_ptr_time << " ms." << endl;
-        cout << "CSR->CSR5 tile_desc time = " << tile_desc_time << " ms." << endl;
-        cout << "CSR->CSR5 transpose time = " << transpose_time << " ms." << endl;
+        std::cout << std::endl << "CSR->CSR5 malloc time = " << malloc_time << " ms." << std::endl;
+        std::cout << "CSR->CSR5 tile_ptr time = " << tile_ptr_time << " ms." << std::endl;
+        std::cout << "CSR->CSR5 tile_desc time = " << tile_desc_time << " ms." << std::endl;
+        std::cout << "CSR->CSR5 transpose time = " << transpose_time << " ms." << std::endl;
 
         _format = ANONYMOUSLIB_FORMAT_CSR5;
     }
@@ -438,7 +438,7 @@ int anonymouslibHandle<ANONYMOUSLIB_IT, ANONYMOUSLIB_UIT, ANONYMOUSLIB_VT>::setS
     sprintf (threadgroup_str, "%d", ANONYMOUSLIB_THREAD_GROUP);
     char threadbunch_str [3]; //supports up to omega = 999
     sprintf (threadbunch_str, "%d", ANONYMOUSLIB_THREAD_BUNCH);
-    //cout << "sigma_str = " << sigma_str << endl;
+    //std::cout << "sigma_str = " << sigma_str << std::endl;
 
     char *it_str = (char *)" int ";
     char *uit_str = (char *)" unsigned int ";
@@ -449,51 +449,51 @@ int anonymouslibHandle<ANONYMOUSLIB_IT, ANONYMOUSLIB_UIT, ANONYMOUSLIB_VT>::setS
     else if (sizeof(ANONYMOUSLIB_VT) == 4)
         vt_str = (char *)" float ";
 
-    string ocl_source_code_string_format = _ocl_source_code_string_format_const;
-    string ocl_source_code_string_csr5_spmv = _ocl_source_code_string_csr5_spmv_const;
+    std::string ocl_source_code_string_format = _ocl_source_code_string_format_const;
+    std::string ocl_source_code_string_csr5_spmv = _ocl_source_code_string_csr5_spmv_const;
 
     // replace 'omega_replace_str' to 'omega_str'
-    const string omega_replace_str ("_REPLACE_ANONYMOUSLIB_CSR5_OMEGA_SEGMENT_");
+    const std::string omega_replace_str ("_REPLACE_ANONYMOUSLIB_CSR5_OMEGA_SEGMENT_");
     size_t omega_found = ocl_source_code_string_format.find(omega_replace_str);
     ocl_source_code_string_format.replace( omega_found, omega_replace_str.length(), omega_str);
     omega_found = ocl_source_code_string_csr5_spmv.find(omega_replace_str);
     ocl_source_code_string_csr5_spmv.replace( omega_found, omega_replace_str.length(), omega_str);
 
     // replace 'sigma_replace_str' to 'sigma_str'
-    const string sigma_replace_str ("_REPLACE_ANONYMOUSLIB_CSR5_SIGMA_SEGMENT_");
+    const std::string sigma_replace_str ("_REPLACE_ANONYMOUSLIB_CSR5_SIGMA_SEGMENT_");
     size_t sigma_found = ocl_source_code_string_format.find(sigma_replace_str);
     ocl_source_code_string_format.replace( sigma_found, sigma_replace_str.length(), sigma_str);
     sigma_found = ocl_source_code_string_csr5_spmv.find(sigma_replace_str);
     ocl_source_code_string_csr5_spmv.replace( sigma_found, sigma_replace_str.length(), sigma_str);
 
     // replace 'threadgroup_replace_str' to 'threadgroup_str'
-    const string threadgroup_replace_str ("_REPLACE_ANONYMOUSLIB_THREAD_GROUP_SEGMENT_");
+    const std::string threadgroup_replace_str ("_REPLACE_ANONYMOUSLIB_THREAD_GROUP_SEGMENT_");
     size_t threadgroup_found = ocl_source_code_string_format.find(threadgroup_replace_str);
     ocl_source_code_string_format.replace( threadgroup_found, threadgroup_replace_str.length(), threadgroup_str);
     threadgroup_found = ocl_source_code_string_csr5_spmv.find(threadgroup_replace_str);
     ocl_source_code_string_csr5_spmv.replace( threadgroup_found, threadgroup_replace_str.length(), threadgroup_str);
 
     // replace 'threadbunch_replace_str' to 'threadbunch_str'
-    const string threadbunch_replace_str ("_REPLACE_ANONYMOUSLIB_THREAD_BUNCH_SEGMENT_");
+    const std::string threadbunch_replace_str ("_REPLACE_ANONYMOUSLIB_THREAD_BUNCH_SEGMENT_");
     size_t threadbunch_found = ocl_source_code_string_csr5_spmv.find(threadbunch_replace_str);
     ocl_source_code_string_csr5_spmv.replace( threadbunch_found, threadbunch_replace_str.length(), threadbunch_str);
 
     // replace 'it_replace_str' to 'it_str'
-    const string it_replace_str ("_REPLACE_ANONYMOUSLIB_CSR5_INDEX_TYPE_SEGMENT_");
+    const std::string it_replace_str ("_REPLACE_ANONYMOUSLIB_CSR5_INDEX_TYPE_SEGMENT_");
     size_t it_found = ocl_source_code_string_format.find(it_replace_str);
     ocl_source_code_string_format.replace( it_found, it_replace_str.length(), it_str);
     it_found = ocl_source_code_string_csr5_spmv.find(it_replace_str);
     ocl_source_code_string_csr5_spmv.replace( it_found, it_replace_str.length(), it_str);
 
     // replace 'uit_replace_str' to 'uit_str'
-    const string uit_replace_str ("_REPLACE_ANONYMOUSLIB_CSR5_UNSIGNED_INDEX_TYPE_SEGMENT_");
+    const std::string uit_replace_str ("_REPLACE_ANONYMOUSLIB_CSR5_UNSIGNED_INDEX_TYPE_SEGMENT_");
     size_t uit_found = ocl_source_code_string_format.find(uit_replace_str);
     ocl_source_code_string_format.replace( uit_found, uit_replace_str.length(), uit_str);
     uit_found = ocl_source_code_string_csr5_spmv.find(uit_replace_str);
     ocl_source_code_string_csr5_spmv.replace( uit_found, uit_replace_str.length(), uit_str);
 
     // replace 'vt_replace_str' to 'vt_str'
-    const string vt_replace_str ("_REPLACE_ANONYMOUSLIB_CSR5_VALUE_TYPE_SEGMENT_");
+    const std::string vt_replace_str ("_REPLACE_ANONYMOUSLIB_CSR5_VALUE_TYPE_SEGMENT_");
     size_t vt_found = ocl_source_code_string_format.find(vt_replace_str);
     ocl_source_code_string_format.replace( vt_found, vt_replace_str.length(), vt_str);
     vt_found = ocl_source_code_string_csr5_spmv.find(vt_replace_str);
@@ -502,7 +502,7 @@ int anonymouslibHandle<ANONYMOUSLIB_IT, ANONYMOUSLIB_UIT, ANONYMOUSLIB_VT>::setS
     const char *ocl_source_code_format = ocl_source_code_string_format.c_str();
     const char *ocl_source_code_csr5_spmv = ocl_source_code_string_csr5_spmv.c_str();
 
-    //cout << ocl_source_code_csr5_spmv << endl;
+    //std::cout << ocl_source_code_csr5_spmv << std::endl;
 
     // Create the program
     size_t source_size_format[] = { strlen(ocl_source_code_format)};
@@ -1764,9 +1764,9 @@ int anonymouslibHandle<ANONYMOUSLIB_IT, ANONYMOUSLIB_UIT, ANONYMOUSLIB_VT>::setO
     //    cl_program cpSpMV;
     //    err  = basicCL.getProgramFromFile(&cpSpMV, _ocl_context, "format_kernels.cl");
     //    if(err != CL_SUCCESS)
-    //        cout << "BUILD ERROR = " << err << endl;
+    //        std::cout << "BUILD ERROR = " << err << std::endl;
     //    else
-    //        cout << "BUILD SUCCESS" << endl;
+    //        std::cout << "BUILD SUCCESS" << std::endl;
 
     return err;
 }

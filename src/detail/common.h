@@ -9,8 +9,6 @@
 
 #include <iostream>
 
-using namespace std;
-
 #define ANONYMOUSLIB_SUCCESS                   0
 #define ANONYMOUSLIB_UNKOWN_FORMAT            -1
 #define ANONYMOUSLIB_UNSUPPORTED_CSR5_OMEGA   -2

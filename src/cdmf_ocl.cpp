@@ -41,7 +41,7 @@ void cdmf_ocl(smat_t& R, mat_t& W_c, mat_t& H_c, parameter& param, char filename
     cl_command_queue commandQueue = clCreateCommandQueue(context, devices[0], CL_QUEUE_PROFILING_ENABLE, nullptr);
 
     printf("[info] - The kernel to be compiled: %s\n", filename);
-    string sourceStr;
+    std::string sourceStr;
     convertToString(filename, sourceStr);
     const char* source = sourceStr.c_str();
     size_t sourceSize[] = {strlen(source)};

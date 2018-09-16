@@ -8,8 +8,6 @@
 #include "util.h"
 #include "tools.h"
 
-using namespace std;
-
 void cdmf_ref(smat_t& R, mat_t& W, mat_t& H, parameter& param);
 void cdmf_ocl(smat_t& R, mat_t& W, mat_t& H, parameter& param, char filename[]);
 void cdmf_csr5(smat_t& R, mat_t& W, mat_t& H, parameter& param, char filename[]);
@@ -26,7 +24,7 @@ int main(int argc, char** argv) {
     mat_t H;
     mat_t H_ref;
 
-    cout << "[info] load rating data." << endl;
+    std::cout << "[info] load rating data." << std::endl;
     double t1 = gettime();
     load(scr_dir, R, false, false);
     double t2 = gettime();
@@ -34,31 +32,31 @@ int main(int argc, char** argv) {
     printf("[info] - loading time: %lf s\n", deltaT);
 
     // W, H  here are k*m, k*n
-    cout << "[info] initializ W and H matrix." << endl;
+    std::cout << "[info] initializ W and H matrix." << std::endl;
     initial_col(W, param.k, R.rows);
     initial_col(W_ref, param.k, R.rows);
     initial_col(H, param.k, R.cols);
     initial_col(H_ref, param.k, R.cols);
 
     // compute cdmf on the ocl device
-    cout << "------------------------------------------------------" << endl;
-    cout << "[info] compute cdmf on the selected ocl device." << endl;
+    std::cout << "------------------------------------------------------" << std::endl;
+    std::cout << "[info] compute cdmf on the selected ocl device." << std::endl;
 
     switch (param.version) {
         case 1: {
-            cout << "[info] Picked Version 1: Native" << endl;
+            std::cout << "[info] Picked Version 1: Native" << std::endl;
             char kcode_filename[1024] = {"../kcode/ccd01.cl"};
             cdmf_ocl(R, W, H, param, kcode_filename);
             break;
         }
         case 2: {
-            cout << "[info] Picked Version 2: Thread Batching" << endl;
+            std::cout << "[info] Picked Version 2: Thread Batching" << std::endl;
             char kcode_filename[1024] = {"../kcode/ccd033.cl"};
             cdmf_ocl(R, W, H, param, kcode_filename);
             break;
         }
         case 3: {
-            cout << "[info] Picked Version 3: Load Balancing" << endl;
+            std::cout << "[info] Picked Version 3: Load Balancing" << std::endl;
             char kcode_filename[1024] = {"../kcode/ccd033.cl"};
             cdmf_csr5(R, W, H, param, kcode_filename);
             break;
@@ -76,14 +74,14 @@ int main(int argc, char** argv) {
 
     // compare reference and OpenCL results
     if (param.do_ref == 1) {
-        cout << "--------------------------------------------------" << endl;
-        cout << "[info] now computing cdmf reference results on a cpu core." << endl;
+        std::cout << "--------------------------------------------------" << std::endl;
+        std::cout << "[info] now computing cdmf reference results on a cpu core." << std::endl;
         cdmf_ref(R, W_ref, H_ref, param);
-        cout << "[info] validate the results." << endl;
+        std::cout << "[info] validate the results." << std::endl;
         golden_compare(W, W_ref, param.k, R.rows);
         golden_compare(H, H_ref, param.k, R.cols);
     }
-    cout << "------------------------------------------------------" << endl;
+    std::cout << "------------------------------------------------------" << std::endl;
 
     // Some print debugging
     print_matrix(W,param.k,R.rows);

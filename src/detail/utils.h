@@ -26,9 +26,9 @@ void print_tile_t(T *input, int m, int n)
     {
         for (int local_id = 0; local_id < m; local_id++)
         {
-            cout << input[local_id * n + i] << ", ";
+            std::cout << input[local_id * n + i] << ", ";
         }
-        cout << endl;
+        std::cout << std::endl;
     }
 }
 
@@ -39,9 +39,9 @@ void print_tile(T *input, int m, int n)
     {
         for (int local_id = 0; local_id < n; local_id++)
         {
-            cout << input[i * n + local_id] << ", ";
+            std::cout << input[i * n + local_id] << ", ";
         }
-        cout << endl;
+        std::cout << std::endl;
     }
 }
 
@@ -49,8 +49,8 @@ template<typename T>
 void print_1darray(T *input, int l)
 {
     for (int i = 0; i < l; i++)
-        cout << input[i] << ", ";
-    cout << endl;
+        std::cout << input[i] << ", ";
+    std::cout << std::endl;
 }
 
 #endif // UTILS_H

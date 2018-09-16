@@ -28,8 +28,6 @@
 //typedef float VALUE_TYPE;
 //typedef double VALUE_TYPE;
 
-using namespace std;
-
 #define MALLOC(type, size) (type*)malloc(sizeof(type)*(size))
 #define SIZEBITS(type, size) sizeof(type)*(size)
 
@@ -50,8 +48,8 @@ using namespace std;
 class smat_t;
 class parameter;
 
-typedef vector<VALUE_TYPE> vec_t;
-typedef vector<vec_t> mat_t;
+typedef std::vector<VALUE_TYPE> vec_t;
+typedef std::vector<vec_t> mat_t;
 
 class parameter {
 public:
@@ -186,9 +184,9 @@ class smat_t
             nnz = col_ptr[n];
             max_row_nnz = max_col_nnz = 0;
             for(unsigned int r=1; r<=rows; ++r)
-                max_row_nnz = max(max_row_nnz, row_ptr[r]);
+                max_row_nnz = std::max(max_row_nnz, row_ptr[r]);
             for(unsigned int c=1; c<=cols; ++c)
-                max_col_nnz = max(max_col_nnz, col_ptr[c]);
+                max_col_nnz = std::max(max_col_nnz, col_ptr[c]);
         }
         void load(unsigned int _rows, unsigned int _cols, unsigned int _nnz, const char* filename, unsigned int ifALS, unsigned int with_weights = false)
         {
@@ -223,7 +221,7 @@ class smat_t
             }
 
             // a trick here to utilize the space the have been allocated
-            vector<size_t> perm(_nnz);
+            std::vector<size_t> perm(_nnz);
             unsigned *tmp_row_idx = col_idx;
             unsigned *tmp_col_idx = row_idx;
             VALUE_TYPE *tmp_val = val;
@@ -254,11 +252,11 @@ class smat_t
             // Calculate nnz for each row and col
             max_row_nnz = max_col_nnz = 0;
             for(unsigned int r=1; r<=rows; ++r) {
-                max_row_nnz = max(max_row_nnz, row_ptr[r]);
+                max_row_nnz = std::max(max_row_nnz, row_ptr[r]);
                 row_ptr[r] += row_ptr[r-1];
             }
             for(unsigned int c=1; c<=cols; ++c) {
-                max_col_nnz = max(max_col_nnz, col_ptr[c]);
+                max_col_nnz = std::max(max_col_nnz, col_ptr[c]);
                 col_ptr[c] += col_ptr[c-1];
             }
     

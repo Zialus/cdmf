@@ -42,7 +42,7 @@ void cdmf_csr5(smat_t& R, mat_t& W_c, mat_t& H_c, parameter& param, char filenam
     cl_command_queue commandQueue = clCreateCommandQueue(context, devices[0], CL_QUEUE_PROFILING_ENABLE, nullptr);
 
     printf("[info] - The kernel to be compiled: %s\n", filename);
-    string sourceStr;
+    std::string sourceStr;
     convertToString(filename, sourceStr);
     const char* source = sourceStr.c_str();
     size_t sourceSize[] = {strlen(source)};
@@ -203,7 +203,7 @@ void cdmf_csr5(smat_t& R, mat_t& W_c, mat_t& H_c, parameter& param, char filenam
     asCSR5_timer.start();
     CL_CHECK(Av.asCSR5());
     CL_CHECK(clFinish(commandQueue));
-    cout << "Av: CSR->CSR5 time = " << asCSR5_timer.stop() << " ms." << endl;
+    std::cout << "Av: CSR->CSR5 time = " << asCSR5_timer.stop() << " ms." << std::endl;
 
     anonymouslibHandle<int, unsigned int, VALUE_TYPE> Au(R.rows, R.cols);
     CL_CHECK(Au.setOCLENV(context, commandQueue, devices));
@@ -212,7 +212,7 @@ void cdmf_csr5(smat_t& R, mat_t& W_c, mat_t& H_c, parameter& param, char filenam
     asCSR5_timer.start();
     CL_CHECK(Au.asCSR5());
     CL_CHECK(clFinish(commandQueue));
-    cout << "Au: CSR->CSR5 time = " << asCSR5_timer.stop() << " ms." << endl;
+    std::cout << "Au: CSR->CSR5 time = " << asCSR5_timer.stop() << " ms." << std::endl;
 
     CL_CHECK(Av.setX(WBuffer)); // you only need to do it once!
     CL_CHECK(Au.setX(HBuffer)); // you only need to do it once!

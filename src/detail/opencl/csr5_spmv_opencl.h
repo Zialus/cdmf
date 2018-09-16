@@ -71,10 +71,10 @@ int csr5_spmv(cl_kernel                 ocl_kernel_spmv_csr5_compute,
 
     err = clEnqueueNDRangeKernel(ocl_command_queue, ocl_kernel_spmv_csr5_compute, 1,
                                  nullptr, szGlobalWorkSize, szLocalWorkSize, 0, nullptr, &ceTimer);
-    if(err != CL_SUCCESS) { cout << "ocl_kernel_spmv_csr5_compute kernel run error = " << err << endl; return err; }
+    if(err != CL_SUCCESS) { std::cout << "ocl_kernel_spmv_csr5_compute kernel run error = " << err << std::endl; return err; }
 
     err = clWaitForEvents(1, &ceTimer);
-    if(err != CL_SUCCESS) { cout << "event error = " << err << " line: " << __LINE__<< endl; return err; }
+    if(err != CL_SUCCESS) { std::cout << "event error = " << err << " line: " << __LINE__<< std::endl; return err; }
 
     basicCL.getEventTimer(ceTimer, &queuedTime, &submitTime, &startTime, &endTime);
     spmv_time += double(endTime - startTime) / 1000000.0;
@@ -95,10 +95,10 @@ int csr5_spmv(cl_kernel                 ocl_kernel_spmv_csr5_compute,
 
     err = clEnqueueNDRangeKernel(ocl_command_queue, ocl_kernel_spmv_csr5_calibrate, 1,
                                  nullptr, szGlobalWorkSize, szLocalWorkSize, 0, nullptr, &ceTimer);
-    if(err != CL_SUCCESS) { cout << "ocl_kernel_spmv_csr5_calibrate kernel run error = " << err << endl; return err; }
+    if(err != CL_SUCCESS) { std::cout << "ocl_kernel_spmv_csr5_calibrate kernel run error = " << err << std::endl; return err; }
 
     err = clWaitForEvents(1, &ceTimer);
-    if(err != CL_SUCCESS) { cout << "event error = " << err << endl; return err; }
+    if(err != CL_SUCCESS) { std::cout << "event error = " << err << std::endl; return err; }
 
     basicCL.getEventTimer(ceTimer, &queuedTime, &submitTime, &startTime, &endTime);
     spmv_time += double(endTime - startTime) / 1000000.0;
@@ -122,10 +122,10 @@ int csr5_spmv(cl_kernel                 ocl_kernel_spmv_csr5_compute,
 
     err = clEnqueueNDRangeKernel(ocl_command_queue, ocl_kernel_spmv_csr5_tail_partition, 1,
                                  nullptr, szGlobalWorkSize, szLocalWorkSize, 0, nullptr, &ceTimer);
-    if(err != CL_SUCCESS) { cout << "ocl_kernel_spmv_csr5_tail_partition kernel run error = " << err << endl; return err; }
+    if(err != CL_SUCCESS) { std::cout << "ocl_kernel_spmv_csr5_tail_partition kernel run error = " << err << std::endl; return err; }
 
     err = clWaitForEvents(1, &ceTimer);
-    if(err != CL_SUCCESS) { cout << "event error = " << err << endl; return err; }
+    if(err != CL_SUCCESS) { std::cout << "event error = " << err << std::endl; return err; }
 
     basicCL.getEventTimer(ceTimer, &queuedTime, &submitTime, &startTime, &endTime);
     spmv_time += double(endTime - startTime) / 1000000.0;

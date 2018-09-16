@@ -3,8 +3,6 @@
 
 #include "util.h"
 
-using namespace std;
-
 inline double gettime() {
     struct timeval t;
     gettimeofday(&t, nullptr);
@@ -39,7 +37,7 @@ void load(const char* srcdir, smat_t& R, bool ifALS, bool with_weights);
 
 void initial_col(mat_t& X, unsigned int k, unsigned int n);
 
-void convertToString(const char* filename, string& s);
+void convertToString(const char* filename, std::string& s);
 
 int getPlatform(cl_platform_id& platform, int id);
 

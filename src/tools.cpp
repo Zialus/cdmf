@@ -1,8 +1,6 @@
 #include "tools.h"
 #include "util.h"
 
-using namespace std;
-
 // load utility for CCS RCS
 void load(const char* srcdir, smat_t& R, bool ifALS, bool with_weights) {
     char filename[1024], buf[1024];
@@ -20,15 +18,15 @@ void load(const char* srcdir, smat_t& R, bool ifALS, bool with_weights) {
     fclose(fp);
 }
 
-void convertToString(const char* filename, string& s) {
-    fstream f(filename, (fstream::in | fstream::binary));
+void convertToString(const char* filename, std::string& s) {
+    std::fstream f(filename, (std::fstream::in | std::fstream::binary));
 
     if (f.is_open()) {
         size_t size;
         size_t fileSize;
-        f.seekg(0, fstream::end);
+        f.seekg(0, std::fstream::end);
         size = fileSize = (size_t) f.tellg();
-        f.seekg(0, fstream::beg);
+        f.seekg(0, std::fstream::beg);
         char* str = new char[size + 1];
         f.read(str, fileSize);
         f.close();
@@ -36,7 +34,7 @@ void convertToString(const char* filename, string& s) {
         s = str;
         delete[] str;
     } else {
-        cout << "Error:failed to open file:" << filename << "\n";
+        std::cout << "Error:failed to open file:" << filename << "\n";
         exit(EXIT_FAILURE);
     }
 }
@@ -399,18 +397,18 @@ void golden_compare(mat_t W, mat_t W_ref, unsigned k, unsigned m) {
     for (unsigned i = 0; i < k; i++) {
         for (unsigned j = 0; j < m; j++) {
             if (fabs((double) W[i][j] - (double) W_ref[i][j]) > 0.1 * fabs((double) W_ref[i][j])) {
-//                cout << i << "|" << j << "\t";
-//                cout << W[i][j] << "," << W_ref[i][j] << "\t";
+//                std::cout << i << "|" << j << "\t";
+//                std::cout << W[i][j] << "," << W_ref[i][j] << "\t";
                 error_count++;
             }
         }
-//        cout << endl;
+//        std::cout << std::endl;
     }
-//    cout << endl;
+//    std::cout << std::endl;
     if (error_count == 0) {
-        cout << "Check... PASS!" << endl;
+        std::cout << "Check... PASS!" << std::endl;
     } else {
-        cout << "Check... NO PASS! #Error = " << error_count << " out of " << k * m << " entries." << endl;
+        std::cout << "Check... NO PASS! #Error = " << error_count << " out of " << k * m << " entries." << std::endl;
     }
 }
 

@@ -107,7 +107,7 @@ int BasicCL::getDeviceInfo(cl_device_id device, char *deviceName, char *deviceVe
 int BasicCL::getContext(cl_context *context, cl_device_id *devices, cl_uint numDevices)
 {
     context[0] = clCreateContext(0, numDevices, devices, NULL, NULL, &_ciErr);
-    //cout << "------------ _ciErr " << _ciErr << endl;
+    //std::cout << "------------ _ciErr " << _ciErr << std::endl;
     return _ciErr;
 }
 
@@ -117,7 +117,7 @@ int BasicCL::getCommandQueue(cl_command_queue *commandQueue, cl_context context,
     //commandQueue[0] = clCreateCommandQueue(context, device, NULL, &_ciErr);
     //CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE
     //CL_QUEUE_PROFILING_ENABLE
-    //cout << "------------ _ciErr " << _ciErr << endl;
+    //std::cout << "------------ _ciErr " << _ciErr << std::endl;
     return _ciErr;
 }
 
@@ -127,17 +127,17 @@ int BasicCL::getCommandQueueProfilingEnable(cl_command_queue *commandQueue, cl_c
     commandQueue[0] = clCreateCommandQueue(context, device, CL_QUEUE_PROFILING_ENABLE, &_ciErr);
     //CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE
     //CL_QUEUE_PROFILING_ENABLE
-    //cout << "------------ _ciErr " << _ciErr << endl;
+    //std::cout << "------------ _ciErr " << _ciErr << std::endl;
     return _ciErr;
 }
 
 int BasicCL::getProgram(cl_program *program, cl_context context, const char *kernelSourceCode)
 {
     size_t SourceSize[] = { strlen(kernelSourceCode)};
-    program[0] = clCreateProgramWithSource(context, 1, &kernelSourceCode, SourceSize, &_ciErr); //cout << "------------ _ciErr " << _ciErr << endl;
+    program[0] = clCreateProgramWithSource(context, 1, &kernelSourceCode, SourceSize, &_ciErr); //std::cout << "------------ _ciErr " << _ciErr << std::endl;
     if(_ciErr != CL_SUCCESS) return _ciErr;
-    //_ciErr = clBuildProgram(program[0], 0, NULL, "-cl-opt-disable", NULL, NULL); //cout << "------------ _ciErr " << _ciErr << endl;
-    _ciErr = clBuildProgram(program[0], 0, NULL, NULL, NULL, NULL); //cout << "------------ _ciErr " << _ciErr << endl;
+    //_ciErr = clBuildProgram(program[0], 0, NULL, "-cl-opt-disable", NULL, NULL); //std::cout << "------------ _ciErr " << _ciErr << std::endl;
+    _ciErr = clBuildProgram(program[0], 0, NULL, NULL, NULL, NULL); //std::cout << "------------ _ciErr " << _ciErr << std::endl;
     if(_ciErr != CL_SUCCESS) return _ciErr;
     return CL_SUCCESS;
 }
@@ -197,7 +197,7 @@ int BasicCL::getProgramFromFile(cl_program *program, cl_context context, const c
 {
     char *kernelSourceCode;
     kernelSourceCode = readSource(sourceFilename);
-    //cout << kernelSourceCode << endl;
+    //std::cout << kernelSourceCode << std::endl;
     int err = getProgram(program, context, kernelSourceCode);
     return err;
 }
