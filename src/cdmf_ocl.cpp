@@ -3,11 +3,6 @@
 void cdmf_ocl(smat_t& R, mat_t& W_c, mat_t& H_c, parameter& param, char filename[]) {
     char device_type[4] = {'\0', '\0', '\0', '\0'};
 
-    // create context and build the kernel code
-    cl_int status;
-    cl_int err;
-    cl_platform_id platform;
-
     switch (param.platform_id) {
         case 0:
             snprintf(device_type, sizeof(device_type), "gpu");
@@ -29,6 +24,11 @@ void cdmf_ocl(smat_t& R, mat_t& W_c, mat_t& H_c, parameter& param, char filename
         print_all_the_info();
     }
 
+
+    // create context and build the kernel code
+    cl_int status;
+    cl_int err;
+    cl_platform_id platform;
     getPlatform(platform, 0);
     cl_device_id* devices = getDevice(platform, device_type);
     report_device(devices[0]);
