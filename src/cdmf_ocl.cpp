@@ -46,7 +46,7 @@ void cdmf_ocl(smat_t& R, mat_t& W_c, mat_t& H_c, parameter& param, char filename
     size_t sourceSize[] = {strlen(source)};
     cl_program program = clCreateProgramWithSource(context, 1, &source, sourceSize, nullptr);
     char options[1024];
-    sprintf(options, "-DWG_SIZE=%d -DVALUE_TYPE=%s", param.nThreadsPerBlock, getT(sizeof(VALUE_TYPE)));
+    sprintf(options, "-DWG_SIZE=%u -DVALUE_TYPE=%s", param.nThreadsPerBlock, getT(sizeof(VALUE_TYPE)));
     status = clBuildProgram(program, 1, devices, options, nullptr, nullptr);
 
     size_t length;
@@ -68,15 +68,8 @@ void cdmf_ocl(smat_t& R, mat_t& W_c, mat_t& H_c, parameter& param, char filename
         }
     }
 
-    unsigned num_updates = 0;
-    unsigned k = param.k;
-    VALUE_TYPE lambda = param.lambda;
-    unsigned inneriter = param.maxinneriter;
     unsigned rows = R.rows;
     unsigned cols = R.cols;
-    unsigned nBlocks = param.nBlocks;
-    unsigned nThreadsPerBlock = param.nThreadsPerBlock;
-    unsigned maxiter = param.maxiter;
     unsigned* col_ptr = R.col_ptr, * row_ptr = R.row_ptr;
     unsigned* row_idx = R.row_idx, * col_idx = R.col_idx;
     VALUE_TYPE* val = R.val;
@@ -127,7 +120,7 @@ void cdmf_ocl(smat_t& R, mat_t& W_c, mat_t& H_c, parameter& param, char filename
     CL_CHECK(clSetKernelArg(RankOneUpdate_DUAL_kernel_u, 3, sizeof(cl_mem), (void*) &valBuffer));
     CL_CHECK(clSetKernelArg(RankOneUpdate_DUAL_kernel_u, 4, sizeof(cl_mem), (void*) &WtBuffer));
     CL_CHECK(clSetKernelArg(RankOneUpdate_DUAL_kernel_u, 5, sizeof(cl_mem), (void*) &HtBuffer));
-    CL_CHECK(clSetKernelArg(RankOneUpdate_DUAL_kernel_u, 6, sizeof(VALUE_TYPE), &lambda));
+    CL_CHECK(clSetKernelArg(RankOneUpdate_DUAL_kernel_u, 6, sizeof(VALUE_TYPE), &param.lambda));
     CL_CHECK(clSetKernelArg(RankOneUpdate_DUAL_kernel_u, 7, sizeof(unsigned), &rows));
     CL_CHECK(clSetKernelArg(RankOneUpdate_DUAL_kernel_u, 8, sizeof(cl_mem), (void*) &row_ptrBuffer));
     CL_CHECK(clSetKernelArg(RankOneUpdate_DUAL_kernel_u, 9, sizeof(cl_mem), (void*) &col_idxBuffer));
@@ -139,7 +132,7 @@ void cdmf_ocl(smat_t& R, mat_t& W_c, mat_t& H_c, parameter& param, char filename
     CL_CHECK(clSetKernelArg(RankOneUpdate_DUAL_kernel_v, 3, sizeof(cl_mem), (void*) &valBuffer));
     CL_CHECK(clSetKernelArg(RankOneUpdate_DUAL_kernel_v, 4, sizeof(cl_mem), (void*) &WtBuffer));
     CL_CHECK(clSetKernelArg(RankOneUpdate_DUAL_kernel_v, 5, sizeof(cl_mem), (void*) &HtBuffer));
-    CL_CHECK(clSetKernelArg(RankOneUpdate_DUAL_kernel_v, 6, sizeof(VALUE_TYPE), &lambda));
+    CL_CHECK(clSetKernelArg(RankOneUpdate_DUAL_kernel_v, 6, sizeof(VALUE_TYPE), &param.lambda));
     CL_CHECK(clSetKernelArg(RankOneUpdate_DUAL_kernel_v, 7, sizeof(unsigned), &rows));
     CL_CHECK(clSetKernelArg(RankOneUpdate_DUAL_kernel_v, 8, sizeof(cl_mem), (void*) &row_ptrBuffer));
     CL_CHECK(clSetKernelArg(RankOneUpdate_DUAL_kernel_v, 9, sizeof(cl_mem), (void*) &col_idxBuffer));
@@ -189,22 +182,21 @@ void cdmf_ocl(smat_t& R, mat_t& W_c, mat_t& H_c, parameter& param, char filename
     CL_CHECK(clSetKernelArg(UpdateRating_DUAL_kernel_NoLoss_c_, 8, sizeof(cl_mem), (void*) &col_idxBuffer));
     CL_CHECK(clSetKernelArg(UpdateRating_DUAL_kernel_NoLoss_c_, 9, sizeof(cl_mem), (void*) &val_tBuffer));
 
-    size_t gws_row[1] = {rows * nThreadsPerBlock};
-    size_t gws_col[1] = {cols * nThreadsPerBlock};
+    size_t gws_row[1] = {rows * param.nThreadsPerBlock};
+    size_t gws_col[1] = {cols * param.nThreadsPerBlock};
+    size_t local_work_size[1] = {param.nThreadsPerBlock};
+    printf("[info] - threads per block: %u\n", param.nThreadsPerBlock);
 
-    size_t global_work_size[1] = {nBlocks * nThreadsPerBlock};
-    size_t local_work_size[1] = {nThreadsPerBlock};
 
-    printf("[info] - blocks: %u, threads per block: %u\n", nBlocks, nThreadsPerBlock);
     cl_ulong t_update_ratings = 0;
     cl_ulong t_rank_one_update = 0;
     cl_ulong t_start;
     cl_ulong t_end;
 
     double t1 = gettime();
-    for (int oiter = 1; oiter <= maxiter; ++oiter) {
+    for (int oiter = 1; oiter <= param.maxiter; ++oiter) {
         //printf("[info] the %dth outter iteration.\n", oiter);
-        for (int t = 0; t < k; ++t) {
+        for (int t = 0; t < param.k; ++t) {
             // Writing Buffer
             Wt = &(W_c[t][0]); // u
             Ht = &(H_c[t][0]); // v
@@ -229,7 +221,7 @@ void cdmf_ocl(smat_t& R, mat_t& W_c, mat_t& H_c, parameter& param, char filename
                 CL_CHECK(clReleaseEvent(eventPoint0c));
                 CL_CHECK(clReleaseEvent(eventPoint0r));
             }
-            for (int iter = 1; iter <= inneriter; ++iter) {
+            for (int iter = 1; iter <= param.maxinneriter; ++iter) {
                 // update vector v
                 cl_event eventPoint1v, eventPoint1u;
                 CL_CHECK(clEnqueueNDRangeKernel(commandQueue, RankOneUpdate_DUAL_kernel_v, 1, nullptr, gws_col, local_work_size, 0, nullptr, &eventPoint1v));

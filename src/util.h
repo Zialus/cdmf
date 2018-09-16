@@ -117,7 +117,7 @@ public:
     int platform_id;
     int do_nmf;  // non-negative matrix factorization
     int nBlocks;
-    int nThreadsPerBlock;
+    unsigned int nThreadsPerBlock;
     int do_ref;
 
     parameter() {
