@@ -222,7 +222,7 @@ void cdmf_csr5(smat_t& R, mat_t& W_c, mat_t& H_c, parameter& param, char filenam
     cl_ulong t_start;
     cl_ulong t_end;
 
-    double t1 = gettime ();
+    auto t1 = std::chrono::high_resolution_clock::now();
     for (int oiter = 1; oiter <= param.maxiter; ++oiter) {
         for (int t = 0; t < param.k; ++t) {
             // Writing Buffer
@@ -301,9 +301,9 @@ void cdmf_csr5(smat_t& R, mat_t& W_c, mat_t& H_c, parameter& param, char filenam
 
         }
     }
-    double t2 = gettime();
-    double deltaT = t2 - t1;
-    printf("[info] - training time: %lf s\n", deltaT);
+    auto t2 = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> deltaT = t2 - t1;;
+    printf("[info] - training time: %lf s\n", deltaT.count());
     printf("[info] - rank one updating time: %llu ms, R updating time: %llu ms\n", t_rank_one_update / 1000000ULL, t_update_ratings / 1000000ULL);
 
     Au.destroy();

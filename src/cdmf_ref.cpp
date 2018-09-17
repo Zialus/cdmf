@@ -130,7 +130,7 @@ void cdmf_ref(smat_t &R, mat_t &W, mat_t &H, parameter &param)
 
     vec_t oldWt(R.rows), oldHt(R.cols);
     vec_t u(R.rows), v(R.cols);
-    double t1 = gettime ();
+    auto t1 = std::chrono::high_resolution_clock::now();
     for(int oiter = 1; oiter <= maxiter; ++oiter)
     {
         VALUE_TYPE gnorm = 0, initgnorm=0;
@@ -227,9 +227,9 @@ void cdmf_ref(smat_t &R, mat_t &W, mat_t &H, parameter &param)
             }
             printf("\n");*/
     }
-    double t2 = gettime ();
-    double deltaT = t2 - t1;
-    printf("[info] - OMP time: %lf s\n",  deltaT);
+    auto t2 = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> deltaT = t2 - t1;;
+    printf("[info] - OMP time: %lf s\n",  deltaT.count());
     omp_set_num_threads(num_threads_old);
 }
 

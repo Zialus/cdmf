@@ -16,14 +16,13 @@
 #include <vector>
 #include <fstream>
 #include <sstream>
+#include <chrono>
 
 #ifdef __APPLE__
 #include <OpenCL/cl.h>
 #else
 #include <CL/cl.h>
 #endif
-
-#include <sys/time.h>
 
 //typedef float VALUE_TYPE;
 //typedef double VALUE_TYPE;

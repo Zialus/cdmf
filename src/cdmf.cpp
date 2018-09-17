@@ -25,11 +25,11 @@ int main(int argc, char** argv) {
     mat_t H_ref;
 
     std::cout << "[info] load rating data." << std::endl;
-    double t1 = gettime();
+    auto t1 = std::chrono::high_resolution_clock::now();
     load(scr_dir, R, false, false);
-    double t2 = gettime();
-    double deltaT = t2 - t1;
-    printf("[info] - loading time: %lf s\n", deltaT);
+    auto t2 = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> deltaT = t2 - t1;;
+    printf("[info] - loading time: %lf s\n", deltaT.count());
 
     // W, H  here are k*m, k*n
     std::cout << "[info] initializ W and H matrix." << std::endl;

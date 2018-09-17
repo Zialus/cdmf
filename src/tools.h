@@ -3,12 +3,6 @@
 
 #include "util.h"
 
-inline double gettime() {
-    struct timeval t;
-    gettimeofday(&t, nullptr);
-    return t.tv_sec + t.tv_usec * 1e-6;
-}
-
 inline char* getT(unsigned sz) {
     if (sz == 8) { return (char*) "double"; }
     if (sz == 4) { return (char*) "float"; }

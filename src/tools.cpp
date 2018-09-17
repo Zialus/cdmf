@@ -413,7 +413,7 @@ void golden_compare(mat_t W, mat_t W_ref, unsigned k, unsigned m) {
 }
 
 void calculate_rmse_ocl(const mat_t& W_c, const mat_t& H_c, const int k, const char* srcdir) {
-    double t5 = gettime();
+    auto t5 = std::chrono::high_resolution_clock::now();
     int i, j;
     VALUE_TYPE vv, rmse = 0;
     int num_insts = 0;
@@ -462,9 +462,9 @@ void calculate_rmse_ocl(const mat_t& W_c, const mat_t& H_c, const int k, const c
     printf("NaNs percentage: %lf, NaNs Count: %d, Total Insts: %d\n", nans_percentage, nans_count, num_insts);
     rmse = sqrt(rmse / num_insts);
     printf("[info] test RMSE = %lf\n", rmse);
-    double t6 = gettime();
-    double deltaT2 = t6 - t5;
-    printf("[info] Predict time: %lf s\n", deltaT2);
+    auto t6 = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> deltaT2 = t6 - t5;;
+    printf("[info] Predict time: %lf s\n", deltaT2.count());
 
 }
 
