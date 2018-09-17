@@ -110,7 +110,7 @@ void cdmf_ref(smat_t &R, mat_t &W, mat_t &H, parameter &param)
 {
     int k = param.k;
     int maxiter = param.maxiter;
-    int inneriter = param.maxinneriter;
+    // int inneriter = param.maxinneriter;
     int num_threads_old = omp_get_num_threads();
     VALUE_TYPE lambda = param.lambda;
     VALUE_TYPE eps = param.eps;
