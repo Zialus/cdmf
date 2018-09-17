@@ -14,8 +14,8 @@ void cdmf_csr5(smat_t& R, mat_t& W, mat_t& H, parameter& param, char filename[])
 
 int main(int argc, char** argv) {
     char scr_dir[1024];
-//    char kcode_filename[1024];
-    parameter param = parse_command_line(argc, argv, scr_dir, nullptr);
+    char kcode_path[1024] = {"../kcode"};
+    parameter param = parse_command_line(argc, argv, scr_dir, kcode_path);
 
     // reading rating matrix
     smat_t R;   // val: csc, val_t: csr
@@ -45,19 +45,22 @@ int main(int argc, char** argv) {
     switch (param.version) {
         case 1: {
             std::cout << "[info] Picked Version 1: Native" << std::endl;
-            char kcode_filename[1024] = {"../kcode/ccd01.cl"};
+            char kcode_filename[1024];
+            sprintf(kcode_filename, "%s/ccd01.cl", kcode_path);
             cdmf_ocl(R, W, H, param, kcode_filename);
             break;
         }
         case 2: {
             std::cout << "[info] Picked Version 2: Thread Batching" << std::endl;
-            char kcode_filename[1024] = {"../kcode/ccd033.cl"};
+            char kcode_filename[1024];
+            sprintf(kcode_filename, "%s/ccd033.cl", kcode_path);
             cdmf_ocl(R, W, H, param, kcode_filename);
             break;
         }
         case 3: {
             std::cout << "[info] Picked Version 3: Load Balancing" << std::endl;
-            char kcode_filename[1024] = {"../kcode/ccd033.cl"};
+            char kcode_filename[1024];
+            sprintf(kcode_filename, "%s/ccd033.cl", kcode_path);
             cdmf_csr5(R, W, H, param, kcode_filename);
             break;
         }
