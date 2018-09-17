@@ -268,6 +268,14 @@ void cdmf_ocl(smat_t& R, mat_t& W_c, mat_t& H_c, parameter& param, char filename
     printf("[info] - training time: %lf s\n", deltaT.count());
     printf("[info] - rank one updating time: %llu ms, R updating time: %llu ms\n", t_rank_one_update / 1000000ULL, t_update_ratings / 1000000ULL);
 
+
+    CL_CHECK(clReleaseKernel(UpdateRating_DUAL_kernel_NoLoss_c));
+    CL_CHECK(clReleaseKernel(UpdateRating_DUAL_kernel_NoLoss_r));
+    CL_CHECK(clReleaseKernel(UpdateRating_DUAL_kernel_NoLoss_c_));
+    CL_CHECK(clReleaseKernel(UpdateRating_DUAL_kernel_NoLoss_r_));
+    CL_CHECK(clReleaseKernel(RankOneUpdate_DUAL_kernel_u));
+    CL_CHECK(clReleaseKernel(RankOneUpdate_DUAL_kernel_v));
+    CL_CHECK(clReleaseProgram(program));
     CL_CHECK(clReleaseMemObject(row_ptrBuffer));
     CL_CHECK(clReleaseMemObject(col_idxBuffer));
     CL_CHECK(clReleaseMemObject(col_ptrBuffer));
@@ -277,14 +285,8 @@ void cdmf_ocl(smat_t& R, mat_t& W_c, mat_t& H_c, parameter& param, char filename
     CL_CHECK(clReleaseMemObject(WtBuffer));
     CL_CHECK(clReleaseMemObject(HtBuffer));
     CL_CHECK(clReleaseCommandQueue(commandQueue));
-    CL_CHECK(clReleaseKernel(UpdateRating_DUAL_kernel_NoLoss_c));
-    CL_CHECK(clReleaseKernel(UpdateRating_DUAL_kernel_NoLoss_r));
-    CL_CHECK(clReleaseKernel(UpdateRating_DUAL_kernel_NoLoss_c_));
-    CL_CHECK(clReleaseKernel(UpdateRating_DUAL_kernel_NoLoss_r_));
-    CL_CHECK(clReleaseKernel(RankOneUpdate_DUAL_kernel_u));
-    CL_CHECK(clReleaseKernel(RankOneUpdate_DUAL_kernel_v));
-    CL_CHECK(clReleaseProgram(program));
     CL_CHECK(clReleaseContext(context));
+    CL_CHECK(clReleaseDevice(devices[0]));
     free(devices);
 }
 
