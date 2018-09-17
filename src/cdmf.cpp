@@ -83,16 +83,17 @@ int main(int argc, char** argv) {
         std::cout << "[info] validate the results." << std::endl;
         golden_compare(W, W_ref, param.k, R.rows);
         golden_compare(H, H_ref, param.k, R.cols);
+//        calculate_rmse_ocl(W_ref, H_ref, param.k, scr_dir);
     }
     std::cout << "------------------------------------------------------" << std::endl;
 
     // Some print debugging
-    print_matrix(W,param.k,R.rows);
-    print_matrix(H,param.k,R.cols);
-
-
-    print_matrix(W_ref,param.k,R.rows);
-    print_matrix(H_ref,param.k,R.cols);
+//    print_matrix(W,param.k,R.rows);
+//    print_matrix(H,param.k,R.cols);
+//
+//
+//    print_matrix(W_ref,param.k,R.rows);
+//    print_matrix(H_ref,param.k,R.cols);
 
     return 0;
 }

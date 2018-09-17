@@ -13,11 +13,10 @@ set(EXECUTABLE_OUTPUT_PATH "${CMAKE_SOURCE_DIR}/exec/")
 
 #set(CMAKE_VERBOSE_MAKEFILE ON)
 
-set(NUMRUN "-DNUM_RUN=1")
 #set(WARNINGS "-Wno-deprecated-declarations -Wno-format")
 set(VALUE "-DVALUE_TYPE=double")
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${NUMRUN} ${VERSION} ${VALUE} -m64 ${WARNINGS}")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${NUMRUN} ${VERSION} ${VALUE} -m64 ${WARNINGS}")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${VALUE} -m64 ${WARNINGS}")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${VALUE} -m64 ${WARNINGS}")
 
 
 # Source code of application
@@ -37,6 +36,6 @@ add_executable(cdmf ${source_src} ${source_hdr})
 target_link_libraries(cdmf OpenCL::OpenCL OpenMP::OpenMP_CXX)
 
 enable_testing()
-add_test(a ../exec/cdmf -k 40 -t 5 -T 5 -n 24 -l 0.05 ../data/a)
-add_test(b ../exec/cdmf -k 40 -t 5 -T 5 -n 24 -l 0.05 ../data/b)
-add_test(c ../exec/cdmf -k 40 -t 5 -T 5 -n 24 -l 0.05 ../data/c)
+add_test(NAME a COMMAND $<TARGET_FILE:cdmf> -k 40 -t 5 -T 5 -l 0.05 -P 1 -V $ENV{VERSION_FLAG} -r 1 -q 1 -nThreadsPerBlock $ENV{SIZE_FLAG} ${CMAKE_SOURCE_DIR}/data/a)
+add_test(NAME b COMMAND $<TARGET_FILE:cdmf> -k 40 -t 5 -T 5 -l 0.05 -P 1 -V $ENV{VERSION_FLAG} -r 1 -q 1 -nThreadsPerBlock $ENV{SIZE_FLAG} ${CMAKE_SOURCE_DIR}/data/b)
+add_test(NAME c COMMAND $<TARGET_FILE:cdmf> -k 40 -t 5 -T 5 -l 0.05 -P 1 -V $ENV{VERSION_FLAG} -r 1 -q 1 -nThreadsPerBlock $ENV{SIZE_FLAG} ${CMAKE_SOURCE_DIR}/data/c)
