@@ -133,10 +133,10 @@ void cdmf_ref(smat_t &R, mat_t &W, mat_t &H, parameter &param)
     auto t1 = std::chrono::high_resolution_clock::now();
     for(int oiter = 1; oiter <= maxiter; ++oiter)
     {
-        VALUE_TYPE gnorm = 0, initgnorm=0;
-        VALUE_TYPE rankfundec = 0;
-        VALUE_TYPE fundec_max = 0;
-        int early_stop = 0;
+
+        // VALUE_TYPE rankfundec = 0;
+        // VALUE_TYPE fundec_max = 0;
+        // int early_stop = 0;
         for(int tt=0; tt < k; ++tt)
         {
             int t = tt;
@@ -157,15 +157,17 @@ void cdmf_ref(smat_t &R, mat_t &W, mat_t &H, parameter &param)
             }
             Itime += omp_get_wtime() - start;
 
-            gnorm = 0, initgnorm=0;
-            VALUE_TYPE innerfundec_cur = 0, innerfundec_max = 0;
-            int maxit = inneriter;
-            //  if(oiter > 1) maxit *= 2;
+            // VALUE_TYPE gnorm = 0;
+            VALUE_TYPE initgnorm = 0;
+            VALUE_TYPE innerfundec_cur = 0;
+            // VALUE_TYPE innerfundec_max = 0;
+            // int maxit = inneriter;
+            // if(oiter > 1) maxit *= 2;
             for(int iter = 1; iter <= param.maxinneriter; ++iter)
             {
                 // Update H[t]
                 start = omp_get_wtime();
-                gnorm = 0;
+                // gnorm = 0;
                 innerfundec_cur = 0;
                 //#pragma omp parallel for schedule(kind) shared(u,v) reduction(+:innerfundec_cur)
 #pragma omp parallel for schedule(kind) shared(u,v)

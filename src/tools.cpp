@@ -44,21 +44,19 @@ void print_all_the_info() {
     char* value;
     size_t valueSize;
     cl_uint platformCount;
-    cl_platform_id* platforms;
     cl_uint deviceCount;
-    cl_device_id* devices;
     cl_uint maxComputeUnits;
 
     // get all platforms
     clGetPlatformIDs(0, nullptr, &platformCount);
-    platforms = (cl_platform_id*) malloc(sizeof(cl_platform_id) * platformCount);
+    cl_platform_id* platforms = (cl_platform_id*) malloc(sizeof(cl_platform_id) * platformCount);
     clGetPlatformIDs(platformCount, platforms, nullptr);
 
     for (i = 0; i < platformCount; i++) {
 
         // get all devices
         clGetDeviceIDs(platforms[i], CL_DEVICE_TYPE_ALL, 0, nullptr, &deviceCount);
-        devices = (cl_device_id*) malloc(sizeof(cl_device_id) * deviceCount);
+        cl_device_id* devices = (cl_device_id*) malloc(sizeof(cl_device_id) * deviceCount);
         clGetDeviceIDs(platforms[i], CL_DEVICE_TYPE_ALL, deviceCount, devices, nullptr);
 
         // for each device print critical attributes
