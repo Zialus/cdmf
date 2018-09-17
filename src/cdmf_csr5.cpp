@@ -329,8 +329,8 @@ void cdmf_csr5(smat_t& R, mat_t& W_c, mat_t& H_c, parameter& param, char filenam
     CL_CHECK(clReleaseKernel(_kernel_CALU));
     CL_CHECK(clReleaseProgram(program));
     CL_CHECK(clReleaseContext(context));
-    if (devices) { free(devices); }
-    if (Wb) { free(Wb); }
-    if (Hb) { free(Hb); }
+    free(devices);
+    free(Wb);
+    free(Hb);
 
 }
