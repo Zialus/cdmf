@@ -3,6 +3,14 @@
 
 #define CL_STRING_LENGTH 128
 
+#ifdef __APPLE__
+#include <OpenCL/opencl.h>
+#else
+#include <CL/opencl.h>
+#endif
+
+#include "../common.h"
+
 class BasicCL
 {
 public:

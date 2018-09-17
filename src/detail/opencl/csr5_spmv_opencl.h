@@ -1,7 +1,6 @@
 #ifndef CSR5_SPMV_OPENCL_H
 #define CSR5_SPMV_OPENCL_H
 
-#include "common_opencl.h"
 #include "utils_opencl.h"
 
 template<typename ANONYMOUSLIB_IT, typename ANONYMOUSLIB_UIT, typename ANONYMOUSLIB_VT>

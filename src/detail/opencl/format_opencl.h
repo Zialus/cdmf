@@ -1,7 +1,6 @@
 #ifndef FORMAT_OPENCL_H
 #define FORMAT_OPENCL_H
 
-#include "common_opencl.h"
 #include "utils_opencl.h"
 
 int format_warmup(cl_kernel           ocl_kernel_warmup,

@@ -1,15 +1,6 @@
 #ifndef COMMON_OPENCL_H
 #define COMMON_OPENCL_H
 
-#include <cstring>
-#include <string>
-
-#ifdef __APPLE__
-#include <OpenCL/opencl.h>
-#else
-#include <CL/opencl.h>
-#endif
-
 #include "basiccl.h"
 
 #include "../common.h"
