@@ -1,7 +1,6 @@
 #ifndef UTILS_H
 #define UTILS_H
 
-#include <sys/time.h>
 #include <sys/types.h>
 #include <dirent.h>
 

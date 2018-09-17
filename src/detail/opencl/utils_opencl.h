@@ -4,21 +4,19 @@
 #include "common_opencl.h"
 
 struct anonymouslib_timer {
-    timeval t1, t2;
-    struct timezone tzone;
+    std::chrono::high_resolution_clock::time_point t1;
+    std::chrono::high_resolution_clock::time_point t2;
 
     void start() {
-        gettimeofday(&t1, &tzone);
+        t1 = std::chrono::high_resolution_clock::now();
     }
 
     double stop() {
-        gettimeofday(&t2, &tzone);
-        double elapsedTime = 0;
-        elapsedTime = (t2.tv_sec - t1.tv_sec) * 1000.0;      // sec to ms
-        elapsedTime += (t2.tv_usec - t1.tv_usec) / 1000.0;   // us to ms
-        return elapsedTime;
+        t2 = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double> deltaT = t2 - t1;
+        return deltaT.count();
     }
-};
 
+};
 
 #endif // UTILS_OPENCL_H

@@ -304,10 +304,10 @@ int anonymouslibHandle<ANONYMOUSLIB_IT, ANONYMOUSLIB_UIT, ANONYMOUSLIB_VT>::asCS
         //transpose_time += transpose_timer.stop();
         transpose_time += time;
 
-        std::cout << std::endl << "CSR->CSR5 malloc time = " << malloc_time << " ms." << std::endl;
-        std::cout << "CSR->CSR5 tile_ptr time = " << tile_ptr_time << " ms." << std::endl;
-        std::cout << "CSR->CSR5 tile_desc time = " << tile_desc_time << " ms." << std::endl;
-        std::cout << "CSR->CSR5 transpose time = " << transpose_time << " ms." << std::endl;
+        std::cout << std::endl << "CSR->CSR5 malloc time = " << malloc_time << " s." << std::endl;
+        std::cout << "CSR->CSR5 tile_ptr time = " << tile_ptr_time << " s." << std::endl;
+        std::cout << "CSR->CSR5 tile_desc time = " << tile_desc_time << " s." << std::endl;
+        std::cout << "CSR->CSR5 transpose time = " << transpose_time << " s." << std::endl;
 
         _format = ANONYMOUSLIB_FORMAT_CSR5;
     }
