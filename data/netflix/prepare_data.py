@@ -7,9 +7,7 @@
 # each line is like
 # "user_id item_id rating"
 import numpy as np
-from scipy.sparse import csr_matrix
-from scipy.sparse import csc_matrix
-from scipy.sparse import coo_matrix
+from scipy import sparse
 
 # In[2]:
 
@@ -27,7 +25,7 @@ nnz_test = 1408395
 print "prepare test data"
 # 1-based to 0-based
 test_i, test_j, test_rating = np.loadtxt(test_data_file, dtype=np.int32, skiprows=0, unpack=True)
-R_test_coo = coo_matrix((test_rating, (test_i - 1, test_j - 1)))
+R_test_coo = sparse.coo_matrix((test_rating, (test_i - 1, test_j - 1)))
 
 
 # In[4]:
@@ -44,7 +42,7 @@ R_test_coo.col.tofile('R_test_coo.col.bin')
 print "prepare training data"
 # 1-based to 0-based
 train_i, train_j, train_rating = np.loadtxt(train_data_file, dtype=np.int32, skiprows=0, unpack=True)
-R_train_coo = coo_matrix((train_rating, (train_i - 1, train_j - 1)))
+R_train_coo = sparse.coo_matrix((train_rating, (train_i - 1, train_j - 1)))
 
 
 # In[6]:
