@@ -26,8 +26,8 @@ before_install:
 - eval "${MATRIX_EVAL}"
 
 install:
-- if [[ "$TRAVIS_OS_NAME" == "osx" ]];   then export SIZE_FLAG=1;  export VERSION_FLAG=1; fi
-- if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then export SIZE_FLAG=16; export VERSION_FLAG=2; fi
+- if [[ "$TRAVIS_OS_NAME" == "osx" ]];   then export SIZE_FLAG=1; export VERSION_FLAG=1; fi
+- if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then export SIZE_FLAG=2; export VERSION_FLAG=2; fi
 
 matrix:
   include:
