@@ -185,9 +185,9 @@ class smat_t
                 fprintf(stderr,"Error occurs! two nnz do not match (%d, %d)\n", col_ptr[n], row_ptr[n]);
             nnz = col_ptr[n];
             max_row_nnz = max_col_nnz = 0;
-            for(unsigned int r=1; r<=rows; ++r)
+            for(int r=1; r<=rows; ++r)
                 max_row_nnz = std::max(max_row_nnz, row_ptr[r]);
-            for(unsigned int c=1; c<=cols; ++c)
+            for(int c=1; c<=cols; ++c)
                 max_col_nnz = std::max(max_col_nnz, col_ptr[c]);
         }
         void load(unsigned int _rows, unsigned int _cols, unsigned int _nnz, const char* filename, unsigned int ifALS, unsigned int with_weights = false)
@@ -253,17 +253,17 @@ class smat_t
     
             // Calculate nnz for each row and col
             max_row_nnz = max_col_nnz = 0;
-            for(unsigned int r=1; r<=rows; ++r) {
+            for(int r=1; r<=rows; ++r) {
                 max_row_nnz = std::max(max_row_nnz, row_ptr[r]);
                 row_ptr[r] += row_ptr[r-1];
             }
-            for(unsigned int c=1; c<=cols; ++c) {
+            for(int c=1; c<=cols; ++c) {
                 max_col_nnz = std::max(max_col_nnz, col_ptr[c]);
                 col_ptr[c] += col_ptr[c-1];
             }
     
             // Transpose CRS into CCS matrix
-            for(unsigned int r=0; r<rows; ++r){
+            for(int r=0; r<rows; ++r){
                 for(unsigned int i = row_ptr[r]; i < row_ptr[r+1]; ++i){
                     unsigned int c = col_idx[i];
                     row_idx[col_ptr[c]] = r;
@@ -296,15 +296,15 @@ class smat_t
         VALUE_TYPE get_global_mean()
         {
             VALUE_TYPE sum=0;
-            for(unsigned int i=0;i<nnz;++i) sum+=val[i];
+            for(int i=0;i<nnz;++i) sum+=val[i];
             return sum/nnz;
         }
         void remove_bias(VALUE_TYPE bias=0)
         {
             if(bias) 
             {
-                for(unsigned int i=0;i<nnz;++i) val[i]-=bias;
-                for(unsigned int i=0;i<nnz;++i) val_t[i]-=bias;
+                for(int i=0;i<nnz;++i) val[i]-=bias;
+                for(int i=0;i<nnz;++i) val_t[i]-=bias;
             }
         }
         void free(void *ptr) {if(ptr) ::free(ptr);}
