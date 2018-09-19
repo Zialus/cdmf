@@ -154,8 +154,10 @@ class SparseComp
 class smat_t
 {
     public:
-        unsigned int rows, cols;
-        unsigned int nnz, max_row_nnz, max_col_nnz;
+        int rows;
+        int cols;
+        int nnz;
+        unsigned max_row_nnz, max_col_nnz;
         VALUE_TYPE *val, *val_t;
         size_t nbits_val, nbits_val_t;
         VALUE_TYPE *weight, *weight_t;
