@@ -65,7 +65,7 @@ void cdmf_csr5(smat_t& R, mat_t& W_c, mat_t& H_c, parameter& param, char filenam
     printf("[build info]: Compiled OpenCl code !\n");
 
     for (int t = 0; t < param.k; ++t) {
-        for (unsigned c = 0; c < R.cols; ++c) {
+        for (int c = 0; c < R.cols; ++c) {
             H_c[t][c] = 0;
         }
     }
@@ -219,8 +219,8 @@ void cdmf_csr5(smat_t& R, mat_t& W_c, mat_t& H_c, parameter& param, char filenam
 
     cl_ulong t_update_ratings = 0;
     cl_ulong t_rank_one_update = 0;
-    cl_ulong t_start;
-    cl_ulong t_end;
+//    cl_ulong t_start;
+//    cl_ulong t_end;
 
     auto t1 = std::chrono::high_resolution_clock::now();
     for (int oiter = 1; oiter <= param.maxiter; ++oiter) {

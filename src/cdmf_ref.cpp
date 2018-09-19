@@ -11,17 +11,17 @@ inline VALUE_TYPE RankOneUpdate(const smat_t &R, const int j, const vec_t &u, co
 {
     VALUE_TYPE g=0, h=lambda;
     if(R.col_ptr[j+1]==R.col_ptr[j]) return 0;
-    for(long idx=R.col_ptr[j]; idx < R.col_ptr[j+1]; ++idx)
+    for(unsigned int idx=R.col_ptr[j]; idx < R.col_ptr[j+1]; ++idx)
     {
         int i = R.row_idx[idx];
         g += u[i]*R.val[idx];
         h += u[i]*u[i];
     }
-    VALUE_TYPE newvj = g/h, tmp = 0, delta = 0, fundec = 0;
+    VALUE_TYPE newvj = g/h, delta = 0, fundec = 0;
     if(do_nmf>0 & newvj < 0)
     {
         newvj = 0;
-        delta = vj; // old - new
+        // delta = vj; // old - new
         fundec = -2*g*vj; //+ h*vj*vj;
     } else {
         delta = vj - newvj;
@@ -113,7 +113,7 @@ void cdmf_ref(smat_t &R, mat_t &W, mat_t &H, parameter &param)
     // int inneriter = param.maxinneriter;
     int num_threads_old = omp_get_num_threads();
     VALUE_TYPE lambda = param.lambda;
-    VALUE_TYPE eps = param.eps;
+    // VALUE_TYPE eps = param.eps;
     VALUE_TYPE Itime = 0, Wtime = 0, Htime = 0, Rtime = 0, start = 0, oldobj=0;
     long num_updates = 0;
     VALUE_TYPE reg=0,loss;

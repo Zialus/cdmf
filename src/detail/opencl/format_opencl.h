@@ -155,7 +155,7 @@ int generate_partition_descriptor(cl_kernel           ocl_kernel_generate_partit
     int num_threads = ANONYMOUSLIB_CSR5_OMEGA;
     int num_blocks = p;
 
-    szLocalWorkSize[0]  = num_threads;
+    szLocalWorkSize[0] = (size_t) num_threads;
     szGlobalWorkSize[0] = num_blocks * szLocalWorkSize[0];
 
     err  = clSetKernelArg(ocl_kernel_generate_partition_descriptor_s0, 0, sizeof(cl_mem), (void*)&partition_descriptor);
@@ -174,9 +174,9 @@ int generate_partition_descriptor(cl_kernel           ocl_kernel_generate_partit
 
 
     num_threads = 128;
-    num_blocks = ceil((double)m / (double)num_threads);
+    num_blocks = (int) ceil((double) m / (double) num_threads);
 
-    szLocalWorkSize[0]  = num_threads;
+    szLocalWorkSize[0] = (size_t) num_threads;
     szGlobalWorkSize[0] = num_blocks * szLocalWorkSize[0];
 
     int bit_all_offset = bit_y_offset + bit_scansum_offset;
@@ -202,9 +202,9 @@ int generate_partition_descriptor(cl_kernel           ocl_kernel_generate_partit
 
 
     num_threads = ANONYMOUSLIB_THREAD_GROUP;
-    num_blocks  = ceil ((double)(p-1) / (double)(num_threads / ANONYMOUSLIB_CSR5_OMEGA));
+    num_blocks = (int) ceil((double) (p - 1) / (double) (num_threads / ANONYMOUSLIB_CSR5_OMEGA));
 
-    szLocalWorkSize[0]  = num_threads;
+    szLocalWorkSize[0]  = (size_t) num_threads;
     szGlobalWorkSize[0] = num_blocks * szLocalWorkSize[0];
 
     err  = clSetKernelArg(ocl_kernel_generate_partition_descriptor_s2, 0, sizeof(cl_mem), (void*)&partition_pointer);
@@ -247,7 +247,7 @@ int generate_partition_descriptor(cl_kernel           ocl_kernel_generate_partit
         num_threads = 256;
         num_blocks  = 1;
 
-        szLocalWorkSize[0]  = num_threads;
+        szLocalWorkSize[0] = (size_t) num_threads;
         szGlobalWorkSize[0] = num_blocks * szLocalWorkSize[0];
 
         err  = clSetKernelArg(ocl_kernel_generate_partition_descriptor_s3, 0, sizeof(cl_mem), (void*)&partition_descriptor_offset_pointer);
@@ -313,9 +313,9 @@ int generate_partition_descriptor_offset(cl_kernel           ocl_kernel_generate
     size_t szGlobalWorkSize[1];
 
     int num_threads = ANONYMOUSLIB_THREAD_GROUP;
-    int num_blocks = ceil ((double)(p-1) / (double)(num_threads / ANONYMOUSLIB_CSR5_OMEGA));
+    int num_blocks = (int) ceil((double) (p - 1) / (double) (num_threads / ANONYMOUSLIB_CSR5_OMEGA));
 
-    szLocalWorkSize[0]  = num_threads;
+    szLocalWorkSize[0] = (size_t) num_threads;
     szGlobalWorkSize[0] = num_blocks * szLocalWorkSize[0];
 
     err  = clSetKernelArg(ocl_kernel_generate_partition_descriptor_offset, 0, sizeof(cl_mem), (void*)&row_pointer);
@@ -371,9 +371,9 @@ int aosoa_transpose(cl_kernel           _ocl_kernel_aosoa_transpose_smem_iT,
     size_t szGlobalWorkSize[1];
 
     int num_threads = 128;
-    int num_blocks = ceil((double)nnz / (double)(ANONYMOUSLIB_CSR5_OMEGA * sigma)) - 1;
+    int num_blocks = (int) ceil((double) nnz / (double) (ANONYMOUSLIB_CSR5_OMEGA * sigma)) - 1;
 
-    szLocalWorkSize[0]  = num_threads;
+    szLocalWorkSize[0] = (size_t) num_threads;
     szGlobalWorkSize[0] = num_blocks * szLocalWorkSize[0];
 
     err  = clSetKernelArg(_ocl_kernel_aosoa_transpose_smem_iT, 0, sizeof(cl_mem), (void*)&column_index);

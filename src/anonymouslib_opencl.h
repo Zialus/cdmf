@@ -195,11 +195,11 @@ int anonymouslibHandle<ANONYMOUSLIB_IT, ANONYMOUSLIB_UIT, ANONYMOUSLIB_VT>::asCS
             return ANONYMOUSLIB_UNSUPPORTED_CSR5_OMEGA;
 
         int bit_all = _bit_y_offset + _bit_scansum_offset + _csr5_sigma;
-        _num_packet = ceil((double)bit_all / (double)(sizeof(ANONYMOUSLIB_UIT) * 8));
+        _num_packet = (int) ceil((double) bit_all / (double) (sizeof(ANONYMOUSLIB_UIT) * 8));
         //std::cout << "#num_packet = " << _num_packet << std::endl;
 
         // calculate the number of partitions
-        _p = ceil((double)_nnz / (double)(ANONYMOUSLIB_CSR5_OMEGA * _csr5_sigma));
+        _p = (int) ceil((double) _nnz / (double) (ANONYMOUSLIB_CSR5_OMEGA * _csr5_sigma));
         //std::cout << "#partition = " << _p << std::endl;
 
         malloc_timer.start();

@@ -15,8 +15,8 @@ set(EXECUTABLE_OUTPUT_PATH "${CMAKE_SOURCE_DIR}/exec/")
 
 # Add some compilation flags
 set(VALUE "-DVALUE_TYPE=double")
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${VALUE} -m64")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${VALUE} -m64")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${VALUE}")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${VALUE}")
 
 
 # Source code of application
@@ -33,6 +33,7 @@ file(GLOB source_hdr "${PROJECT_SOURCE_DIR}/src/*.h" "${PROJECT_SOURCE_DIR}/src/
 # Silence warning C4996 on Microsoft Compilers
 if (MSVC)
     add_definitions(-D_CRT_SECURE_NO_WARNINGS)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4")
 endif ()
 
 # Set up executable
