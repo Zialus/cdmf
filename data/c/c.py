@@ -8,14 +8,14 @@ n = m
 uid = 0
 iid = 0
 score = 0
-print "start."
+print("start.")
 
-print "Writing the meta file..."
+print("Writing the meta file...")
 meta = open("meta", "w+")
 meta.write(str(m)+"\t"+str(n)+"\n")
 meta.write(str(2*m)+"\t"+dataName+"\n")
 meta.close()
-print "Done."
+print("Done.")
 
 # file.write("%%MatrixMarket matrix coordinate real general\n")
 # head = str(m) + "\t" + str(n) + "\t" + str(2*m) + "\n"

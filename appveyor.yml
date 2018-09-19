@@ -1,5 +1,7 @@
 environment:
-  INTELOCLSDKROOT: C:\Intel\OpenCL\sdk\
+  INTELOCLSDKROOT: 'C:\Intel\OpenCL\sdk\'
+  VERSION_FLAG: '2'
+  SIZE_FLAG: '2'
 
 image:
   - Ubuntu
@@ -9,15 +11,31 @@ image:
 before_build:
   - appveyor DownloadFile "http://registrationcenter-download.intel.com/akdlm/irc_nas/vcp/12527/intel_sdk_for_opencl_2017_7.0.0.2567.exe"
   - appveyor DownloadFile "http://registrationcenter-download.intel.com/akdlm/irc_nas/12512/opencl_runtime_16.1.2_x64_setup.msi"
+  - appveyor DownloadFile "https://ci.appveyor.com/api/projects/oblomov/clinfo/artifacts/clinfo.exe?job=platform:+x64" -FileName clinfo.exe
   - start /wait msiexec /i opencl_runtime_16.1.2_x64_setup.msi /qn
   - start /wait .\intel_sdk_for_opencl_2017_7.0.0.2567.exe install --output=output.log --eula=accept
   - type output.log
   - dir %INTELOCLSDKROOT%
 
 build_script:
+  - cmake --version
+  - .\clinfo.exe
   - mkdir build && cd build
   - cmake ..
   - cmake --build . --config Release
+
+before_test:
+  - python --version
+  - cd ../data/a/
+  - python a.py
+  - cd ../b/
+  - python b.py
+  - cd ../c/
+  - python c.py
+  - cd ../../build/
+
+test_script:
+  - ctest -V -C Release
 
 for:
 -
@@ -25,15 +43,22 @@ for:
     only:
     - image: Ubuntu
 
+  environment:
+    LOL: WUT
+
   init:
   - uname -a
   before_build:
   - sudo apt install clinfo opencl-headers -y
   - source scripts/opencl_install.sh
   - echo $AMDAPPSDKROOT
+  - echo $VERSION_FLAG
+  - echo $SIZE_FLAG
+  - echo $LOL
+
   build_script:
   - cmake --version
   - clinfo
   - mkdir build && cd build
-  - cmake -D CMAKE_BUILD_TYPE=Release ..
-  - make
+  - cmake -DCMAKE_BUILD_TYPE=Release ..
+  - cmake --build . --config Release

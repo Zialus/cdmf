@@ -3,18 +3,20 @@ dist: xenial
 sudo: required
 
 script:
+- cmake --version
+- python --version
 - clinfo
 - pushd .
 - cd data/a/
-- python2 a.py
+- python a.py
 - popd
 - pushd .
 - cd data/b/
-- python2 b.py
+- python b.py
 - popd
 - pushd .
 - cd data/c/
-- python2 c.py
+- python c.py
 - popd
 - mkdir build
 - cd build
