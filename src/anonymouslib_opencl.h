@@ -128,12 +128,18 @@ int anonymouslibHandle<ANONYMOUSLIB_IT, ANONYMOUSLIB_UIT, ANONYMOUSLIB_VT>::asCS
              _csr5_sigma, _nnz, _csr5_partition_pointer, _csr_column_index, _csr_value, 0, &time);
 
         // free the two newly added CSR5 arrays
-        if(_csr5_partition_pointer) err = clReleaseMemObject(_csr5_partition_pointer); if(err != CL_SUCCESS) return err;
-        if(_csr5_partition_descriptor) err = clReleaseMemObject(_csr5_partition_descriptor); if(err != CL_SUCCESS) return err;
-        if(_temp_calibrator_t) err = clReleaseMemObject(_temp_calibrator_t); if(err != CL_SUCCESS) return err;
-        if(_temp_calibrator_b) err = clReleaseMemObject(_temp_calibrator_b); if(err != CL_SUCCESS) return err;
-        if(_csr5_partition_descriptor_offset_pointer) err = clReleaseMemObject(_csr5_partition_descriptor_offset_pointer); if(err != CL_SUCCESS) return err;
-        if(_csr5_partition_descriptor_offset) err = clReleaseMemObject(_csr5_partition_descriptor_offset); if(err != CL_SUCCESS) return err;
+        if (_csr5_partition_pointer) { err = clReleaseMemObject(_csr5_partition_pointer); }
+        if (err != CL_SUCCESS) { return err; }
+        if (_csr5_partition_descriptor) { err = clReleaseMemObject(_csr5_partition_descriptor); }
+        if (err != CL_SUCCESS) { return err; }
+        if (_temp_calibrator_t) { err = clReleaseMemObject(_temp_calibrator_t); }
+        if (err != CL_SUCCESS) { return err; }
+        if (_temp_calibrator_b) { err = clReleaseMemObject(_temp_calibrator_b); }
+        if (err != CL_SUCCESS) { return err; }
+        if (_csr5_partition_descriptor_offset_pointer) { err = clReleaseMemObject(_csr5_partition_descriptor_offset_pointer); }
+        if (err != CL_SUCCESS) { return err; }
+        if (_csr5_partition_descriptor_offset) { err = clReleaseMemObject(_csr5_partition_descriptor_offset); }
+        if (err != CL_SUCCESS) { return err; }
 
         _format = ANONYMOUSLIB_FORMAT_CSR;
     }

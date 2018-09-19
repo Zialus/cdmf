@@ -107,8 +107,8 @@ int BasicCL::getDeviceInfo(cl_device_id device, char *deviceName, char *deviceVe
     if(_ciErr != CL_SUCCESS) return _ciErr;
     _ciErr = clGetDeviceInfo(device, CL_DEVICE_LOCAL_MEM_SIZE, sizeof(cl_ulong), deviceLocalMem, NULL);
     if(_ciErr != CL_SUCCESS) return _ciErr;
-    //_ciErr = clGetDeviceInfo(device, CL_DEVICE_PARTITION_MAX_SUB_DEVICES, sizeof(cl_uint), maxSubDevices, NULL);
-    //if(_ciErr != CL_SUCCESS) return _ciErr;
+    _ciErr = clGetDeviceInfo(device, CL_DEVICE_PARTITION_MAX_SUB_DEVICES, sizeof(cl_uint), maxSubDevices, NULL);
+    if(_ciErr != CL_SUCCESS) return _ciErr;
     return CL_SUCCESS;
 }
 
@@ -122,7 +122,7 @@ int BasicCL::getContext(cl_context *context, cl_device_id *devices, cl_uint numD
 int BasicCL::getCommandQueue(cl_command_queue *commandQueue, cl_context context, cl_device_id device)
 {
     // use clCreateCommandQueueWithProperties for ocl2.0
-    //commandQueue[0] = clCreateCommandQueue(context, device, NULL, &_ciErr);
+    commandQueue[0] = clCreateCommandQueue(context, device, 0, &_ciErr);
     //CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE
     //CL_QUEUE_PROFILING_ENABLE
     //std::cout << "------------ _ciErr " << _ciErr << std::endl;

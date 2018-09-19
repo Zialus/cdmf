@@ -190,9 +190,9 @@ class smat_t
             for(int c=1; c<=cols; ++c)
                 max_col_nnz = std::max(max_col_nnz, col_ptr[c]);
         }
-        void load(unsigned int _rows, unsigned int _cols, unsigned int _nnz, const char* filename, unsigned int ifALS, unsigned int with_weights = false)
+        void load(unsigned int _rows, unsigned int _cols, unsigned int _nnz, const char* filename, unsigned int ifALS, unsigned int use_weights = false)
         {
-            entry_iterator_t entry_it(_nnz, filename, with_weights);
+            entry_iterator_t entry_it(_nnz, filename, use_weights);
             load_from_iterator(_rows, _cols, _nnz, &entry_it, ifALS);
         }
         void load_from_iterator(unsigned int _rows, unsigned int _cols, unsigned int _nnz, entry_iterator_t* entry_it, unsigned int ifALS) 

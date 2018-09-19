@@ -31,7 +31,8 @@ int format_warmup(cl_kernel           ocl_kernel_warmup,
         if(err != CL_SUCCESS) { std::cout << "ocl_kernel_warmup kernel run error = " << err << std::endl; return err; }
     }
 
-    if(d_scan) err = clReleaseMemObject(d_scan); if(err != CL_SUCCESS) return err;
+    if (d_scan) { err = clReleaseMemObject(d_scan); }
+    if (err != CL_SUCCESS) { return err; }
 
     return err;
 }
@@ -63,9 +64,9 @@ int generate_partition_pointer(cl_kernel           ocl_kernel_generate_partition
     size_t szGlobalWorkSize[1];
 
     int num_threads = 128;
-    int num_blocks  = ceil((double)(p + 1) / (double)num_threads);
+    int num_blocks = (int) ceil((double) (p + 1) / (double) num_threads);
 
-    szLocalWorkSize[0]  = num_threads;
+    szLocalWorkSize[0] = (size_t) num_threads;
     szGlobalWorkSize[0] = num_blocks * szLocalWorkSize[0];
 
     // step 1. binary search row pointer
