@@ -51,6 +51,8 @@ for:
   before_build:
   - sudo apt install clinfo opencl-headers -y
   - source scripts/opencl_install.sh
+  - export VERSION_FLAG=2
+  - export SIZE_FLAG=2
   - echo $AMDAPPSDKROOT
   - echo $VERSION_FLAG
   - echo $SIZE_FLAG
