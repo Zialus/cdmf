@@ -1,7 +1,6 @@
 cmake-*
 .idea/
 exec/
-*.dat
-*.bin
-*.csv
-*.mtx
+data/
+SomeResults/
+SomeStuff/
