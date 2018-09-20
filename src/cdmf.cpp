@@ -66,7 +66,7 @@ int main(int argc, char** argv) {
         }
         default: {
             printf("Wrong version");
-            break;
+            return EXIT_FAILURE;
         }
     }
 
