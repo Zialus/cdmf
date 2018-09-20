@@ -3,7 +3,7 @@
 
 // load utility for CCS RCS
 void load(const char* srcdir, smat_t& R, bool ifALS, bool with_weights) {
-    char filename[1024], buf[1024];
+    char filename[2048], buf[1024];
     sprintf(filename, "%s/meta", srcdir);
     FILE* fp = fopen(filename, "r");
     if (fp == nullptr) {
@@ -423,7 +423,7 @@ void calculate_rmse_ocl(const mat_t& W_c, const mat_t& H_c, const int k, const c
         exit(1);
     }
 
-    char buf_train[1024], buf_test[1024], test_file_name[1024], train_file_name[1024];
+    char buf_train[1024], buf_test[1024], test_file_name[2048], train_file_name[2048];
     unsigned m, n, nnz, nnz_test;
     CHECK_FSCAN(fscanf(fp, "%u %u", &m, &n),2);
     CHECK_FSCAN(fscanf(fp, "%u %1023s", &nnz, buf_train),2);

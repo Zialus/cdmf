@@ -48,7 +48,7 @@ int csr5_spmv(cl_kernel                 ocl_kernel_spmv_csr5_compute,
     int num_blocks = (int) ceil((double) (p - 1) / (double) (num_threads / ANONYMOUSLIB_CSR5_OMEGA));
 
     szLocalWorkSize[0] = (size_t) num_threads;
-    szGlobalWorkSize[0] = num_blocks * szLocalWorkSize[0];
+    szGlobalWorkSize[0] = (size_t) num_blocks * szLocalWorkSize[0];
 
     err  = clSetKernelArg(ocl_kernel_spmv_csr5_compute, 0, sizeof(cl_mem), (void*)&column_index);
     err |= clSetKernelArg(ocl_kernel_spmv_csr5_compute, 1, sizeof(cl_mem), (void*)&value);
@@ -83,7 +83,7 @@ int csr5_spmv(cl_kernel                 ocl_kernel_spmv_csr5_compute,
     num_blocks = (int) ceil((double) (p - 1) / (double) num_threads);
 
     szLocalWorkSize[0] = (size_t) num_threads;
-    szGlobalWorkSize[0] = num_blocks * szLocalWorkSize[0];
+    szGlobalWorkSize[0] = (size_t) num_blocks * szLocalWorkSize[0];
 
     err  = clSetKernelArg(ocl_kernel_spmv_csr5_calibrate, 0, sizeof(cl_mem), (void*)&partition_pointer);
     err |= clSetKernelArg(ocl_kernel_spmv_csr5_calibrate, 1, sizeof(cl_mem), (void*)&calibrator_t);
@@ -105,8 +105,8 @@ int csr5_spmv(cl_kernel                 ocl_kernel_spmv_csr5_compute,
     num_threads = ANONYMOUSLIB_CSR5_OMEGA;
     num_blocks = m - tail_partition_start;
 
-    szLocalWorkSize[0]  = num_threads;
-    szGlobalWorkSize[0] = num_blocks * szLocalWorkSize[0];
+    szLocalWorkSize[0]  = (size_t) num_threads;
+    szGlobalWorkSize[0] = (size_t) num_blocks * szLocalWorkSize[0];
 
     err  = clSetKernelArg(ocl_kernel_spmv_csr5_tail_partition, 0, sizeof(cl_mem), (void*)&row_pointer);
     err |= clSetKernelArg(ocl_kernel_spmv_csr5_tail_partition, 1, sizeof(cl_mem), (void*)&column_index);

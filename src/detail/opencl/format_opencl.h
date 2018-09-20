@@ -67,7 +67,7 @@ int generate_partition_pointer(cl_kernel           ocl_kernel_generate_partition
     int num_blocks = (int) ceil((double) (p + 1) / (double) num_threads);
 
     szLocalWorkSize[0] = (size_t) num_threads;
-    szGlobalWorkSize[0] = num_blocks * szLocalWorkSize[0];
+    szGlobalWorkSize[0] = (size_t) num_blocks * szLocalWorkSize[0];
 
     // step 1. binary search row pointer
     err  = clSetKernelArg(ocl_kernel_generate_partition_pointer_s1, 0, sizeof(cl_mem), (void*)&row_pointer);
@@ -91,8 +91,8 @@ int generate_partition_pointer(cl_kernel           ocl_kernel_generate_partition
     num_threads = 64;
     num_blocks  = p;
 
-    szLocalWorkSize[0]  = num_threads;
-    szGlobalWorkSize[0] = num_blocks * szLocalWorkSize[0];
+    szLocalWorkSize[0]  = (size_t) num_threads;
+    szGlobalWorkSize[0] = (size_t) num_blocks * szLocalWorkSize[0];
 
     err  = clSetKernelArg(ocl_kernel_generate_partition_pointer_s2, 0, sizeof(cl_mem), (void*)&row_pointer);
     err |= clSetKernelArg(ocl_kernel_generate_partition_pointer_s2, 1, sizeof(cl_mem), (void*)&partition_pointer);
@@ -157,7 +157,7 @@ int generate_partition_descriptor(cl_kernel           ocl_kernel_generate_partit
     int num_blocks = p;
 
     szLocalWorkSize[0] = (size_t) num_threads;
-    szGlobalWorkSize[0] = num_blocks * szLocalWorkSize[0];
+    szGlobalWorkSize[0] = (size_t) num_blocks * szLocalWorkSize[0];
 
     err  = clSetKernelArg(ocl_kernel_generate_partition_descriptor_s0, 0, sizeof(cl_mem), (void*)&partition_descriptor);
     err |= clSetKernelArg(ocl_kernel_generate_partition_descriptor_s0, 1, sizeof(cl_int), (void*)&num_packet);
@@ -178,7 +178,7 @@ int generate_partition_descriptor(cl_kernel           ocl_kernel_generate_partit
     num_blocks = (int) ceil((double) m / (double) num_threads);
 
     szLocalWorkSize[0] = (size_t) num_threads;
-    szGlobalWorkSize[0] = num_blocks * szLocalWorkSize[0];
+    szGlobalWorkSize[0] = (size_t) num_blocks * szLocalWorkSize[0];
 
     int bit_all_offset = bit_y_offset + bit_scansum_offset;
 
@@ -206,7 +206,7 @@ int generate_partition_descriptor(cl_kernel           ocl_kernel_generate_partit
     num_blocks = (int) ceil((double) (p - 1) / (double) (num_threads / ANONYMOUSLIB_CSR5_OMEGA));
 
     szLocalWorkSize[0]  = (size_t) num_threads;
-    szGlobalWorkSize[0] = num_blocks * szLocalWorkSize[0];
+    szGlobalWorkSize[0] = (size_t) num_blocks * szLocalWorkSize[0];
 
     err  = clSetKernelArg(ocl_kernel_generate_partition_descriptor_s2, 0, sizeof(cl_mem), (void*)&partition_pointer);
     err |= clSetKernelArg(ocl_kernel_generate_partition_descriptor_s2, 1, sizeof(cl_mem), (void*)&partition_descriptor);
@@ -249,7 +249,7 @@ int generate_partition_descriptor(cl_kernel           ocl_kernel_generate_partit
         num_blocks  = 1;
 
         szLocalWorkSize[0] = (size_t) num_threads;
-        szGlobalWorkSize[0] = num_blocks * szLocalWorkSize[0];
+        szGlobalWorkSize[0] = (size_t) num_blocks * szLocalWorkSize[0];
 
         err  = clSetKernelArg(ocl_kernel_generate_partition_descriptor_s3, 0, sizeof(cl_mem), (void*)&partition_descriptor_offset_pointer);
         err |= clSetKernelArg(ocl_kernel_generate_partition_descriptor_s3, 1, sizeof(cl_int), (void*)&p);
@@ -317,7 +317,7 @@ int generate_partition_descriptor_offset(cl_kernel           ocl_kernel_generate
     int num_blocks = (int) ceil((double) (p - 1) / (double) (num_threads / ANONYMOUSLIB_CSR5_OMEGA));
 
     szLocalWorkSize[0] = (size_t) num_threads;
-    szGlobalWorkSize[0] = num_blocks * szLocalWorkSize[0];
+    szGlobalWorkSize[0] = (size_t) num_blocks * szLocalWorkSize[0];
 
     err  = clSetKernelArg(ocl_kernel_generate_partition_descriptor_offset, 0, sizeof(cl_mem), (void*)&row_pointer);
     err |= clSetKernelArg(ocl_kernel_generate_partition_descriptor_offset, 1, sizeof(cl_mem), (void*)&partition_pointer);
@@ -375,7 +375,7 @@ int aosoa_transpose(cl_kernel           _ocl_kernel_aosoa_transpose_smem_iT,
     int num_blocks = (int) ceil((double) nnz / (double) (ANONYMOUSLIB_CSR5_OMEGA * sigma)) - 1;
 
     szLocalWorkSize[0] = (size_t) num_threads;
-    szGlobalWorkSize[0] = num_blocks * szLocalWorkSize[0];
+    szGlobalWorkSize[0] = (size_t) num_blocks * szLocalWorkSize[0];
 
     err  = clSetKernelArg(_ocl_kernel_aosoa_transpose_smem_iT, 0, sizeof(cl_mem), (void*)&column_index);
     err |= clSetKernelArg(_ocl_kernel_aosoa_transpose_smem_iT, 1, sizeof(cl_mem), (void*)&partition_pointer);

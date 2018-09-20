@@ -181,7 +181,8 @@ int anonymouslibHandle<ANONYMOUSLIB_IT, ANONYMOUSLIB_UIT, ANONYMOUSLIB_VT>::asCS
     if (_format == ANONYMOUSLIB_FORMAT_CSR)
     {
         double malloc_time = 0, tile_ptr_time = 0, tile_desc_time = 0, transpose_time = 0;
-        anonymouslib_timer malloc_timer, tile_ptr_timer, tile_desc_timer, transpose_timer;
+        anonymouslib_timer malloc_timer;
+        // anonymouslib_timer tile_ptr_timer, tile_desc_timer, transpose_timer;
         double time = 0;
 
         // compute sigma
@@ -197,7 +198,7 @@ int anonymouslibHandle<ANONYMOUSLIB_IT, ANONYMOUSLIB_UIT, ANONYMOUSLIB_VT>::asCS
         _bit_scansum_offset = 1;
         while (base < ANONYMOUSLIB_CSR5_OMEGA) { base *= 2; _bit_scansum_offset++; }
 
-        if (_bit_y_offset + _bit_scansum_offset > sizeof(ANONYMOUSLIB_UIT) * 8 - 1) //the 1st bit of bit-flag should be in the first packet
+        if (_bit_y_offset + _bit_scansum_offset > (int) sizeof(ANONYMOUSLIB_UIT) * 8 - 1) //the 1st bit of bit-flag should be in the first packet
             return ANONYMOUSLIB_UNSUPPORTED_CSR5_OMEGA;
 
         int bit_all = _bit_y_offset + _bit_scansum_offset + _csr5_sigma;
@@ -331,8 +332,9 @@ int anonymouslibHandle<ANONYMOUSLIB_IT, ANONYMOUSLIB_UIT, ANONYMOUSLIB_VT>::asCS
 
     if (_format == ANONYMOUSLIB_FORMAT_CSR)
     {
-        double malloc_time = 0, tile_ptr_time = 0, tile_desc_time = 0, transpose_time = 0;
-        anonymouslib_timer malloc_timer, tile_ptr_timer, tile_desc_timer, transpose_timer;
+        // double malloc_time = 0, tile_ptr_time = 0, tile_desc_time = 0;
+        double transpose_time = 0;
+        // anonymouslib_timer malloc_timer, tile_ptr_timer, tile_desc_timer, transpose_timer;
         double time = 0;
 
         // compute sigma

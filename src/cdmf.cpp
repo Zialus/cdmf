@@ -9,7 +9,9 @@
 #include "tools.h"
 
 void cdmf_ref(smat_t& R, mat_t& W, mat_t& H, parameter& param);
+
 void cdmf_ocl(smat_t& R, mat_t& W, mat_t& H, parameter& param, char filename[]);
+
 void cdmf_csr5(smat_t& R, mat_t& W, mat_t& H, parameter& param, char filename[]);
 
 int main(int argc, char** argv) {
@@ -45,21 +47,21 @@ int main(int argc, char** argv) {
     switch (param.version) {
         case 1: {
             std::cout << "[info] Picked Version 1: Native" << std::endl;
-            char kcode_filename[1024];
+            char kcode_filename[1024+10];
             sprintf(kcode_filename, "%s/ccd01.cl", kcode_path);
             cdmf_ocl(R, W, H, param, kcode_filename);
             break;
         }
         case 2: {
             std::cout << "[info] Picked Version 2: Thread Batching" << std::endl;
-            char kcode_filename[1024];
+            char kcode_filename[1024+10];
             sprintf(kcode_filename, "%s/ccd033.cl", kcode_path);
             cdmf_ocl(R, W, H, param, kcode_filename);
             break;
         }
         case 3: {
             std::cout << "[info] Picked Version 3: Load Balancing" << std::endl;
-            char kcode_filename[1024];
+            char kcode_filename[1024+10];
             sprintf(kcode_filename, "%s/ccd033.cl", kcode_path);
             cdmf_csr5(R, W, H, param, kcode_filename);
             break;
@@ -95,5 +97,5 @@ int main(int argc, char** argv) {
 //    print_matrix(W_ref,param.k,R.rows);
 //    print_matrix(H_ref,param.k,R.cols);
 
-    return 0;
+    return EXIT_SUCCESS;
 }
