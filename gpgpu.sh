@@ -16,10 +16,10 @@ then
         rm ${rawA}
 fi
 
-for ts in ${TS[@]}; do
+for ts in "${TS[@]}"; do
         echo "T=${ts}:" >> ${rawA}
-        for ds in ${DS[@]}; do
-                for lws in ${LWS[@]}; do
+        for ds in "${DS[@]}"; do
+                for lws in "${LWS[@]}"; do
                         ./cdmf -k 40 -t ${lws} -T ${ts} -P 0 -l 0.05 -nThreadsPerBlock 64 -p 1 -V 2 ../data/${ds}/ > tmp.dat
                         echo -ne $(grep "training time" ./tmp.dat | cut -d':' -f2 | cut -d' ' -f2) >> ${rawA}
                         echo -ne "\t" >> ${rawA}
@@ -43,10 +43,10 @@ then
         rm ${rawB}
 fi
 
-for ts in ${TS[@]}; do
+for ts in "${TS[@]}"; do
         echo "T=${ts}:" >> ${rawB}
-        for ds in ${DS[@]}; do
-                for lws in ${LWS[@]}; do
+        for ds in "${DS[@]}"; do
+                for lws in "${LWS[@]}"; do
                         ./cdmf -k 40 -t ${lws} -T ${ts} -P 0 -l 0.05 -nThreadsPerBlock 64 -p 1 -V 1 ../data/${ds}/ > tmp.dat
                         echo -ne $(grep "training time" ./tmp.dat | cut -d':' -f2 | cut -d' ' -f2) >> ${rawB}
                         echo -ne "\t" >> ${rawB}
