@@ -186,6 +186,14 @@ void cdmf_ocl(smat_t& R, mat_t& W_c, mat_t& H_c, parameter& param, char filename
     printf("local_work_size for RankOneUpdate_DUAL_kernel_u should be: %zu\n",local);
     CL_CHECK(clGetKernelWorkGroupInfo(RankOneUpdate_DUAL_kernel_v, devices[0], CL_KERNEL_WORK_GROUP_SIZE, sizeof(local), &local, NULL));
     printf("local_work_size for RankOneUpdate_DUAL_kernel_u should be: %zu\n",local);
+    CL_CHECK(clGetKernelWorkGroupInfo(UpdateRating_DUAL_kernel_NoLoss_r, devices[0], CL_KERNEL_WORK_GROUP_SIZE, sizeof(local), &local, NULL));
+    printf("local_work_size for UpdateRating_DUAL_kernel_NoLoss_r should be: %zu\n",local);
+    CL_CHECK(clGetKernelWorkGroupInfo(UpdateRating_DUAL_kernel_NoLoss_c, devices[0], CL_KERNEL_WORK_GROUP_SIZE, sizeof(local), &local, NULL));
+    printf("local_work_size for UpdateRating_DUAL_kernel_NoLoss_c should be: %zu\n",local);
+    CL_CHECK(clGetKernelWorkGroupInfo(UpdateRating_DUAL_kernel_NoLoss_r_, devices[0], CL_KERNEL_WORK_GROUP_SIZE, sizeof(local), &local, NULL));
+    printf("local_work_size for UpdateRating_DUAL_kernel_NoLoss_r_ should be: %zu\n",local);
+    CL_CHECK(clGetKernelWorkGroupInfo(UpdateRating_DUAL_kernel_NoLoss_c_, devices[0], CL_KERNEL_WORK_GROUP_SIZE, sizeof(local), &local, NULL));
+    printf("local_work_size for UpdateRating_DUAL_kernel_NoLoss_c_ should be: %zu\n",local);
 
     cl_ulong t_update_ratings = 0;
     cl_ulong t_rank_one_update = 0;
