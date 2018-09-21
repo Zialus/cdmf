@@ -71,6 +71,15 @@ matrix:
     - brew cask uninstall oclint
     - brew install llvm@6 && brew link --overwrite llvm@6 --force
     - brew install clinfo
+  - os: osx
+    osx_image: xcode9.2
+    env:
+      - MATRIX_EVAL="CC=clang-7 && CXX=clang++"
+    before_script:
+      - brew update
+      - brew cask uninstall oclint
+      - brew install llvm@7 && brew link --overwrite llvm@7 --force
+      - brew install clinfo
 
   ######## OSX GCC ########
 #  - os: osx
@@ -168,6 +177,18 @@ matrix:
     - sudo apt install opencl-headers clinfo
     - source scripts/opencl_install.sh
     - source scripts/cmake_install.sh
+  - os: linux
+    env:
+      - MATRIX_EVAL="CC=clang-7 && CXX=clang++-7"
+    before_script:
+      - wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key|sudo apt-key add -
+      - sudo apt-add-repository "deb https://apt.llvm.org/xenial/ llvm-toolchain-xenial-7 main"
+      - sudo apt update
+      - sudo apt install clang-7
+      - sudo apt install libomp-dev
+      - sudo apt install opencl-headers clinfo
+      - source scripts/opencl_install.sh
+      - source scripts/cmake_install.sh
 
   ######## LINUX GCC ########
 #  - os: linux
