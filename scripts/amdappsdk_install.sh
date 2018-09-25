@@ -9,11 +9,11 @@ export AMDAPPSDKROOT=$HOME/AMDAPPSDK
 export OPENCL_VENDOR_PATH=${AMDAPPSDKROOT}/etc/OpenCL/vendors
 export LD_LIBRARY_PATH=${AMDAPPSDKROOT}/lib/x86_64:${LD_LIBRARY_PATH-}
 
-mkdir -p ${OPENCL_VENDOR_PATH}
-mkdir -p ${AMDAPPSDKROOT}
+mkdir -p "$OPENCL_VENDOR_PATH"
+mkdir -p "$AMDAPPSDKROOT"
 
-sh AMD-APP-SDK*.sh --tar -xf -C ${AMDAPPSDKROOT}
-mv ${AMDAPPSDKROOT}/lib/x86_64/sdk/* ${AMDAPPSDKROOT}/lib/x86_64/
-echo libamdocl64.so > ${OPENCL_VENDOR_PATH}/amdocl64.icd
+sh AMD-APP-SDK*.sh --tar -xf -C "$AMDAPPSDKROOT"
+mv "$AMDAPPSDKROOT"/lib/x86_64/sdk/* "$AMDAPPSDKROOT"/lib/x86_64/
+echo libamdocl64.so > "$OPENCL_VENDOR_PATH"/amdocl64.icd
 
 set +exu

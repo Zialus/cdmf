@@ -27,7 +27,6 @@ build_script:
   - cmake --version
   - .\clinfo.exe
   - mkdir build && cd build
-  - echo %INTELOCLSDKROOT%
   - cmake ..
   - cmake --build . --config Release
 
@@ -57,7 +56,7 @@ for:
   init:
     - uname -a
   before_build:
-    - sudo apt install clinfo opencl-headers -y
+    - sudo apt-get install clinfo opencl-headers -y
     - source scripts/opencl_install.sh
     - echo $AMDAPPSDKROOT
     - echo $VERSION_FLAG
@@ -67,8 +66,11 @@ for:
     - cmake --version
     - clinfo
     - mkdir build && cd build
-    - cmake -D CMAKE_BUILD_TYPE=Release ..
-    - cmake --build . --config Release
+    - cmake -DCMAKE_BUILD_TYPE=Release ..
+    - make
+
+  test_script:
+    - ctest -V -C Release
 
 -
   matrix:
@@ -79,7 +81,7 @@ for:
   init:
     - uname -a
   before_build:
-    - sudo apt install clinfo opencl-headers -y
+    - sudo apt-get install clinfo opencl-headers -y
     - source scripts/amdappsdk_install.sh
     - echo $AMDAPPSDKROOT
     - echo $VERSION_FLAG
@@ -90,7 +92,10 @@ for:
     - clinfo
     - mkdir build && cd build
     - cmake -DCMAKE_BUILD_TYPE=Release ..
-    - cmake --build . --config Release
+    - make
+
+  test_script:
+  - ctest -V -C Release
 
 -
   matrix:
@@ -101,8 +106,8 @@ for:
   init:
     - uname -a
   before_build:
-    - sudo apt install libpocl-dev -y
-    - sudo apt install opencl-headers clinfo -y
+    - sudo apt-get install libpocl-dev -y
+    - sudo apt-get install opencl-headers clinfo -y
     - echo $AMDAPPSDKROOT
     - echo $VERSION_FLAG
     - echo $SIZE_FLAG
@@ -113,7 +118,7 @@ for:
     - clinfo
     - mkdir build && cd build
     - cmake -DCMAKE_BUILD_TYPE=Release .. -DOpenCL_LIBRARY=/usr/lib/x86_64-linux-gnu/libOpenCL.so.1
-    - cmake --build . --config Release
+    - make
 
   test_script:
     - echo "POCL SEGFAULTS"
@@ -145,7 +150,7 @@ for:
     - clinfo
     - mkdir build && cd build
     - cmake -DCMAKE_BUILD_TYPE=Release ..
-    - cmake --build . --config Release
+    - make
 
   test_script:
     - echo "Appveyor machine doesn't have NVIDIA GPU"
