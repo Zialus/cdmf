@@ -53,15 +53,15 @@ matrix:
 #    - brew cask uninstall oclint
 #    - brew install llvm@4 && brew link --overwrite llvm@4 --force
 #    - brew install clinfo
-  - os: osx
-    osx_image: xcode9.2
-    env:
-    - MATRIX_EVAL="CC=clang-5.0 && CXX=clang++"
-    before_script:
-    - brew update
-    - brew cask uninstall oclint
-    - brew install llvm@5 && brew link --overwrite llvm@5 --force
-    - brew install clinfo
+#  - os: osx
+#    osx_image: xcode9.2
+#    env:
+#    - MATRIX_EVAL="CC=clang-5.0 && CXX=clang++"
+#    before_script:
+#    - brew update
+#    - brew cask uninstall oclint
+#    - brew install llvm@5 && brew link --overwrite llvm@5 --force
+#    - brew install clinfo
   - os: osx
     osx_image: xcode9.2
     env:
@@ -74,12 +74,12 @@ matrix:
   - os: osx
     osx_image: xcode9.2
     env:
-      - MATRIX_EVAL="CC=clang-7 && CXX=clang++"
+    - MATRIX_EVAL="CC=clang-7 && CXX=clang++"
     before_script:
-      - brew update
-      - brew cask uninstall oclint
-      - brew install llvm@7 && brew link --overwrite llvm@7 --force
-      - brew install clinfo
+    - brew update
+    - brew cask uninstall oclint
+    - brew install llvm@7 && brew link --overwrite llvm@7 --force
+    - brew install clinfo
 
   ######## OSX GCC ########
 #  - os: osx
@@ -153,18 +153,18 @@ matrix:
 #    - sudo apt install opencl-headers clinfo
 #    - source scripts/opencl_install.sh
 #    - source scripts/cmake_install.sh
-  - os: linux
-    env:
-    - MATRIX_EVAL="CC=clang-5.0 && CXX=clang++-5.0"
-    before_script:
-    - wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key|sudo apt-key add -
-    - sudo apt-add-repository "deb https://apt.llvm.org/xenial/ llvm-toolchain-xenial-5.0 main"
-    - sudo apt update
-    - sudo apt install clang-5.0
-    - sudo apt install libomp-dev
-    - sudo apt install opencl-headers clinfo
-    - source scripts/opencl_install.sh
-    - source scripts/cmake_install.sh
+#  - os: linux
+#    env:
+#    - MATRIX_EVAL="CC=clang-5.0 && CXX=clang++-5.0"
+#    before_script:
+#    - wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key|sudo apt-key add -
+#    - sudo apt-add-repository "deb https://apt.llvm.org/xenial/ llvm-toolchain-xenial-5.0 main"
+#    - sudo apt update
+#    - sudo apt install clang-5.0
+#    - sudo apt install libomp-dev
+#    - sudo apt install opencl-headers clinfo
+#    - source scripts/opencl_install.sh
+#    - source scripts/cmake_install.sh
   - os: linux
     env:
     - MATRIX_EVAL="CC=clang-6.0 && CXX=clang++-6.0"
@@ -179,16 +179,16 @@ matrix:
     - source scripts/cmake_install.sh
   - os: linux
     env:
-      - MATRIX_EVAL="CC=clang-7 && CXX=clang++-7"
+    - MATRIX_EVAL="CC=clang-7 && CXX=clang++-7"
     before_script:
-      - wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key|sudo apt-key add -
-      - sudo apt-add-repository "deb https://apt.llvm.org/xenial/ llvm-toolchain-xenial-7 main"
-      - sudo apt update
-      - sudo apt install clang-7
-      - sudo apt install libomp-dev
-      - sudo apt install opencl-headers clinfo
-      - source scripts/opencl_install.sh
-      - source scripts/cmake_install.sh
+    - wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key|sudo apt-key add -
+    - sudo apt-add-repository "deb https://apt.llvm.org/xenial/ llvm-toolchain-xenial-7 main"
+    - sudo apt update
+    - sudo apt install clang-7
+    - sudo apt install libomp-dev
+    - sudo apt install opencl-headers clinfo
+    - source scripts/opencl_install.sh
+    - source scripts/cmake_install.sh
 
   ######## LINUX GCC ########
 #  - os: linux
