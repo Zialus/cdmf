@@ -64,16 +64,17 @@ void RankOneUpdate_dev(__global const unsigned int *col_ptr,
 //  unsigned int dd = get_num_groups(0);
 
     __local VALUE_TYPE g[WG_SIZE],h[WG_SIZE];
-    g[ss]=0, h[ss]=0;
+    g[ss]=0;
+    h[ss]=0;
     size_t j = aa;
     VALUE_TYPE nlambda = lambda*(col_ptr[j + 1] - col_ptr[j]);
     if ((col_ptr[j + 1] == col_ptr[j]) && (ss == 0))
     {
-        v[j] = 0.0f;
+        v[j] = 0.0;
     }
     for (unsigned idx = col_ptr[j]+ss; idx <col_ptr[j + 1]; idx+=gg)
-    {   
-        int i = row_idx[idx];
+    {
+        unsigned i = row_idx[idx];
         g[ss] += u_vec_t[i] * val[idx];
         h[ss] += u_vec_t[i] * u_vec_t[i];
     }
