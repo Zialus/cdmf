@@ -15,6 +15,4 @@ tar -xzf /tmp/opencl_runtime.tgz -C /tmp
 sed 's/decline/accept/g' -i /tmp/${PACKAGE_NAME}/silent.cfg
 sudo /tmp/${PACKAGE_NAME}/install.sh -s /tmp/${PACKAGE_NAME}/silent.cfg
 
-export AMDAPPSDKROOT=/opt/intel/opencl/
-
 set +exu
