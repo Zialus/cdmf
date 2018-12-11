@@ -21,7 +21,6 @@ void cdmf_ocl(smat_t& R, mat_t& W_c, mat_t& H_c, parameter& param, char filename
     printf("[info] - selected device type: %s\n", device_type);
 
     if (param.verbose) {
-        print_all_the_platforms();
         print_all_the_info();
     }
 
@@ -29,9 +28,8 @@ void cdmf_ocl(smat_t& R, mat_t& W_c, mat_t& H_c, parameter& param, char filename
     // create context and build the kernel code
     cl_int status;
     cl_int err;
-    cl_platform_id platform;
-    getPlatform(platform, 0);
-    cl_device_id* devices = getDevice(platform, device_type);
+    cl_platform_id platform = getPlatform(0);
+    cl_device_id* devices = getDevices(platform, device_type);
     report_device(devices[0]);
     cl_context context = clCreateContext(nullptr, 1, devices, nullptr, nullptr, &err);
     CL_CHECK(err);

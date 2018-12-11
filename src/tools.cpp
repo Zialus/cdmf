@@ -22,8 +22,8 @@ void convertToString(const char* filename, std::string& s) {
     std::fstream f(filename, (std::fstream::in | std::fstream::binary));
 
     if (f.is_open()) {
-        size_t size;
         size_t fileSize;
+        size_t size;
         f.seekg(0, std::fstream::end);
         size = fileSize = (size_t) f.tellg();
         f.seekg(0, std::fstream::beg);
@@ -40,130 +40,130 @@ void convertToString(const char* filename, std::string& s) {
 }
 
 void print_all_the_info() {
-    char* value;
-    size_t valueSize;
+    // get platform count
     cl_uint platformCount;
-    cl_uint deviceCount;
-    cl_uint maxComputeUnits;
-
-    // get all platforms
     clGetPlatformIDs(0, nullptr, &platformCount);
+    // get all platforms
     cl_platform_id* platforms = (cl_platform_id*) malloc(sizeof(cl_platform_id) * platformCount);
     clGetPlatformIDs(platformCount, platforms, nullptr);
 
     for (unsigned i = 0; i < platformCount; i++) {
+        printf("%u. Platform \n", i + 1);
 
-        // get all devices
+        print_platform_info(platforms, i);
+
+        // get device count
+        cl_uint deviceCount;
         clGetDeviceIDs(platforms[i], CL_DEVICE_TYPE_ALL, 0, nullptr, &deviceCount);
+        // get all devices
         cl_device_id* devices = (cl_device_id*) malloc(sizeof(cl_device_id) * deviceCount);
         clGetDeviceIDs(platforms[i], CL_DEVICE_TYPE_ALL, deviceCount, devices, nullptr);
 
         // for each device print critical attributes
         for (unsigned j = 0; j < deviceCount; j++) {
-
-            // print device name
-            clGetDeviceInfo(devices[j], CL_DEVICE_NAME, 0, nullptr, &valueSize);
-            value = (char*) malloc(valueSize);
-            clGetDeviceInfo(devices[j], CL_DEVICE_NAME, valueSize, value, nullptr);
-            printf("%u. Device: %s\n", j + 1, value);
-            free(value);
-
-            // print hardware device version
-            clGetDeviceInfo(devices[j], CL_DEVICE_VERSION, 0, nullptr, &valueSize);
-            value = (char*) malloc(valueSize);
-            clGetDeviceInfo(devices[j], CL_DEVICE_VERSION, valueSize, value, nullptr);
-            printf(" %u.%d Hardware version: %s\n", j + 1, 1, value);
-            free(value);
-
-            // print software driver version
-            clGetDeviceInfo(devices[j], CL_DRIVER_VERSION, 0, nullptr, &valueSize);
-            value = (char*) malloc(valueSize);
-            clGetDeviceInfo(devices[j], CL_DRIVER_VERSION, valueSize, value, nullptr);
-            printf(" %u.%d Software version: %s\n", j + 1, 2, value);
-            free(value);
-
-            // print c version supported by compiler for device
-            clGetDeviceInfo(devices[j], CL_DEVICE_OPENCL_C_VERSION, 0, nullptr, &valueSize);
-            value = (char*) malloc(valueSize);
-            clGetDeviceInfo(devices[j], CL_DEVICE_OPENCL_C_VERSION, valueSize, value, nullptr);
-            printf(" %u.%d OpenCL C version: %s\n", j + 1, 3, value);
-            free(value);
-
-            // print parallel compute units
-            clGetDeviceInfo(devices[j], CL_DEVICE_MAX_COMPUTE_UNITS, sizeof(maxComputeUnits), &maxComputeUnits,
-                            nullptr);
-            printf(" %u.%d Parallel compute units: %u\n", j + 1, 4, maxComputeUnits);
-
+            print_device_info(devices, j);
         }
 
+        printf("\n");
         free(devices);
-
     }
 
     free(platforms);
 }
 
-void print_all_the_platforms() {
-    char* info;
-    size_t infoSize;
-    cl_uint platformCount;
-    cl_platform_id* platforms;
+void print_device_info(cl_device_id* devices, unsigned int j) {
+    char* value;
+    size_t valueSize;
+    cl_uint maxComputeUnits;
+
+    // print device name
+    clGetDeviceInfo(devices[j], CL_DEVICE_NAME, 0, nullptr, &valueSize);
+    value = (char*) malloc(valueSize);
+    clGetDeviceInfo(devices[j], CL_DEVICE_NAME, valueSize, value, nullptr);
+    printf("%u. Device: %s\n", j + 1, value);
+    free(value);
+
+    // print hardware device version
+    clGetDeviceInfo(devices[j], CL_DEVICE_VERSION, 0, nullptr, &valueSize);
+    value = (char*) malloc(valueSize);
+    clGetDeviceInfo(devices[j], CL_DEVICE_VERSION, valueSize, value, nullptr);
+    printf(" %u.%d Hardware version: %s\n", j + 1, 1, value);
+    free(value);
+
+    // print software driver version
+    clGetDeviceInfo(devices[j], CL_DRIVER_VERSION, 0, nullptr, &valueSize);
+    value = (char*) malloc(valueSize);
+    clGetDeviceInfo(devices[j], CL_DRIVER_VERSION, valueSize, value, nullptr);
+    printf(" %u.%d Software version: %s\n", j + 1, 2, value);
+    free(value);
+
+    // print c version supported by compiler for device
+    clGetDeviceInfo(devices[j], CL_DEVICE_OPENCL_C_VERSION, 0, nullptr, &valueSize);
+    value = (char*) malloc(valueSize);
+    clGetDeviceInfo(devices[j], CL_DEVICE_OPENCL_C_VERSION, valueSize, value, nullptr);
+    printf(" %u.%d OpenCL C version: %s\n", j + 1, 3, value);
+    free(value);
+
+    // print parallel compute units
+    clGetDeviceInfo(devices[j], CL_DEVICE_MAX_COMPUTE_UNITS, sizeof(maxComputeUnits), &maxComputeUnits,
+                    nullptr);
+    printf(" %u.%d Parallel compute units: %u\n", j + 1, 4, maxComputeUnits);
+
+    clGetDeviceInfo(devices[j], CL_DEVICE_VENDOR, 0, nullptr, &valueSize);
+    value = (char*) malloc(valueSize);
+    clGetDeviceInfo(devices[j], CL_DEVICE_VENDOR, valueSize, value, nullptr);
+    printf(" %u.%d Vendor: %s\n", j + 1, 5, value);
+    free(value);
+
+    clGetDeviceInfo(devices[j], CL_DEVICE_PROFILE, 0, nullptr, &valueSize);
+    value = (char*) malloc(valueSize);
+    clGetDeviceInfo(devices[j], CL_DEVICE_PROFILE, valueSize, value, nullptr);
+    printf(" %u.%d Profile: %s\n", j + 1, 6, value);
+    free(value);
+
+    clGetDeviceInfo(devices[j], CL_DEVICE_EXTENSIONS, 0, nullptr, &valueSize);
+    value = (char*) malloc(valueSize);
+    clGetDeviceInfo(devices[j], CL_DEVICE_EXTENSIONS, valueSize, value, nullptr);
+    printf(" %u.%d Extension: %s\n", j + 1, 7, value);
+    free(value);
+}
+
+void print_platform_info(cl_platform_id* platforms, unsigned int id) {
     const char* attributeNames[5] = {"Name", "Vendor",
                                      "Version", "Profile", "Extensions"};
     const cl_platform_info attributeTypes[5] = {CL_PLATFORM_NAME, CL_PLATFORM_VENDOR,
                                                 CL_PLATFORM_VERSION, CL_PLATFORM_PROFILE, CL_PLATFORM_EXTENSIONS};
-    const int attributeCount = sizeof(attributeNames) / sizeof(char*);
+    const int attributeCount = sizeof(attributeNames) / sizeof(attributeNames[0]);
 
-    // get platform count
-    clGetPlatformIDs(0, nullptr, &platformCount);
+    for (unsigned j = 0; j < attributeCount; j++) {
+        // get platform attribute value size
+        size_t infoSize;
+        clGetPlatformInfo(platforms[id], attributeTypes[j], 0, nullptr, &infoSize);
+        char* info = (char*) malloc(infoSize);
 
-    // get all platforms
-    platforms = (cl_platform_id*) malloc(sizeof(cl_platform_id) * platformCount);
-    clGetPlatformIDs(platformCount, platforms, nullptr);
+        // get platform attribute value
+        clGetPlatformInfo(platforms[id], attributeTypes[j], infoSize, info, nullptr);
 
-    // for each platform print all attributes
-    for (unsigned i = 0; i < platformCount; i++) {
-
-        printf("%u. Platform \n", i + 1);
-
-        for (unsigned j = 0; j < attributeCount; j++) {
-
-            // get platform attribute value size
-            clGetPlatformInfo(platforms[i], attributeTypes[j], 0, nullptr, &infoSize);
-            info = (char*) malloc(infoSize);
-
-            // get platform attribute value
-            clGetPlatformInfo(platforms[i], attributeTypes[j], infoSize, info, nullptr);
-
-            printf(" %u.%u %-11s: %s\n", i + 1, j + 1, attributeNames[j], info);
-            free(info);
-
-        }
-
-        printf("\n");
-
+        printf(" %u.%u %-11s: %s\n", id + 1, j + 1, attributeNames[j], info);
+        free(info);
     }
 
-    free(platforms);
-
+    printf("\n");
 }
 
 int report_device(cl_device_id device_id) {
-    int err;
-    cl_char vendor_name[1024] = {0};
-    cl_char device_name[1024] = {0};
+    cl_char device_name[1024] = {'\0'};
 
-    err = clGetDeviceInfo(device_id, CL_DEVICE_VENDOR, sizeof(vendor_name), vendor_name, nullptr);
-    err |= clGetDeviceInfo(device_id, CL_DEVICE_NAME, sizeof(device_name), device_name, nullptr);
+    int err = clGetDeviceInfo(device_id, CL_DEVICE_NAME, sizeof(device_name), device_name, nullptr);
     if (err != CL_SUCCESS) {
         printf("Error: Failed to retrieve device info! %s\n", get_error_string(err));
         return -1;
     }
-    printf("Connecting to %s %s...\n", vendor_name, device_name);
+    printf("Connecting to %s...\n", device_name);
     return 0;
 }
 
-int getPlatform(cl_platform_id& platform, int id) {
+cl_platform_id getPlatform(int id) {
     cl_int status;
     cl_uint numPlatforms;
 
@@ -176,12 +176,12 @@ int getPlatform(cl_platform_id& platform, int id) {
     status = clGetPlatformIDs(numPlatforms, platforms, nullptr);
     CL_CHECK(status);
 
-    platform = platforms[id];
+    cl_platform_id platform = platforms[id];
     free(platforms);
-    return 0;
+    return platform;
 }
 
-cl_device_id* getDevice(cl_platform_id& platform, char* device_type) {
+cl_device_id* getDevices(cl_platform_id& platform, char* device_type) {
     cl_int status = 0;
     cl_uint numDevices = 0;
 

@@ -2,32 +2,32 @@ language: cpp
 dist: xenial
 
 script:
-- cmake --version
-- python --version
-- clinfo
-- pushd .
-- cd data/a/
-- python a.py
-- popd
-- pushd .
-- cd data/b/
-- python b.py
-- popd
-- pushd .
-- cd data/c/
-- python c.py
-- popd
-- mkdir build && cd build
-- cmake -DCMAKE_BUILD_TYPE=Release ..
-- cmake --build . --config Release
-- ctest -V -C Release
-  
+  - cmake --version
+  - python --version
+  - clinfo
+  - pushd .
+  - cd data/a/
+  - python a.py
+  - popd
+  - pushd .
+  - cd data/b/
+  - python b.py
+  - popd
+  - pushd .
+  - cd data/c/
+  - python c.py
+  - popd
+  - mkdir build && cd build
+  - cmake -DCMAKE_BUILD_TYPE=Release ..
+  - cmake --build . --config Release
+  - ctest -V -C Release
+
 before_install:
-- eval "${MATRIX_EVAL}"
+  - eval "${MATRIX_EVAL}"
 
 install:
-- if [[ "$TRAVIS_OS_NAME" == "osx" ]];   then export SIZE_FLAG=1; export VERSION_FLAG=1; fi
-- if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then export SIZE_FLAG=2; export VERSION_FLAG=2; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]];   then export SIZE_FLAG=1; export VERSION_FLAG=1; fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then export SIZE_FLAG=2; export VERSION_FLAG=2; fi
 
 matrix:
   include:
@@ -62,11 +62,15 @@ matrix:
         - brew install llvm@6 && brew link --overwrite llvm@6 --force
         - brew install clinfo
     - os: osx
-      osx_image: xcode9.4
+      osx_image: xcode10.1
       env:
         - MATRIX_EVAL="CC=clang-7 && CXX=clang++"
       before_script:
+        - brew update
         - brew install llvm@7 && brew link --overwrite llvm@7 --force
+        - export PATH="/usr/local/opt/llvm/bin:$PATH"
+        - export LDFLAGS="-L/usr/local/opt/llvm/lib"
+        - export CPPFLAGS="-I/usr/local/opt/llvm/include"
         - brew install clinfo
 
     ######## OSX GCC ########
