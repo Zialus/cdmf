@@ -15,9 +15,7 @@ void cdmf_ocl(smat_t& R, mat_t& W, mat_t& H, parameter& param, char filename[]);
 void cdmf_csr5(smat_t& R, mat_t& W, mat_t& H, parameter& param, char filename[]);
 
 int main(int argc, char** argv) {
-    char scr_dir[1024];
-    char kcode_path[1024] = {"../kcode"};
-    parameter param = parse_command_line(argc, argv, scr_dir, kcode_path);
+    parameter param = parse_command_line(argc, argv);
 
     // reading rating matrix
     smat_t R;   // val: csc, val_t: csr
@@ -28,7 +26,7 @@ int main(int argc, char** argv) {
 
     std::cout << "[info] load rating data." << std::endl;
     auto t1 = std::chrono::high_resolution_clock::now();
-    load(scr_dir, R, false, false);
+    load(param.scr_dir, R, false, false);
     auto t2 = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> deltaT = t2 - t1;;
     printf("[info] - loading time: %lf s\n", deltaT.count());
@@ -48,21 +46,21 @@ int main(int argc, char** argv) {
         case 1: {
             std::cout << "[info] Picked Version 1: Native" << std::endl;
             char kcode_filename[1024+10];
-            sprintf(kcode_filename, "%s/ccd01.cl", kcode_path);
+            sprintf(kcode_filename, "%s/ccd01.cl", param.kcode_path);
             cdmf_ocl(R, W, H, param, kcode_filename);
             break;
         }
         case 2: {
             std::cout << "[info] Picked Version 2: Thread Batching" << std::endl;
             char kcode_filename[1024+10];
-            sprintf(kcode_filename, "%s/ccd033.cl", kcode_path);
+            sprintf(kcode_filename, "%s/ccd033.cl", param.kcode_path);
             cdmf_ocl(R, W, H, param, kcode_filename);
             break;
         }
         case 3: {
             std::cout << "[info] Picked Version 3: Load Balancing" << std::endl;
             char kcode_filename[1024+10];
-            sprintf(kcode_filename, "%s/ccd033.cl", kcode_path);
+            sprintf(kcode_filename, "%s/ccd033.cl", param.kcode_path);
             cdmf_csr5(R, W, H, param, kcode_filename);
             break;
         }
@@ -74,7 +72,7 @@ int main(int argc, char** argv) {
 
 
     if (param.do_predict == 1) {
-        calculate_rmse_ocl(W, H, param.k, scr_dir);
+        calculate_rmse_ocl(W, H, param.k, param.scr_dir);
     }
 
     // compare reference and OpenCL results

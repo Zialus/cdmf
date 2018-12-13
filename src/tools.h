@@ -35,7 +35,7 @@ void print_device_info(cl_device_id* devices, unsigned int j);
 
 int report_device(cl_device_id device_id);
 
-parameter parse_command_line(int argc, char** argv, char* input_file_name, char* kernel_code);
+parameter parse_command_line(int argc, char** argv);
 
 void print_matrix(mat_t M, unsigned k, unsigned n);
 

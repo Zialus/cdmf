@@ -3,37 +3,22 @@
 
 class parameter {
 public:
-    int version;
-    int k;
-    int threads;
-    int maxinneriter;
-    int maxiter;
-    VALUE_TYPE lambda;
-    VALUE_TYPE eps; // for the fundec stop-cond in ccdr1
-    int do_predict;
-    int verbose;
-    int platform_id;
-    int do_nmf;  // non-negative matrix factorization
-    int nBlocks;
-    unsigned int nThreadsPerBlock;
-    int do_ref;
-
-    parameter() {
-        version = 1;
-        k = 10;
-        maxiter = 5;
-        maxinneriter = 5;
-        lambda = 0.1f;
-        threads = 4;
-        eps = 1e-3f;
-        do_predict = 0;
-        platform_id = 0;
-        verbose = 0;
-        do_ref = 0;
-        do_nmf = 0;
-        nBlocks = 16;
-        nThreadsPerBlock = 32;
-    }
+    int version = 1;
+    int k = 10;
+    int threads = 4;
+    int maxinneriter = 5;
+    int maxiter = 5;
+    VALUE_TYPE lambda = 0.1f;;
+    int do_predict = 0; // predict RMSE
+    int verbose = 0;
+    int platform_id = 0;
+    int do_nmf = 0;  // non-negative matrix factorization
+    unsigned int nBlocks = 16;
+    unsigned int nThreadsPerBlock = 32;
+    int do_ref = 0; // compare opencl results to reference results
+    char scr_dir[1024] = "../data/simple";
+    char kcode_path[1024] = "../kcode";
+    char device_type[4] = {'g', 'p', 'u', '\0'};
 };
 
 #endif

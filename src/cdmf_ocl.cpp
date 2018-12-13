@@ -2,34 +2,16 @@
 #include "tools.h"
 
 void cdmf_ocl(smat_t& R, mat_t& W_c, mat_t& H_c, parameter& param, char filename[]) {
-    char device_type[4] = {'\0', '\0', '\0', '\0'};
-
-    switch (param.platform_id) {
-        case 0:
-            snprintf(device_type, sizeof(device_type), "gpu");
-            break;
-        case 1:
-            snprintf(device_type, sizeof(device_type), "cpu");
-            break;
-        case 2:
-            snprintf(device_type, sizeof(device_type), "mic");
-            break;
-        default:
-            printf("[info] unknown device type!\n");
-            break;
-    }
-    printf("[info] - selected device type: %s\n", device_type);
 
     if (param.verbose) {
         print_all_the_info();
     }
 
-
     // create context and build the kernel code
     cl_int status;
     cl_int err;
-    cl_platform_id platform = getPlatform(0);
-    cl_device_id* devices = getDevices(platform, device_type);
+    cl_platform_id platform = getPlatform(param.platform_id);
+    cl_device_id* devices = getDevices(platform, param.device_type);
     report_device(devices[0]);
     cl_context context = clCreateContext(nullptr, 1, devices, nullptr, nullptr, &err);
     CL_CHECK(err);

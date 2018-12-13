@@ -209,10 +209,10 @@ cl_device_id* getDevices(cl_platform_id& platform, char* device_type) {
     return devices;
 }
 
-parameter parse_command_line(int argc, char** argv, char* input_file_name, char* kernel_code) {
-    // default values have been set by the constructor
+parameter parse_command_line(int argc, char** argv) {
     parameter param;
-    // parse options
+
+    int device_id = 0;
     int i;
     for (i = 1; i < argc; i++) {
         if (argv[i][0] != '-') {
@@ -228,7 +228,7 @@ parameter parse_command_line(int argc, char** argv, char* input_file_name, char*
         } else {
             switch (argv[i - 1][1]) {
                 case 'c':
-                    sprintf(kernel_code, "%s", argv[i]);
+                    sprintf(param.kcode_path, "%s", argv[i]);
                     break;
                 case 'k':
                     param.k = atoi(argv[i]);
@@ -245,11 +245,11 @@ parameter parse_command_line(int argc, char** argv, char* input_file_name, char*
                 case 'T':
                     param.maxinneriter = atoi(argv[i]);
                     break;
-                case 'e':
-                    param.eps = atof(argv[i]);
-                    break;
                 case 'P':
                     param.platform_id = atoi(argv[i]);
+                    break;
+                case 'd':
+                    device_id = atoi(argv[i]);
                     break;
                 case 'p':
                     param.do_predict = atoi(argv[i]);
@@ -275,11 +275,27 @@ parameter parse_command_line(int argc, char** argv, char* input_file_name, char*
 
     }
 
+    switch (device_id) {
+        case 0:
+            snprintf(param.device_type, 4, "gpu");
+            break;
+        case 1:
+            snprintf(param.device_type, 4, "cpu");
+            break;
+        case 2:
+            snprintf(param.device_type, 4, "mic");
+            break;
+        default:
+            printf("[info] unknown device type!\n");
+            break;
+    }
+    printf("[info] - selected device type: %s\n", param.device_type);
+
     if (i >= argc) {
         exit_with_help();
     }
 
-    sprintf(input_file_name, "%s", argv[i]);
+    sprintf(param.scr_dir, "%s", argv[i]);
     return param;
 }
 
