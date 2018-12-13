@@ -18,16 +18,13 @@
 #include <sstream>
 #include <chrono>
 
-#define CL_USE_DEPRECATED_OPENCL_1_2_APIS
-#define CL_SILENCE_DEPRECATION
 #ifdef __APPLE__
+#define CL_SILENCE_DEPRECATION
 #include <OpenCL/cl.h>
 #else
+#define CL_USE_DEPRECATED_OPENCL_1_2_APIS
 #include <CL/cl.h>
 #endif
-
-//typedef float VALUE_TYPE;
-//typedef double VALUE_TYPE;
 
 #define MALLOC(type, size) (type*)malloc(sizeof(type)*(size))
 #define SIZEBITS(type, size) sizeof(type)*(size)
@@ -51,41 +48,6 @@ class parameter;
 
 typedef std::vector<VALUE_TYPE> vec_t;
 typedef std::vector<vec_t> mat_t;
-
-class parameter {
-public:
-    int version;
-    int k;
-    int threads;
-    int maxinneriter;
-    int maxiter;
-    VALUE_TYPE lambda;
-    VALUE_TYPE eps; // for the fundec stop-cond in ccdr1
-    int do_predict;
-    int verbose;
-    int platform_id;
-    int do_nmf;  // non-negative matrix factorization
-    int nBlocks;
-    unsigned int nThreadsPerBlock;
-    int do_ref;
-
-    parameter() {
-        version = 1;
-        k = 10;
-        maxiter = 5;
-        maxinneriter = 5;
-        lambda = 0.1f;
-        threads = 4;
-        eps = 1e-3f;
-        do_predict = 0;
-        platform_id = 0;
-        verbose = 0;
-        do_ref = 0;
-        do_nmf = 0;
-        nBlocks = 16;
-        nThreadsPerBlock = 32;
-    }
-};
 
 class rate_t
 {

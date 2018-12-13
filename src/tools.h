@@ -2,6 +2,7 @@
 #define TOOLS_H
 
 #include "util.h"
+#include "pmf.h"
 
 inline char* getT(unsigned sz) {
     if (sz == 8) { return (char*) "double"; }
