@@ -53,7 +53,7 @@ file(GLOB source_src "${PROJECT_SOURCE_DIR}/src/*.cpp")
 file(GLOB source_hdr "${PROJECT_SOURCE_DIR}/src/*.h" "${PROJECT_SOURCE_DIR}/src/detail/*.h" "${PROJECT_SOURCE_DIR}/src/detail/opencl/*.h")
 
 # Executable and libraries
-set(EXECUTABLE_OUTPUT_PATH "${CMAKE_SOURCE_DIR}/exec/")
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/exec/")
 add_executable(cdmf ${source_src} ${source_hdr})
 target_link_libraries(cdmf OpenCL::OpenCL OpenMP::OpenMP_CXX)
 
