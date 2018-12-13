@@ -102,7 +102,7 @@ class entry_iterator_t
     public:
         unsigned int with_weights;
         size_t nnz;
-        entry_iterator_t():nnz(0),fp(nullptr), with_weights(false){}
+        entry_iterator_t():fp(nullptr), with_weights(false), nnz(0){}
         entry_iterator_t(size_t nnz_, const char* filename, unsigned int with_weights_=false) 
         {
             nnz = nnz_;
@@ -179,8 +179,8 @@ class smat_t
 
         // For matlab (Almost deprecated)
         smat_t(unsigned int m, unsigned int n, unsigned *ir, unsigned int *jc, VALUE_TYPE *v, unsigned *ir_t, unsigned int *jc_t, VALUE_TYPE *v_t):
-            rows(m), cols(n), mem_alloc_by_me(false),
-            row_idx(ir), col_ptr(jc), val(v), col_idx(ir_t), row_ptr(jc_t), val_t(v_t) 
+            rows(m), cols(n), val(v), val_t(v_t), col_ptr(jc), row_ptr(jc_t), row_idx(ir), col_idx(ir_t),
+            mem_alloc_by_me(false)
         {
             if(col_ptr[n] != row_ptr[m])
                 fprintf(stderr,"Error occurs! two nnz do not match (%d, %d)\n", col_ptr[n], row_ptr[n]);
