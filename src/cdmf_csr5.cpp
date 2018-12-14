@@ -45,7 +45,7 @@ void cdmf_csr5(smat_t& R, mat_t& W_c, mat_t& H_c, parameter& param, char filenam
     printf("[build info]: Compiled OpenCl code !\n");
 
     for (int t = 0; t < param.k; ++t) {
-        for (int c = 0; c < R.cols; ++c) {
+        for (unsigned c = 0; c < R.cols; ++c) {
             H_c[t][c] = 0;
         }
     }

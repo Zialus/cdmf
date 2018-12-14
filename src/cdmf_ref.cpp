@@ -40,7 +40,7 @@ inline VALUE_TYPE UpdateRating(smat_t &R, const vec_t &Wt, const vec_t &Ht, cons
 {
     VALUE_TYPE loss=0;
 #pragma omp parallel for  schedule(kind) reduction(+:loss)
-    for(int c =0; c < R.cols; ++c)
+    for(unsigned c =0; c < R.cols; ++c)
     {
         VALUE_TYPE Htc = Ht[c], oldHtc = oldHt[c], loss_inner = 0;
         for(unsigned int idx=R.col_ptr[c]; idx < R.col_ptr[c+1]; ++idx)
@@ -57,7 +57,7 @@ inline VALUE_TYPE UpdateRating(smat_t &R, const vec_t &Wt2, const vec_t &Ht2)
 {
     VALUE_TYPE loss=0;
 #pragma omp parallel for schedule(kind) reduction(+:loss)
-    for(int c =0; c < R.cols; ++c)
+    for(unsigned c =0; c < R.cols; ++c)
     {
         VALUE_TYPE Htc = Ht2[2*c], oldHtc = Ht2[2*c+1], loss_inner = 0;
         for(unsigned int idx=R.col_ptr[c]; idx < R.col_ptr[c+1]; ++idx)
@@ -76,7 +76,7 @@ inline VALUE_TYPE UpdateRating(smat_t &R, const vec_t &Wt, const vec_t &Ht, bool
     if(add)
     {
 #pragma omp parallel for schedule(kind) reduction(+:loss)
-        for(int c =0; c < R.cols; ++c)
+        for(unsigned c =0; c < R.cols; ++c)
         {
             VALUE_TYPE Htc = Ht[c], loss_inner = 0;
             for(unsigned idx=R.col_ptr[c]; idx < R.col_ptr[c+1]; ++idx)
@@ -91,7 +91,7 @@ inline VALUE_TYPE UpdateRating(smat_t &R, const vec_t &Wt, const vec_t &Ht, bool
     else
     {
 #pragma omp parallel for schedule(kind) reduction(+:loss)
-        for(int c =0; c < R.cols; ++c)
+        for(unsigned c =0; c < R.cols; ++c)
         {
             VALUE_TYPE Htc = Ht[c], loss_inner = 0;
             for(unsigned idx=R.col_ptr[c]; idx < R.col_ptr[c+1]; ++idx)
@@ -145,9 +145,9 @@ void cdmf_ref(smat_t &R, mat_t &W, mat_t &H, parameter &param)
             start = omp_get_wtime();
             vec_t &Wt = W[t], &Ht = H[t];
 #pragma omp parallel for
-            for(int i = 0; i < R.rows; ++i) oldWt[i] = u[i]= Wt[i];
+            for(unsigned i = 0; i < R.rows; ++i) oldWt[i] = u[i]= Wt[i];
 #pragma omp parallel for
-            for(int i = 0; i < R.cols; ++i) {v[i]= Ht[i]; oldHt[i] = (oiter == 1)? 0: v[i];}
+            for(unsigned i = 0; i < R.cols; ++i) {v[i]= Ht[i]; oldHt[i] = (oiter == 1)? 0: v[i];}
 
             // Create Rhat = R - Wt Ht^T
             if (oiter > 1)
@@ -196,9 +196,9 @@ void cdmf_ref(smat_t &R, mat_t &W, mat_t &H, parameter &param)
             // Update R and Rt
             start = omp_get_wtime();
 #pragma omp parallel for
-            for(int i = 0; i < R.rows; ++i) Wt[i]= u[i];
+            for(unsigned i = 0; i < R.rows; ++i) Wt[i]= u[i];
 #pragma omp parallel for
-            for(int i = 0; i < R.cols; ++i) Ht[i]= v[i];
+            for(unsigned i = 0; i < R.cols; ++i) Ht[i]= v[i];
             loss = UpdateRating(R, u, v, false);
             loss = UpdateRating(Rt, v, u, false);
             Rtime += omp_get_wtime() - start;

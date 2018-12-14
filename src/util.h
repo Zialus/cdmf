@@ -40,7 +40,7 @@ typedef std::vector<vec_t> mat_t;
 
 class rate_t {
 public:
-    int i, j;
+    unsigned i, j;
     VALUE_TYPE v, weight;
 
     rate_t(int ii = 0, int jj = 0, VALUE_TYPE vv = 0, VALUE_TYPE ww = 1.0) : i(ii), j(jj), v(vv), weight(ww) {}
@@ -108,15 +108,15 @@ public:
 // Access column fomat only when you use it..
 class smat_t {
 public:
-    long rows, cols;
-    long nnz, max_row_nnz, max_col_nnz;
+    unsigned rows, cols;
+    unsigned nnz, max_row_nnz, max_col_nnz;
     VALUE_TYPE* val, * val_t;
     size_t nbits_val, nbits_val_t;
     VALUE_TYPE* weight, * weight_t;
     size_t nbits_weight, nbits_weight_t;
-    long* col_ptr, * row_ptr;
+    unsigned* col_ptr, * row_ptr;
     size_t nbits_col_ptr, nbits_row_ptr;
-    long* col_nnz, * row_nnz;
+    unsigned* col_nnz, * row_nnz;
     size_t nbits_col_nnz, nbits_row_nnz;
     unsigned* row_idx, * col_idx;    // condensed
     size_t nbits_row_idx, nbits_col_idx;
@@ -131,12 +131,12 @@ public:
         mem_alloc_by_me = false;
     }
 
-    void load(long _rows, long _cols, long _nnz, const char* filename, bool ifALS, bool use_weights = false) {
+    void load(unsigned _rows, unsigned _cols, unsigned _nnz, const char* filename, bool ifALS, bool use_weights = false) {
         entry_iterator_t entry_it(_nnz, filename, use_weights);
         load_from_iterator(_rows, _cols, _nnz, &entry_it, ifALS);
     }
 
-    void load_from_iterator(long _rows, long _cols, long _nnz, entry_iterator_t* entry_it, bool ifALS) {
+    void load_from_iterator(unsigned _rows, unsigned _cols, unsigned _nnz, entry_iterator_t* entry_it, bool ifALS) {
         rows = _rows;
         cols = _cols;
         nnz = _nnz;
@@ -156,12 +156,12 @@ public:
         col_idx = MALLOC(unsigned, nnz);  // switch to this for memory
         nbits_row_idx = SIZEBITS(unsigned, nnz);
         nbits_col_idx = SIZEBITS(unsigned, nnz);
-        row_ptr = MALLOC(long, rows + 1);
-        col_ptr = MALLOC(long, cols + 1);
-        nbits_row_ptr = SIZEBITS(long, rows + 1);
-        nbits_col_ptr = SIZEBITS(long, cols + 1);
-        memset(row_ptr, 0, sizeof(long) * (rows + 1));
-        memset(col_ptr, 0, sizeof(long) * (cols + 1));
+        row_ptr = MALLOC(unsigned, rows + 1);
+        col_ptr = MALLOC(unsigned, cols + 1);
+        nbits_row_ptr = SIZEBITS(unsigned, rows + 1);
+        nbits_col_ptr = SIZEBITS(unsigned, cols + 1);
+        memset(row_ptr, 0, sizeof(unsigned) * (rows + 1));
+        memset(col_ptr, 0, sizeof(unsigned) * (cols + 1));
         if (ifALS) {
             colMajored_sparse_idx = MALLOC(unsigned, nnz);
             nbits_colMajored_sparse_idx = SIZEBITS(unsigned, nnz);
@@ -173,7 +173,7 @@ public:
         unsigned* tmp_col_idx = row_idx;
         VALUE_TYPE* tmp_val = val;
         VALUE_TYPE* tmp_weight = weight;
-        for (long idx = 0; idx < _nnz; idx++) {
+        for (unsigned idx = 0; idx < _nnz; idx++) {
             rate_t rate = entry_it->next();
             row_ptr[rate.i + 1]++;
             col_ptr[rate.j + 1]++;
@@ -189,7 +189,7 @@ public:
         sort(perm.begin(), perm.end(), SparseComp(tmp_row_idx, tmp_col_idx, true));
 
         // Generate CRS format
-        for (long idx = 0; idx < _nnz; idx++) {
+        for (unsigned idx = 0; idx < _nnz; idx++) {
             val_t[idx] = tmp_val[perm[idx]];
             col_idx[idx] = tmp_col_idx[perm[idx]];
             if (with_weights) {
@@ -199,32 +199,32 @@ public:
 
         // Calculate nnz for each row and col
         max_row_nnz = max_col_nnz = 0;
-        for (long r = 1; r <= rows; ++r) {
+        for (unsigned r = 1; r <= rows; ++r) {
             max_row_nnz = std::max(max_row_nnz, row_ptr[r]);
             row_ptr[r] += row_ptr[r - 1];
         }
-        for (long c = 1; c <= cols; ++c) {
+        for (unsigned c = 1; c <= cols; ++c) {
             max_col_nnz = std::max(max_col_nnz, col_ptr[c]);
             col_ptr[c] += col_ptr[c - 1];
         }
 
         // Transpose CRS into CCS matrix
-        for (long r = 0; r < rows; ++r) {
-            for (long i = row_ptr[r]; i < row_ptr[r + 1]; ++i) {
-                long c = col_idx[i];
+        for (unsigned r = 0; r < rows; ++r) {
+            for (unsigned i = row_ptr[r]; i < row_ptr[r + 1]; ++i) {
+                unsigned c = col_idx[i];
                 row_idx[col_ptr[c]] = r;
                 val[col_ptr[c]] = val_t[i];
                 if (with_weights) { weight[col_ptr[c]] = weight_t[i]; }
                 col_ptr[c]++;
             }
         }
-        for (long c = cols; c > 0; --c) { col_ptr[c] = col_ptr[c - 1]; }
+        for (unsigned c = cols; c > 0; --c) { col_ptr[c] = col_ptr[c - 1]; }
         col_ptr[0] = 0;
 
         if (ifALS) {
-            long* mapIDX;
-            mapIDX = MALLOC(long, rows);
-            for (int r = 0; r < rows; ++r) {
+            unsigned * mapIDX;
+            mapIDX = MALLOC(unsigned , rows);
+            for (unsigned r = 0; r < rows; ++r) {
                 mapIDX[r] = row_ptr[r];
             }
 
@@ -236,20 +236,20 @@ public:
         }
     }
 
-    long nnz_of_row(int i) const { return (row_ptr[i + 1] - row_ptr[i]); }
+    unsigned nnz_of_row(int i) const { return (row_ptr[i + 1] - row_ptr[i]); }
 
-    long nnz_of_col(int i) const { return (col_ptr[i + 1] - col_ptr[i]); }
+    unsigned nnz_of_col(int i) const { return (col_ptr[i + 1] - col_ptr[i]); }
 
     VALUE_TYPE get_global_mean() {
         VALUE_TYPE sum = 0;
-        for (long i = 0; i < nnz; ++i) { sum += val[i]; }
+        for (unsigned i = 0; i < nnz; ++i) { sum += val[i]; }
         return sum / nnz;
     }
 
     void remove_bias(VALUE_TYPE bias = 0) {
         if (bias) {
-            for (long i = 0; i < nnz; ++i) { val[i] -= bias; }
-            for (long i = 0; i < nnz; ++i) { val_t[i] -= bias; }
+            for (unsigned i = 0; i < nnz; ++i) { val[i] -= bias; }
+            for (unsigned i = 0; i < nnz; ++i) { val_t[i] -= bias; }
         }
     }
 
