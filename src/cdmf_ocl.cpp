@@ -156,9 +156,9 @@ void cdmf_ocl(smat_t& R, mat_t& W_c, mat_t& H_c, parameter& param, char filename
     CL_CHECK(clSetKernelArg(UpdateRating_DUAL_kernel_NoLoss_c_, 8, sizeof(cl_mem), (void*) &col_idxBuffer));
     CL_CHECK(clSetKernelArg(UpdateRating_DUAL_kernel_NoLoss_c_, 9, sizeof(cl_mem), (void*) &val_tBuffer));
 
-    size_t gws_row[1] = {R.rows * param.nThreadsPerBlock};
-    size_t gws_col[1] = {R.cols * param.nThreadsPerBlock};
-    size_t local_work_size[1] = {param.nThreadsPerBlock};
+    size_t gws_row[1] = {static_cast<size_t>(R.rows * param.nThreadsPerBlock)};
+    size_t gws_col[1] = {static_cast<size_t>(R.cols * param.nThreadsPerBlock)};
+    size_t local_work_size[1] = {static_cast<size_t>(param.nThreadsPerBlock)};
     printf("[info] - threads per block: %u\n", param.nThreadsPerBlock);
 
     size_t local;

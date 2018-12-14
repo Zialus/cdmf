@@ -1,6 +1,14 @@
 #ifndef TOOLS_H
 #define TOOLS_H
 
+#ifdef __APPLE__
+#define CL_SILENCE_DEPRECATION
+#include <OpenCL/cl.h>
+#else
+#define CL_USE_DEPRECATED_OPENCL_1_2_APIS
+#include <CL/cl.h>
+#endif
+
 #include "util.h"
 #include "pmf.h"
 
@@ -35,7 +43,7 @@ int report_device(cl_device_id device_id);
 
 void load(const char* srcdir, smat_t& R, bool ifALS, bool with_weights);
 
-void initial_col(mat_t& X, unsigned int k, unsigned int n);
+void initial_col(mat_t& X, unsigned k, unsigned n);
 
 void exit_with_help();
 

@@ -169,9 +169,9 @@ void cdmf_csr5(smat_t& R, mat_t& W_c, mat_t& H_c, parameter& param, char filenam
     CL_CHECK(clSetKernelArg(_kernel_CALU, 4, sizeof(cl_mem), (void*) &WBuffer));
     CL_CHECK(clSetKernelArg(_kernel_CALU, 5, sizeof(VALUE_TYPE), &param.lambda));
 
-    size_t gws_row[1] = {R.rows * param.nThreadsPerBlock};
-    size_t gws_col[1] = {R.cols * param.nThreadsPerBlock};
-    size_t local_work_size[1] = {param.nThreadsPerBlock};
+    size_t gws_row[1] = {static_cast<size_t>(R.rows * param.nThreadsPerBlock)};
+    size_t gws_col[1] = {static_cast<size_t>(R.cols * param.nThreadsPerBlock)};
+    size_t local_work_size[1] = {static_cast<size_t>(param.nThreadsPerBlock)};
     printf("[info] - threads per block: %u\n", param.nThreadsPerBlock);
 
     double time = 0.0;
