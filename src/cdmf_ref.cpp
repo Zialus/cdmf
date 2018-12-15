@@ -7,7 +7,7 @@
 
 // CCD rank-one
 
-inline VALUE_TYPE RankOneUpdate(const smat_t &R, const int j, const vec_t &u, const VALUE_TYPE lambda, const VALUE_TYPE vj, VALUE_TYPE *redvar, int do_nmf)
+inline VALUE_TYPE RankOneUpdate(const smat_t &R, const long j, const vec_t &u, const VALUE_TYPE lambda, const VALUE_TYPE vj, VALUE_TYPE *redvar, int do_nmf)
 {
     VALUE_TYPE g=0, h=lambda;
     if(R.col_ptr[j+1]==R.col_ptr[j]) return 0;
@@ -40,7 +40,7 @@ inline VALUE_TYPE UpdateRating(smat_t &R, const vec_t &Wt, const vec_t &Ht, cons
 {
     VALUE_TYPE loss=0;
 #pragma omp parallel for  schedule(kind) reduction(+:loss)
-    for(unsigned c =0; c < R.cols; ++c)
+    for(long c =0; c < R.cols; ++c)
     {
         VALUE_TYPE Htc = Ht[c], oldHtc = oldHt[c], loss_inner = 0;
         for(unsigned int idx=R.col_ptr[c]; idx < R.col_ptr[c+1]; ++idx)
@@ -57,7 +57,7 @@ inline VALUE_TYPE UpdateRating(smat_t &R, const vec_t &Wt2, const vec_t &Ht2)
 {
     VALUE_TYPE loss=0;
 #pragma omp parallel for schedule(kind) reduction(+:loss)
-    for(unsigned c =0; c < R.cols; ++c)
+    for(long c =0; c < R.cols; ++c)
     {
         VALUE_TYPE Htc = Ht2[2*c], oldHtc = Ht2[2*c+1], loss_inner = 0;
         for(unsigned int idx=R.col_ptr[c]; idx < R.col_ptr[c+1]; ++idx)
@@ -76,7 +76,7 @@ inline VALUE_TYPE UpdateRating(smat_t &R, const vec_t &Wt, const vec_t &Ht, bool
     if(add)
     {
 #pragma omp parallel for schedule(kind) reduction(+:loss)
-        for(unsigned c =0; c < R.cols; ++c)
+        for(long c =0; c < R.cols; ++c)
         {
             VALUE_TYPE Htc = Ht[c], loss_inner = 0;
             for(unsigned idx=R.col_ptr[c]; idx < R.col_ptr[c+1]; ++idx)
@@ -91,7 +91,7 @@ inline VALUE_TYPE UpdateRating(smat_t &R, const vec_t &Wt, const vec_t &Ht, bool
     else
     {
 #pragma omp parallel for schedule(kind) reduction(+:loss)
-        for(unsigned c =0; c < R.cols; ++c)
+        for(long c =0; c < R.cols; ++c)
         {
             VALUE_TYPE Htc = Ht[c], loss_inner = 0;
             for(unsigned idx=R.col_ptr[c]; idx < R.col_ptr[c+1]; ++idx)
@@ -125,8 +125,8 @@ void cdmf_ref(smat_t &R, mat_t &W, mat_t &H, parameter &param)
     Rt = R.transpose();
     // initial value of the regularization term
     // H is a zero matrix now.
-    for(int t=0;t<k;++t) for(long c=0;c<R.cols;++c) H[t][c] = 0;
-    for(int t=0;t<k;++t) for(long r=0;r<R.rows;++r) reg += W[t][r]*W[t][r]*R.nnz_of_row(r);
+    for(int t=0;t<k;++t) for(unsigned c=0;c<R.cols;++c) H[t][c] = 0;
+    for(int t=0;t<k;++t) for(unsigned r=0;r<R.rows;++r) reg += W[t][r]*W[t][r]*R.nnz_of_row(r);
 
     vec_t oldWt(R.rows), oldHt(R.cols);
     vec_t u(R.rows), v(R.cols);
@@ -145,9 +145,9 @@ void cdmf_ref(smat_t &R, mat_t &W, mat_t &H, parameter &param)
             start = omp_get_wtime();
             vec_t &Wt = W[t], &Ht = H[t];
 #pragma omp parallel for
-            for(unsigned i = 0; i < R.rows; ++i) oldWt[i] = u[i]= Wt[i];
+            for(long i = 0; i < R.rows; ++i) oldWt[i] = u[i]= Wt[i];
 #pragma omp parallel for
-            for(unsigned i = 0; i < R.cols; ++i) {v[i]= Ht[i]; oldHt[i] = (oiter == 1)? 0: v[i];}
+            for(long i = 0; i < R.cols; ++i) {v[i]= Ht[i]; oldHt[i] = (oiter == 1)? 0: v[i];}
 
             // Create Rhat = R - Wt Ht^T
             if (oiter > 1)
@@ -196,17 +196,17 @@ void cdmf_ref(smat_t &R, mat_t &W, mat_t &H, parameter &param)
             // Update R and Rt
             start = omp_get_wtime();
 #pragma omp parallel for
-            for(unsigned i = 0; i < R.rows; ++i) Wt[i]= u[i];
+            for(long i = 0; i < R.rows; ++i) Wt[i]= u[i];
 #pragma omp parallel for
-            for(unsigned i = 0; i < R.cols; ++i) Ht[i]= v[i];
+            for(long i = 0; i < R.cols; ++i) Ht[i]= v[i];
             loss = UpdateRating(R, u, v, false);
             loss = UpdateRating(Rt, v, u, false);
             Rtime += omp_get_wtime() - start;
-            for(long c = 0; c < R.cols; ++c) {
+            for(unsigned c = 0; c < R.cols; ++c) {
                 reg += R.nnz_of_col(c)*Ht[c]*Ht[c];
                 reg -= R.nnz_of_col(c)*oldHt[c]*oldHt[c];
             }
-            for(long c = 0; c < Rt.cols; ++c) {
+            for(unsigned c = 0; c < Rt.cols; ++c) {
                 reg += Rt.nnz_of_col(c)*(Wt[c]*Wt[c]);
                 reg -= Rt.nnz_of_col(c)*(oldWt[c]*oldWt[c]);
             }
