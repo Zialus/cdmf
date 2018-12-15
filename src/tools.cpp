@@ -422,7 +422,7 @@ void golden_compare(mat_t W, mat_t W_ref, unsigned k, unsigned m) {
     }
 }
 
-void calculate_rmse_ocl(const mat_t& W_c, const mat_t& H_c, const int k, const char* srcdir) {
+void calculate_rmse(const mat_t& W_c, const mat_t& H_c, const unsigned k, const char* srcdir) {
     auto t5 = std::chrono::high_resolution_clock::now();
     int i, j;
     VALUE_TYPE vv, rmse = 0;
@@ -454,7 +454,7 @@ void calculate_rmse_ocl(const mat_t& W_c, const mat_t& H_c, const int k, const c
 
     while ((sizeof(VALUE_TYPE) == 8) ? (fscanf(test_fp, "%d %d %lf", &i, &j, &vv) != EOF) : (fscanf(test_fp, "%d %d %f", &i, &j, &vv) != EOF)) {
         VALUE_TYPE pred_v = 0;
-        for (int t = 0; t < k; t++) {
+        for (unsigned t = 0; t < k; t++) {
             pred_v += W_c[t][i - 1] * H_c[t][j - 1];
         }
         num_insts++;

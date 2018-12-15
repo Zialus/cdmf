@@ -4,7 +4,7 @@
 class parameter {
 public:
     int version = 1;
-    int k = 10;
+    unsigned k = 10;
     int threads = 4;
     int maxinneriter = 5;
     int maxiter = 5;

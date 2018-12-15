@@ -70,12 +70,12 @@ int main(int argc, char** argv) {
         }
     }
 
-
+    // Predict RMSE with the W and H matrices produced by OpenCL kernels
     if (param.do_predict == 1) {
-        calculate_rmse_ocl(W, H, param.k, param.scr_dir);
+        calculate_rmse(W, H, param.k, param.scr_dir);
     }
 
-    // compare reference and OpenCL results
+    // Compare OpenCL results with reference OpenMP results
     if (param.do_ref == 1) {
         std::cout << "--------------------------------------------------" << std::endl;
         std::cout << "[info] now computing cdmf reference results on a cpu core." << std::endl;
@@ -83,7 +83,7 @@ int main(int argc, char** argv) {
         std::cout << "[info] validate the results." << std::endl;
         golden_compare(W, W_ref, param.k, R.rows);
         golden_compare(H, H_ref, param.k, R.cols);
-//        calculate_rmse_ocl(W_ref, H_ref, param.k, scr_dir);
+//        calculate_rmse(W_ref, H_ref, param.k, scr_dir);
     }
     std::cout << "------------------------------------------------------" << std::endl;
 
