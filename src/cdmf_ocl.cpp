@@ -2,11 +2,6 @@
 #include "tools.h"
 
 void cdmf_ocl(smat_t& R, mat_t& W_c, mat_t& H_c, parameter& param, char filename[]) {
-
-    if (param.verbose) {
-        print_all_the_info();
-    }
-
     // create context and build the kernel code
     cl_int status;
     cl_int err;
@@ -35,13 +30,23 @@ void cdmf_ocl(smat_t& R, mat_t& W_c, mat_t& H_c, parameter& param, char filename
     char* buffer = (char*) malloc(length + 1);
     clGetProgramBuildInfo(program, devices[0], CL_PROGRAM_BUILD_LOG, length, buffer, nullptr);
 
-    if (buffer != nullptr) {
-        printf("[build info]:\n%s", buffer);
+    if (buffer != nullptr && strcmp(buffer,"") != 0) {
+        printf("[OpenCL Compiler INFO]:\n%s\n", buffer);
         free(buffer);
+    } else {
+        printf("[OpenCL Compiler]: No info to print\n");
     }
 
-    CL_CHECK(status)
-    printf("[build info]: Compiled OpenCl code !\n");
+    CL_CHECK(status);
+    std::cout << "[INFO]: Compiled OpenCl code successfully!\n";
+
+    clGetProgramInfo(program, CL_PROGRAM_KERNEL_NAMES, 0, nullptr, &length);
+    char* buffer2 = (char*) malloc(length + 1);
+    clGetProgramInfo(program, CL_PROGRAM_KERNEL_NAMES, length, buffer2, nullptr);
+    if (buffer2 != nullptr) {
+        printf("[Kernels]: %s\n", buffer2);
+        free(buffer2);
+    }
 
     for (unsigned t = 0; t < param.k; ++t) {
         for (unsigned c = 0; c < R.cols; ++c) {
@@ -162,19 +167,21 @@ void cdmf_ocl(smat_t& R, mat_t& W_c, mat_t& H_c, parameter& param, char filename
     printf("[info] - blocks: %d | threads per block: %d | GWS_ROW: %zu | GWS_COL: %zu | local_work_size: %zu !\n",
            param.nBlocks, param.nThreadsPerBlock, gws_row[0], gws_col[0], local_work_size[0]);
 
-    size_t local;
-    CL_CHECK(clGetKernelWorkGroupInfo(RankOneUpdate_DUAL_kernel_u, devices[0], CL_KERNEL_WORK_GROUP_SIZE, sizeof(local), &local, NULL));
-    printf("local_work_size for RankOneUpdate_DUAL_kernel_u should be: %zu\n",local);
-    CL_CHECK(clGetKernelWorkGroupInfo(RankOneUpdate_DUAL_kernel_v, devices[0], CL_KERNEL_WORK_GROUP_SIZE, sizeof(local), &local, NULL));
-    printf("local_work_size for RankOneUpdate_DUAL_kernel_u should be: %zu\n",local);
-    CL_CHECK(clGetKernelWorkGroupInfo(UpdateRating_DUAL_kernel_NoLoss_r, devices[0], CL_KERNEL_WORK_GROUP_SIZE, sizeof(local), &local, NULL));
-    printf("local_work_size for UpdateRating_DUAL_kernel_NoLoss_r should be: %zu\n",local);
-    CL_CHECK(clGetKernelWorkGroupInfo(UpdateRating_DUAL_kernel_NoLoss_c, devices[0], CL_KERNEL_WORK_GROUP_SIZE, sizeof(local), &local, NULL));
-    printf("local_work_size for UpdateRating_DUAL_kernel_NoLoss_c should be: %zu\n",local);
-    CL_CHECK(clGetKernelWorkGroupInfo(UpdateRating_DUAL_kernel_NoLoss_r_, devices[0], CL_KERNEL_WORK_GROUP_SIZE, sizeof(local), &local, NULL));
-    printf("local_work_size for UpdateRating_DUAL_kernel_NoLoss_r_ should be: %zu\n",local);
-    CL_CHECK(clGetKernelWorkGroupInfo(UpdateRating_DUAL_kernel_NoLoss_c_, devices[0], CL_KERNEL_WORK_GROUP_SIZE, sizeof(local), &local, NULL));
-    printf("local_work_size for UpdateRating_DUAL_kernel_NoLoss_c_ should be: %zu\n",local);
+    if (param.verbose) {
+        size_t local;
+        CL_CHECK(clGetKernelWorkGroupInfo(RankOneUpdate_DUAL_kernel_u, devices[0], CL_KERNEL_WORK_GROUP_SIZE, sizeof(local), &local, NULL));
+        printf("[VERBOSE] local_work_size for RankOneUpdate_DUAL_kernel_u should be: %zu\n", local);
+        CL_CHECK(clGetKernelWorkGroupInfo(RankOneUpdate_DUAL_kernel_v, devices[0], CL_KERNEL_WORK_GROUP_SIZE, sizeof(local), &local, NULL));
+        printf("[VERBOSE] local_work_size for RankOneUpdate_DUAL_kernel_u should be: %zu\n", local);
+        CL_CHECK(clGetKernelWorkGroupInfo(UpdateRating_DUAL_kernel_NoLoss_r, devices[0], CL_KERNEL_WORK_GROUP_SIZE, sizeof(local), &local, NULL));
+        printf("[VERBOSE] local_work_size for UpdateRating_DUAL_kernel_NoLoss_r should be: %zu\n", local);
+        CL_CHECK(clGetKernelWorkGroupInfo(UpdateRating_DUAL_kernel_NoLoss_c, devices[0], CL_KERNEL_WORK_GROUP_SIZE, sizeof(local), &local, NULL));
+        printf("[VERBOSE] local_work_size for UpdateRating_DUAL_kernel_NoLoss_c should be: %zu\n", local);
+        CL_CHECK(clGetKernelWorkGroupInfo(UpdateRating_DUAL_kernel_NoLoss_r_, devices[0], CL_KERNEL_WORK_GROUP_SIZE, sizeof(local), &local, NULL));
+        printf("[VERBOSE] local_work_size for UpdateRating_DUAL_kernel_NoLoss_r_ should be: %zu\n", local);
+        CL_CHECK(clGetKernelWorkGroupInfo(UpdateRating_DUAL_kernel_NoLoss_c_, devices[0], CL_KERNEL_WORK_GROUP_SIZE, sizeof(local), &local, NULL));
+        printf("[VERBOSE] local_work_size for UpdateRating_DUAL_kernel_NoLoss_c_ should be: %zu\n", local);
+    }
 
     cl_ulong t_update_ratings = 0;
     cl_ulong t_rank_one_update = 0;

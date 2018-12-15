@@ -199,7 +199,7 @@ void cdmf_ref(smat_t &R, mat_t &W, mat_t &H, parameter &param)
             for(long i = 0; i < R.rows; ++i) Wt[i]= u[i];
 #pragma omp parallel for
             for(long i = 0; i < R.cols; ++i) Ht[i]= v[i];
-            loss = UpdateRating(R, u, v, false);
+            UpdateRating(R, u, v, false);
             loss = UpdateRating(Rt, v, u, false);
             Rtime += omp_get_wtime() - start;
             for(unsigned c = 0; c < R.cols; ++c) {

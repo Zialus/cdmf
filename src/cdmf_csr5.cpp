@@ -3,11 +3,6 @@
 #include "anonymouslib_opencl.h"
 
 void cdmf_csr5(smat_t& R, mat_t& W_c, mat_t& H_c, parameter& param, char filename[]) {
-
-    if (param.verbose) {
-        print_all_the_info();
-    }
-
     // create context and build the kernel code
     cl_int status;
     cl_int err;
@@ -36,13 +31,23 @@ void cdmf_csr5(smat_t& R, mat_t& W_c, mat_t& H_c, parameter& param, char filenam
     char* buffer = (char*) malloc(length + 1);
     clGetProgramBuildInfo(program, devices[0], CL_PROGRAM_BUILD_LOG, length, buffer, nullptr);
 
-    if (buffer != nullptr) {
-        printf("[build info]:\n%s", buffer);
+    if (buffer != nullptr && strcmp(buffer,"") != 0) {
+        printf("[OpenCL Compiler INFO]:\n%s\n", buffer);
         free(buffer);
+    } else {
+        printf("[OpenCL Compiler]: No info to print\n");
     }
 
-    CL_CHECK(status)
-    printf("[build info]: Compiled OpenCl code !\n");
+    CL_CHECK(status);
+    std::cout << "[INFO]: Compiled OpenCl code successfully!\n";
+
+    clGetProgramInfo(program, CL_PROGRAM_KERNEL_NAMES, 0, nullptr, &length);
+    char* buffer2 = (char*) malloc(length + 1);
+    clGetProgramInfo(program, CL_PROGRAM_KERNEL_NAMES, length, buffer2, nullptr);
+    if (buffer2 != nullptr) {
+        printf("[Kernels]: %s\n", buffer2);
+        free(buffer2);
+    }
 
     for (unsigned t = 0; t < param.k; ++t) {
         for (unsigned c = 0; c < R.cols; ++c) {
