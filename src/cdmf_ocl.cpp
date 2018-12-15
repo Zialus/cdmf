@@ -27,7 +27,7 @@ void cdmf_ocl(smat_t& R, mat_t& W_c, mat_t& H_c, parameter& param, char filename
     size_t sourceSize[] = {strlen(source)};
     cl_program program = clCreateProgramWithSource(context, 1, &source, sourceSize, nullptr);
     char options[1024];
-    sprintf(options, "-DWG_SIZE=%u -DVALUE_TYPE=%s", param.nThreadsPerBlock, getT(sizeof(VALUE_TYPE)));
+    sprintf(options, "-DWG_SIZE=%d -DVALUE_TYPE=%s", param.nThreadsPerBlock, getT(sizeof(VALUE_TYPE)));
     status = clBuildProgram(program, 1, devices, options, nullptr, nullptr);
 
     size_t length;
@@ -44,7 +44,7 @@ void cdmf_ocl(smat_t& R, mat_t& W_c, mat_t& H_c, parameter& param, char filename
     printf("[build info]: Compiled OpenCl code !\n");
 
     for (int t = 0; t < param.k; ++t) {
-        for (long c = 0; c < R.cols; ++c) {
+        for (unsigned c = 0; c < R.cols; ++c) {
             H_c[t][c] = 0;
         }
     }
@@ -159,7 +159,8 @@ void cdmf_ocl(smat_t& R, mat_t& W_c, mat_t& H_c, parameter& param, char filename
     size_t gws_row[1] = {static_cast<size_t>(R.rows * param.nThreadsPerBlock)};
     size_t gws_col[1] = {static_cast<size_t>(R.cols * param.nThreadsPerBlock)};
     size_t local_work_size[1] = {static_cast<size_t>(param.nThreadsPerBlock)};
-    printf("[info] - threads per block: %u\n", param.nThreadsPerBlock);
+    printf("[info] - blocks: %d | threads per block: %d | GWS_ROW: %zu | GWS_COL: %zu | local_work_size: %zu !\n",
+           param.nBlocks, param.nThreadsPerBlock, gws_row[0], gws_col[0], local_work_size[0]);
 
     size_t local;
     CL_CHECK(clGetKernelWorkGroupInfo(RankOneUpdate_DUAL_kernel_u, devices[0], CL_KERNEL_WORK_GROUP_SIZE, sizeof(local), &local, NULL));

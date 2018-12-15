@@ -28,7 +28,7 @@ void cdmf_csr5(smat_t& R, mat_t& W_c, mat_t& H_c, parameter& param, char filenam
     size_t sourceSize[] = {strlen(source)};
     cl_program program = clCreateProgramWithSource(context, 1, &source, sourceSize, nullptr);
     char options[1024];
-    sprintf(options, "-DWG_SIZE=%u -DVALUE_TYPE=%s", param.nThreadsPerBlock, getT(sizeof(VALUE_TYPE)));
+    sprintf(options, "-DWG_SIZE=%d -DVALUE_TYPE=%s", param.nThreadsPerBlock, getT(sizeof(VALUE_TYPE)));
     status = clBuildProgram(program, 1, devices, options, nullptr, nullptr);
 
     size_t length;
@@ -172,7 +172,8 @@ void cdmf_csr5(smat_t& R, mat_t& W_c, mat_t& H_c, parameter& param, char filenam
     size_t gws_row[1] = {static_cast<size_t>(R.rows * param.nThreadsPerBlock)};
     size_t gws_col[1] = {static_cast<size_t>(R.cols * param.nThreadsPerBlock)};
     size_t local_work_size[1] = {static_cast<size_t>(param.nThreadsPerBlock)};
-    printf("[info] - threads per block: %u\n", param.nThreadsPerBlock);
+    printf("[info] - blocks: %d | threads per block: %d | GWS_ROW: %zu | GWS_COL: %zu | local_work_size: %zu !\n",
+           param.nBlocks, param.nThreadsPerBlock, gws_row[0], gws_col[0], local_work_size[0]);
 
     double time = 0.0;
     anonymouslibHandle<int, unsigned int, VALUE_TYPE> Av(R.cols, R.rows);
