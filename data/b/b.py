@@ -1,26 +1,27 @@
 import random
 
+print("start.")
 dataName = "b.dat"
-# dataName = "b.mtx"
+testFileName = "b.test"
+
 file = open(dataName, "w+")
+testFile = open(testFileName, "w+")
+
 m = 1024000
 n = m
 uid = 0
 iid = 0
 score = 0
-print("start.")
+trainEntries = n+2*(m-1)
+testEntries = trainEntries/100
 
-print("Writing the meta file...")
 meta = open("meta", "w+")
 meta.write(str(m)+"\t"+str(n)+"\n")
-meta.write(str(n+2*(m-1))+"\t"+dataName+"\n")
+meta.write(str(trainEntries)+"\t"+dataName+"\n")
+meta.write(str(testEntries)+"\t"+testFileName+"\n")
 meta.close()
-print("Done.")
 
-# file.write("%%MatrixMarket matrix coordinate real general\n")
-# head = str(m) + "\t" + str(n) + "\t" + str(n+2*(m-1)) + "\n"
-# file.write(head)
-
+print("Writing the train file...")
 for x in range(1, m+1):
     if x == m:
         for y in range(1, n+1):
@@ -52,6 +53,13 @@ for x in range(1, m+1):
         file.write("\t")
         file.write(str(score))
         file.write("\n")
+print("Done.")
 
+file.seek(0)
+head = [next(file) for x in range(testEntries)]
+for line in head:
+    testFile.write(line)
+
+testFile.close()
 file.close()
 print("end.")
