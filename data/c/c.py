@@ -21,8 +21,8 @@ print("Done.")
 # head = str(m) + "\t" + str(n) + "\t" + str(2*m) + "\n"
 # file.write(head)
 
-for x in range(m):  # generate two entries for each row
-    uid = x+1
+for x in range(1, m+1):  # generate two entries for each row
+    uid = x
     iid = 1
     score = random.randint(1, 5)
     file.write(str(uid))
@@ -31,7 +31,7 @@ for x in range(m):  # generate two entries for each row
     file.write("\t")
     file.write(str(score))
     file.write("\n")
-    # uid = x+1
+    uid = x
     iid = random.randint(2, n)
     score = random.randint(1, 5)
     file.write(str(uid))
@@ -42,4 +42,4 @@ for x in range(m):  # generate two entries for each row
     file.write("\n")
 
 file.close()
-print "end."
+print("end.")
