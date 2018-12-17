@@ -1,12 +1,11 @@
 #define WG_HALF WG_SIZE/2
 
-static
-void UV(const unsigned int cols,
-        __global const unsigned int* col_ptr,
-        __global VALUE_TYPE* Ht,
-        __global VALUE_TYPE* Hb,
-        __global VALUE_TYPE* H,
-        const VALUE_TYPE lambda) {
+static void UV(const unsigned int cols,
+               __global const unsigned int* col_ptr,
+               __global VALUE_TYPE* Ht,
+               __global VALUE_TYPE* Hb,
+               __global VALUE_TYPE* H,
+               const VALUE_TYPE lambda) {
     unsigned int i = get_global_id(0);
     //for(unsigned i=0; i<cols; i++)
     //{
@@ -23,35 +22,32 @@ void UV(const unsigned int cols,
     //}
 }
 
-__kernel
-void CALV(const unsigned int cols,
-          __global const unsigned int* col_ptr,
-          __global VALUE_TYPE* Ht,
-          __global VALUE_TYPE* Hb,
-          __global VALUE_TYPE* H,
-          const VALUE_TYPE lambda) {
+__kernel void CALV(const unsigned int cols,
+                   __global const unsigned int* col_ptr,
+                   __global VALUE_TYPE* Ht,
+                   __global VALUE_TYPE* Hb,
+                   __global VALUE_TYPE* H,
+                   const VALUE_TYPE lambda) {
     UV(cols, col_ptr, Ht, Hb, H, lambda);
     return;
 }
 
-__kernel
-void CALU(const unsigned int rows,
-          __global const unsigned int* row_ptr,
-          __global VALUE_TYPE* Wt,
-          __global VALUE_TYPE* Wb,
-          __global VALUE_TYPE* W,
-          const VALUE_TYPE lambda) {
+__kernel void CALU(const unsigned int rows,
+                   __global const unsigned int* row_ptr,
+                   __global VALUE_TYPE* Wt,
+                   __global VALUE_TYPE* Wb,
+                   __global VALUE_TYPE* W,
+                   const VALUE_TYPE lambda) {
     UV(rows, row_ptr, Wt, Wb, W, lambda);
     return;
 }
 
-__kernel
-void RankOneUpdate_dev(__global const unsigned int* col_ptr,
-                       __global const unsigned int* row_idx,
-                       __global const VALUE_TYPE* val,
-                       __global const VALUE_TYPE* u_vec_t,
-                       const VALUE_TYPE lambda,
-                       __global VALUE_TYPE* v) {
+__kernel void RankOneUpdate_dev(__global const unsigned int* col_ptr,
+                                __global const unsigned int* row_idx,
+                                __global const VALUE_TYPE* val,
+                                __global const VALUE_TYPE* u_vec_t,
+                                const VALUE_TYPE lambda,
+                                __global VALUE_TYPE* v) {
 //  unsigned int ii = get_global_id(0);
 //  unsigned int jj = get_global_size(0);
     unsigned int ss = get_local_id(0);
@@ -121,14 +117,13 @@ __kernel void RankOneUpdate_DUAL_kernel_u(const unsigned int cols,
     return;
 }
 
-static
-void UpdateRating_dev(const unsigned int cols, \
-        __global const unsigned int* col_ptr, \
-        __global const unsigned int* row_idx, \
-        __global VALUE_TYPE* val, \
-        __global VALUE_TYPE* u, \
-        __global VALUE_TYPE* v, \
-        const int isAdd) {
+static void UpdateRating_dev(const unsigned int cols,
+                             __global const unsigned int* col_ptr,
+                             __global const unsigned int* row_idx,
+                             __global VALUE_TYPE* val,
+                             __global VALUE_TYPE* u,
+                             __global VALUE_TYPE* v,
+                             const int isAdd) {
 
 //  unsigned int ii = get_global_id(0);
 //  unsigned int jj = get_global_size(0);
