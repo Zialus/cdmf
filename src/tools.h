@@ -29,7 +29,7 @@ const char* get_error_string(cl_int err);
 
 void convertToString(const char* filename, std::string& s);
 
-cl_platform_id getPlatform(int id);
+cl_platform_id getPlatform(unsigned id);
 
 cl_device_id* getDevices(cl_platform_id& platform, char* device_type);
 

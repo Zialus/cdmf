@@ -97,19 +97,20 @@ void convertToString(const char* filename, std::string& s) {
     }
 }
 
-cl_platform_id getPlatform(int id) {
+cl_platform_id getPlatform(unsigned id) {
     cl_int status;
     cl_uint numPlatforms;
 
     status = clGetPlatformIDs(0, nullptr, &numPlatforms);
     CL_CHECK(status);
 
-    assert(numPlatforms > 0);
+    assert(numPlatforms > 0); // make sure at least one platform is available
     cl_platform_id* platforms = (cl_platform_id*) malloc(numPlatforms * sizeof(cl_platform_id));
 
     status = clGetPlatformIDs(numPlatforms, platforms, nullptr);
     CL_CHECK(status);
 
+    assert(id < numPlatforms); // make sure id is within bounds
     cl_platform_id platform = platforms[id];
     free(platforms);
     return platform;

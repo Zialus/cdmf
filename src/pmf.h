@@ -11,7 +11,7 @@ public:
     VALUE_TYPE lambda = 0.1f;
     int do_predict = 0; // predict RMSE
     int verbose = 0;
-    int platform_id = 0;
+    unsigned platform_id = 0;
     int do_nmf = 0;  // non-negative matrix factorization
     int nBlocks = 16;
     int nThreadsPerBlock = 32;
