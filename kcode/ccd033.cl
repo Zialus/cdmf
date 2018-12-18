@@ -1,12 +1,12 @@
 #define WG_HALF WG_SIZE/2
 
-static void UV(const unsigned int cols,
-               __global const unsigned int* col_ptr,
+static void UV(const unsigned cols,
+               __global const unsigned* col_ptr,
                __global VALUE_TYPE* Ht,
                __global VALUE_TYPE* Hb,
                __global VALUE_TYPE* H,
                const VALUE_TYPE lambda) {
-    unsigned int i = get_global_id(0);
+    unsigned i = get_global_id(0);
     //for(unsigned i=0; i<cols; i++)
     //{
     if (i < cols) {
@@ -18,42 +18,39 @@ static void UV(const unsigned int cols,
         Ht[i] = 0;
         Hb[i] = 0;
     }
-    return;
     //}
 }
 
-__kernel void CALV(const unsigned int cols,
-                   __global const unsigned int* col_ptr,
+__kernel void CALV(const unsigned cols,
+                   __global const unsigned* col_ptr,
                    __global VALUE_TYPE* Ht,
                    __global VALUE_TYPE* Hb,
                    __global VALUE_TYPE* H,
                    const VALUE_TYPE lambda) {
     UV(cols, col_ptr, Ht, Hb, H, lambda);
-    return;
 }
 
-__kernel void CALU(const unsigned int rows,
-                   __global const unsigned int* row_ptr,
+__kernel void CALU(const unsigned rows,
+                   __global const unsigned* row_ptr,
                    __global VALUE_TYPE* Wt,
                    __global VALUE_TYPE* Wb,
                    __global VALUE_TYPE* W,
                    const VALUE_TYPE lambda) {
     UV(rows, row_ptr, Wt, Wb, W, lambda);
-    return;
 }
 
-__kernel void RankOneUpdate_dev(__global const unsigned int* col_ptr,
-                                __global const unsigned int* row_idx,
+__kernel void RankOneUpdate_dev(__global const unsigned* col_ptr,
+                                __global const unsigned* row_idx,
                                 __global const VALUE_TYPE* val,
                                 __global const VALUE_TYPE* u_vec_t,
                                 const VALUE_TYPE lambda,
                                 __global VALUE_TYPE* v) {
-//  unsigned int ii = get_global_id(0);
-//  unsigned int jj = get_global_size(0);
-    unsigned int ss = get_local_id(0);
-    unsigned int gg = get_local_size(0);
-    unsigned int aa = get_group_id(0);
-//  unsigned int dd = get_num_groups(0);
+//  unsigned ii = get_global_id(0);
+//  unsigned jj = get_global_size(0);
+    unsigned ss = get_local_id(0);
+    unsigned gg = get_local_size(0);
+    unsigned aa = get_group_id(0);
+//  unsigned dd = get_num_groups(0);
 
     __local VALUE_TYPE g[WG_SIZE], h[WG_SIZE];
     g[ss] = 0;
@@ -78,59 +75,56 @@ __kernel void RankOneUpdate_dev(__global const unsigned int* col_ptr,
         barrier(CLK_LOCAL_MEM_FENCE);
     }
     v[j] = g[0] / (h[0] + nlambda);
-    return;
 }
 
 /**
     Update vector v
 **/
-__kernel void RankOneUpdate_DUAL_kernel_v(const unsigned int cols,
-                                          __global const unsigned int* col_ptr,
-                                          __global const unsigned int* row_idx,
+__kernel void RankOneUpdate_DUAL_kernel_v(const unsigned cols,
+                                          __global const unsigned* col_ptr,
+                                          __global const unsigned* row_idx,
                                           __global VALUE_TYPE* val,
                                           __global VALUE_TYPE* u,
                                           __global VALUE_TYPE* v,
                                           const VALUE_TYPE lambda,
-                                          const unsigned int cols_t,
-                                          __global const unsigned int* row_ptr,
-                                          __global const unsigned int* col_idx,
+                                          const unsigned cols_t,
+                                          __global const unsigned* row_ptr,
+                                          __global const unsigned* col_idx,
                                           __global VALUE_TYPE* val_t) {
     RankOneUpdate_dev(col_ptr, row_idx, val, u, lambda, v);
-    return;
 }
 
 /**
     Update vector u
 **/
-__kernel void RankOneUpdate_DUAL_kernel_u(const unsigned int cols,
-                                          __global const unsigned int* col_ptr,
-                                          __global const unsigned int* row_idx,
+__kernel void RankOneUpdate_DUAL_kernel_u(const unsigned cols,
+                                          __global const unsigned* col_ptr,
+                                          __global const unsigned* row_idx,
                                           __global VALUE_TYPE* val,
                                           __global VALUE_TYPE* u,
                                           __global VALUE_TYPE* v,
                                           const VALUE_TYPE lambda,
-                                          const unsigned int cols_t,
-                                          __global const unsigned int* row_ptr,
-                                          __global const unsigned int* col_idx,
+                                          const unsigned cols_t,
+                                          __global const unsigned* row_ptr,
+                                          __global const unsigned* col_idx,
                                           __global VALUE_TYPE* val_t) {
     RankOneUpdate_dev(row_ptr, col_idx, val_t, v, lambda, u);
-    return;
 }
 
-static void UpdateRating_dev(const unsigned int cols,
-                             __global const unsigned int* col_ptr,
-                             __global const unsigned int* row_idx,
+static void UpdateRating_dev(const unsigned cols,
+                             __global const unsigned* col_ptr,
+                             __global const unsigned* row_idx,
                              __global VALUE_TYPE* val,
                              __global VALUE_TYPE* u,
                              __global VALUE_TYPE* v,
                              const int isAdd) {
 
-//  unsigned int ii = get_global_id(0);
-//  unsigned int jj = get_global_size(0);
-    unsigned int ss = get_local_id(0);
-    unsigned int gg = get_local_size(0);
-    unsigned int aa = get_group_id(0);
-//  unsigned int dd = get_num_groups(0);
+//  unsigned ii = get_global_id(0);
+//  unsigned jj = get_global_size(0);
+    unsigned ss = get_local_id(0);
+    unsigned gg = get_local_size(0);
+    unsigned aa = get_group_id(0);
+//  unsigned dd = get_num_groups(0);
 
     if (isAdd == 1) // +
     {
@@ -169,74 +163,69 @@ static void UpdateRating_dev(const unsigned int cols,
 
     }
 
-    return;
 }
 
 /**
     Update the rating matrix in the CSC format (value: +)
 **/
-__kernel void UpdateRating_DUAL_kernel_NoLoss_c(const unsigned int cols,
-                                                __global const unsigned int* col_ptr,
-                                                __global const unsigned int* row_idx,
+__kernel void UpdateRating_DUAL_kernel_NoLoss_c(const unsigned cols,
+                                                __global const unsigned* col_ptr,
+                                                __global const unsigned* row_idx,
                                                 __global VALUE_TYPE* val,
                                                 __global VALUE_TYPE* Wt_vec_t,
                                                 __global VALUE_TYPE* Ht_vec_t,
-                                                const unsigned int rows,
-                                                __global const unsigned int* row_ptr,
-                                                __global const unsigned int* col_idx,
+                                                const unsigned rows,
+                                                __global const unsigned* row_ptr,
+                                                __global const unsigned* col_idx,
                                                 __global VALUE_TYPE* val_t) {
     UpdateRating_dev(cols, col_ptr, row_idx, val, Wt_vec_t, Ht_vec_t, 1);
-    return;
 }
 
 /**
     Update the rating matrix in the CSR format (value_t: +)
 **/
-__kernel void UpdateRating_DUAL_kernel_NoLoss_r(const unsigned int cols,
-                                                __global const unsigned int* col_ptr,
-                                                __global const unsigned int* row_idx,
+__kernel void UpdateRating_DUAL_kernel_NoLoss_r(const unsigned cols,
+                                                __global const unsigned* col_ptr,
+                                                __global const unsigned* row_idx,
                                                 __global VALUE_TYPE* val,
                                                 __global VALUE_TYPE* Wt_vec_t,
                                                 __global VALUE_TYPE* Ht_vec_t,
-                                                const unsigned int rows,
-                                                __global const unsigned int* row_ptr,
-                                                __global const unsigned int* col_idx,
+                                                const unsigned rows,
+                                                __global const unsigned* row_ptr,
+                                                __global const unsigned* col_idx,
                                                 __global VALUE_TYPE* val_t) {
     UpdateRating_dev(rows, row_ptr, col_idx, val_t, Ht_vec_t, Wt_vec_t, 1);
-    return;
 }
 
 
 /**
     Update the rating matrix in the CSC format (value: -)
 **/
-__kernel void UpdateRating_DUAL_kernel_NoLoss_c_(const unsigned int cols,
-                                                 __global const unsigned int* col_ptr,
-                                                 __global const unsigned int* row_idx,
+__kernel void UpdateRating_DUAL_kernel_NoLoss_c_(const unsigned cols,
+                                                 __global const unsigned* col_ptr,
+                                                 __global const unsigned* row_idx,
                                                  __global VALUE_TYPE* val,
                                                  __global VALUE_TYPE* Wt_vec_t,
                                                  __global VALUE_TYPE* Ht_vec_t,
-                                                 const unsigned int rows,
-                                                 __global const unsigned int* row_ptr,
-                                                 __global const unsigned int* col_idx,
+                                                 const unsigned rows,
+                                                 __global const unsigned* row_ptr,
+                                                 __global const unsigned* col_idx,
                                                  __global VALUE_TYPE* val_t) {
     UpdateRating_dev(cols, col_ptr, row_idx, val, Wt_vec_t, Ht_vec_t, 0);
-    return;
 }
 
 /**
     Update the rating matrix in the CSR format (value_t: -)
 **/
-__kernel void UpdateRating_DUAL_kernel_NoLoss_r_(const unsigned int cols,
-                                                 __global const unsigned int* col_ptr,
-                                                 __global const unsigned int* row_idx,
+__kernel void UpdateRating_DUAL_kernel_NoLoss_r_(const unsigned cols,
+                                                 __global const unsigned* col_ptr,
+                                                 __global const unsigned* row_idx,
                                                  __global VALUE_TYPE* val,
                                                  __global VALUE_TYPE* Wt_vec_t,
                                                  __global VALUE_TYPE* Ht_vec_t,
-                                                 const unsigned int rows,
-                                                 __global const unsigned int* row_ptr,
-                                                 __global const unsigned int* col_idx,
+                                                 const unsigned rows,
+                                                 __global const unsigned* row_ptr,
+                                                 __global const unsigned* col_idx,
                                                  __global VALUE_TYPE* val_t) {
     UpdateRating_dev(rows, row_ptr, col_idx, val_t, Ht_vec_t, Wt_vec_t, 0);
-    return;
 }
