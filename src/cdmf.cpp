@@ -23,24 +23,25 @@ int main(int argc, char** argv) {
 
     std::cout << "[info] Loading R matrix..." << std::endl;
     auto t1 = std::chrono::high_resolution_clock::now();
-
     smat_t R;
-    load(param.scr_dir, R, false, false);
-
+    bool with_weights = false;
+    bool ifALS = false;
+    load(param.scr_dir, R, ifALS, with_weights);
     auto t2 = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> deltaT = t2 - t1;;
     std::cout << "[INFO] Loading rating data time: " << deltaT.count() << "s.\n";
+    std::cout << "------------------------------------------------------" << std::endl;
 
     mat_t W;
-    mat_t W_ref;
     mat_t H;
-    mat_t H_ref;
     initial_col(W, param.k, R.rows);
-    initial_col(W_ref, param.k, R.rows);
     initial_col(H, param.k, R.cols);
+
+    mat_t W_ref;
+    mat_t H_ref;
+    initial_col(W_ref, param.k, R.rows);
     initial_col(H_ref, param.k, R.cols);
 
-    std::cout << "------------------------------------------------------" << std::endl;
 
     switch (param.version) {
         case 1: {
@@ -88,7 +89,7 @@ int main(int argc, char** argv) {
         std::cout << "[info] validate the results." << std::endl;
         golden_compare(W, W_ref, param.k, R.rows);
         golden_compare(H, H_ref, param.k, R.cols);
-//        calculate_rmse(W_ref, H_ref, param.scr_dir, param.k);
+        calculate_rmse(W_ref, H_ref, param.scr_dir, param.k);
     }
     std::cout << "------------------------------------------------------" << std::endl;
 
