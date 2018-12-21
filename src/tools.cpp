@@ -176,7 +176,7 @@ void print_all_the_info() {
     free(platforms);
 }
 
-void print_device_info(cl_device_id* devices, unsigned int j) {
+void print_device_info(cl_device_id* devices, unsigned j) {
     char* value;
     size_t valueSize;
     cl_uint maxComputeUnits;
@@ -233,7 +233,7 @@ void print_device_info(cl_device_id* devices, unsigned int j) {
     free(value);
 }
 
-void print_platform_info(cl_platform_id* platforms, unsigned int id) {
+void print_platform_info(cl_platform_id* platforms, unsigned id) {
     const char* attributeNames[5] = {"Name", "Vendor",
                                      "Version", "Profile", "Extensions"};
     const cl_platform_info attributeTypes[5] = {CL_PLATFORM_NAME, CL_PLATFORM_VENDOR,
@@ -274,7 +274,7 @@ void load(const char* srcdir, smat_t& R, bool ifALS, bool with_weights) {
     FILE* fp = fopen(filename, "r");
     if (fp == nullptr) {
         printf("Can't open input file.\n");
-        exit(1);
+        exit(EXIT_FAILURE);
     }
     unsigned m, n, nnz;
     CHECK_FSCAN(fscanf(fp, "%u %u", &m, &n), 2);
@@ -407,17 +407,23 @@ parameter parse_command_line(int argc, char** argv) {
 
 void golden_compare(mat_t W, mat_t W_ref, unsigned k, unsigned m) {
     int error_count = 0;
+    double epsilon;
+    if (sizeof(VALUE_TYPE) == 8) {
+        epsilon = 0.000000000001;
+    } else {
+        epsilon = 0.001;
+    }
     for (unsigned i = 0; i < k; i++) {
         for (unsigned j = 0; j < m; j++) {
-            if (fabs((double) W[i][j] - (double) W_ref[i][j]) > 0.1 * fabs((double) W_ref[i][j])) {
-//                std::cout << i << "|" << j << "\t";
-//                std::cout << W[i][j] << "," << W_ref[i][j] << "\t";
+            double delta = fabs(W[i][j] - W_ref[i][j]);
+            if (delta > epsilon) {
+//                std::cout << i << "|" << j << " = " << delta << "\n\t";
+//                std::cout << W[i][j] << "\n\t" << W_ref[i][j];
+//                std::cout << std::endl;
                 error_count++;
             }
         }
-//        std::cout << std::endl;
     }
-//    std::cout << std::endl;
     if (error_count == 0) {
         std::cout << "Check... PASS!" << std::endl;
     } else {
@@ -449,20 +455,20 @@ void calculate_rmse(const mat_t& W_c, const mat_t& H_c, const char* srcdir, cons
         exit(EXIT_FAILURE);
     }
 
-    VALUE_TYPE rmse = 0;
+    double rmse = 0;
     int num_insts = 0;
     int nans_count = 0;
 
     int i, j;
-    VALUE_TYPE v;
+    double v;
 
-    while ((sizeof(VALUE_TYPE) == 8) ? (fscanf(test_fp, "%d %d %lf", &i, &j, &v) != EOF) : (fscanf(test_fp, "%d %d %f", &i, &j, &v) != EOF)) {
-        VALUE_TYPE pred_v = 0;
+    while (fscanf(test_fp, "%d %d %lf", &i, &j, &v) != EOF) {
+        double pred_v = 0;
         for (unsigned t = 0; t < k; t++) {
             pred_v += W_c[t][i - 1] * H_c[t][j - 1];
         }
         num_insts++;
-        VALUE_TYPE tmp = (pred_v - v) * (pred_v - v);
+        double tmp = (pred_v - v) * (pred_v - v);
         if (tmp == tmp) {
             rmse += tmp;
         } else {
@@ -472,7 +478,7 @@ void calculate_rmse(const mat_t& W_c, const mat_t& H_c, const char* srcdir, cons
     }
     fclose(test_fp);
 
-    double nans_percentage = (double) nans_count / (double) num_insts;
+    double nans_percentage = (double) nans_count / num_insts;
     printf("[INFO] NaNs percentage: %lf, NaNs Count: %d, Total Insts: %d\n", nans_percentage, nans_count, num_insts);
     rmse = sqrt(rmse / num_insts);
     printf("[INFO] Test RMSE = %lf\n", rmse);

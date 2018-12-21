@@ -35,9 +35,9 @@ cl_device_id* getDevices(cl_platform_id& platform, char* device_type);
 
 void print_all_the_info();
 
-void print_device_info(cl_device_id* devices, unsigned int j);
+void print_device_info(cl_device_id* devices, unsigned j);
 
-void print_platform_info(cl_platform_id* platforms, unsigned int id);
+void print_platform_info(cl_platform_id* platforms, unsigned id);
 
 int report_device(cl_device_id device_id);
 

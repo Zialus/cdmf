@@ -11,7 +11,7 @@ inline VALUE_TYPE RankOneUpdate(const smat_t &R, const long j, const vec_t &u, c
 {
     VALUE_TYPE g=0, h=lambda;
     if(R.col_ptr[j+1]==R.col_ptr[j]) return 0;
-    for(unsigned int idx=R.col_ptr[j]; idx < R.col_ptr[j+1]; ++idx)
+    for(unsigned idx=R.col_ptr[j]; idx < R.col_ptr[j+1]; ++idx)
     {
         int i = R.row_idx[idx];
         g += u[i]*R.val[idx];
@@ -43,7 +43,7 @@ inline VALUE_TYPE UpdateRating(smat_t &R, const vec_t &Wt, const vec_t &Ht, cons
     for(long c =0; c < R.cols; ++c)
     {
         VALUE_TYPE Htc = Ht[c], oldHtc = oldHt[c], loss_inner = 0;
-        for(unsigned int idx=R.col_ptr[c]; idx < R.col_ptr[c+1]; ++idx)
+        for(unsigned idx=R.col_ptr[c]; idx < R.col_ptr[c+1]; ++idx)
         {
             R.val[idx] -=  Wt[R.row_idx[idx]]*Htc-oldWt[R.row_idx[idx]]*oldHtc;
             loss_inner += R.val[idx]*R.val[idx];
@@ -60,7 +60,7 @@ inline VALUE_TYPE UpdateRating(smat_t &R, const vec_t &Wt2, const vec_t &Ht2)
     for(long c =0; c < R.cols; ++c)
     {
         VALUE_TYPE Htc = Ht2[2*c], oldHtc = Ht2[2*c+1], loss_inner = 0;
-        for(unsigned int idx=R.col_ptr[c]; idx < R.col_ptr[c+1]; ++idx)
+        for(unsigned idx=R.col_ptr[c]; idx < R.col_ptr[c+1]; ++idx)
         {
             R.val[idx] -=  Wt2[2*R.row_idx[idx]]*Htc-Wt2[2*R.row_idx[idx]+1]*oldHtc;
             loss_inner += R.val[idx]*R.val[idx];
