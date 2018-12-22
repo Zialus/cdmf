@@ -18,7 +18,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${VALUE}")
 
 # Compiler flags to enable more warnings
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
+#    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
@@ -26,21 +26,21 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
 endif ()
 
 # Compiler flags to enable all warnings
-#if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-#    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -pedantic")
-#elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -pedantic")
+elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
 #    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Weverything")
-#elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
 #    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Wall")
-#endif ()
+endif ()
 
-# Compiler flags to silence some of the warnings
+# Compiler flags to silence/or add some warnings
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-format")
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-format")
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4477 /w44365")
 endif ()
 
 # Silence warning C4996 on Microsoft Compilers

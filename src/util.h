@@ -54,15 +54,11 @@ public:
     bool with_weights;
     size_t nnz;
 
-    entry_iterator_t() : fp(nullptr), with_weights(false), nnz(0) {}
-
     entry_iterator_t(size_t nnz_, const char* filename, bool with_weights_ = false) {
         nnz = nnz_;
         fp = fopen(filename, "r");
         with_weights = with_weights_;
     }
-
-    size_t size() { return nnz; }
 
     virtual rate_t next() {
         int i = 1, j = 1;

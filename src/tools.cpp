@@ -1,7 +1,7 @@
 #include "tools.h"
 
 const char* get_error_string(cl_int err) {
-    switch(err){
+    switch (err) {
         // run-time and JIT compiler errors
         case 0: return "CL_SUCCESS";
         case -1: return "CL_DEVICE_NOT_FOUND";
@@ -72,6 +72,7 @@ const char* get_error_string(cl_int err) {
         case -1003: return "CL_INVALID_D3D10_RESOURCE_KHR";
         case -1004: return "CL_D3D10_RESOURCE_ALREADY_ACQUIRED_KHR";
         case -1005: return "CL_D3D10_RESOURCE_NOT_ACQUIRED_KHR";
+
         default: return "Unknown OpenCL error";
     }
 }
@@ -210,8 +211,7 @@ void print_device_info(cl_device_id* devices, unsigned j) {
     free(value);
 
     // print parallel compute units
-    clGetDeviceInfo(devices[j], CL_DEVICE_MAX_COMPUTE_UNITS, sizeof(maxComputeUnits), &maxComputeUnits,
-                    nullptr);
+    clGetDeviceInfo(devices[j], CL_DEVICE_MAX_COMPUTE_UNITS, sizeof(maxComputeUnits), &maxComputeUnits, nullptr);
     printf(" %u.%d Parallel compute units: %u\n", j + 1, 4, maxComputeUnits);
 
     clGetDeviceInfo(devices[j], CL_DEVICE_VENDOR, 0, nullptr, &valueSize);
@@ -279,7 +279,7 @@ void load(const char* srcdir, smat_t& R, bool ifALS, bool with_weights) {
     unsigned m, n, nnz;
     CHECK_FSCAN(fscanf(fp, "%u %u", &m, &n), 2);
     CHECK_FSCAN(fscanf(fp, "%u %1023s", &nnz, buf), 2);
-    sprintf(filename, "%s/%s", srcdir, buf);
+    snprintf(filename, sizeof(filename), "%s/%s", srcdir, buf);
     R.load(m, n, nnz, filename, ifALS, with_weights);
     fclose(fp);
 }
@@ -300,7 +300,7 @@ void exit_with_help() {
             "options:\n"
             "    -c : path to the kernel code (default \"../kcode/\")\n"
             "    -k rank : set the rank (default 10)\n"
-            "    -n threads : set the number of threads for OpenMP (default 4)\n"
+            "    -n threads : set the number of threads for OpenMP (default 16)\n"
             "    -l lambda : set the regularization parameter lambda (default 0.1)\n"
             "    -t max_iter: set the number of iterations (default 5)\n"
             "    -T max_iter: set the number of inner iterations used in CCDR1 (default 5)\n"
@@ -310,7 +310,7 @@ void exit_with_help() {
             "    -nBlocks: Number of blocks on cuda (default 16)\n"
             "    -nThreadsPerBlock: Number of threads per block on cuda (default 32)\n"
     );
-    exit(1);
+    exit(EXIT_FAILURE);
 }
 
 parameter parse_command_line(int argc, char** argv) {
@@ -394,8 +394,8 @@ parameter parse_command_line(int argc, char** argv) {
             exit_with_help();
             break;
     }
-    printf("[info] - selected device type: %s, on platform with index: %d\n", param.device_type, param.platform_id);
-
+    printf("[info] - selected device type: %s, on platform with index: %u | Will be using %d threads | Value type is %s\n"
+            , param.device_type, param.platform_id, param.threads, getT(sizeof(VALUE_TYPE)));
     if (i >= argc) {
         exit_with_help();
     }
@@ -433,7 +433,7 @@ void golden_compare(mat_t W, mat_t W_ref, unsigned k, unsigned m) {
 
 void calculate_rmse(const mat_t& W_c, const mat_t& H_c, const char* srcdir, const unsigned k) {
     char meta_filename[1024];
-    sprintf(meta_filename, "%s/meta", srcdir);
+    snprintf(meta_filename, sizeof(meta_filename), "%s/meta", srcdir);
     FILE* fp = fopen(meta_filename, "r");
     if (fp == nullptr) {
         printf("Can't open meta input file.\n");
@@ -467,14 +467,14 @@ void calculate_rmse(const mat_t& W_c, const mat_t& H_c, const char* srcdir, cons
         for (unsigned t = 0; t < k; t++) {
             pred_v += W_c[t][i - 1] * H_c[t][j - 1];
         }
-        num_insts++;
         double tmp = (pred_v - v) * (pred_v - v);
         if (tmp == tmp) {
             rmse += tmp;
         } else {
             nans_count++;
         }
-//        printf("%d - %d,%d,%lf,%lf,%lf\n", num_insts - 1, i, j, tmp, v, pred_v);
+//        printf("%d - %d,%d,%lf,%lf,%lf\n", num_insts, i, j, tmp, v, pred_v);
+        num_insts++;
     }
     fclose(test_fp);
 
