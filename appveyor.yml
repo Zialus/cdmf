@@ -2,32 +2,36 @@ environment:
   VERSION_FLAG: '2'
   SIZE_FLAG: '2'
   matrix:
+  - WHATOPENCL: INTEL
+    APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+  - WHATOPENCL: NVIDIA
+    APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+  - WHATOPENCL: INTEL
+    APPVEYOR_BUILD_WORKER_IMAGE: Ubuntu1804
   - WHATOPENCL: NVIDIA
     APPVEYOR_BUILD_WORKER_IMAGE: Ubuntu1804
   - WHATOPENCL: POCL
     APPVEYOR_BUILD_WORKER_IMAGE: Ubuntu1804
   - WHATOPENCL: AMD
     APPVEYOR_BUILD_WORKER_IMAGE: Ubuntu1604
-  - WHATOPENCL: INTEL
-    APPVEYOR_BUILD_WORKER_IMAGE: Ubuntu1804
-  - WHATOPENCL: INTEL
-    APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+
+init:
+  - cmake --version
 
 before_build:
-  - ps: appveyor DownloadFile "http://registrationcenter-download.intel.com/akdlm/irc_nas/vcp/12527/intel_sdk_for_opencl_2017_7.0.0.2567.exe"
-  - ps: appveyor DownloadFile "http://registrationcenter-download.intel.com/akdlm/irc_nas/vcp/13794/opencl_runtime_18.1_x64_setup.msi"
   - ps: appveyor DownloadFile "https://ci.appveyor.com/api/projects/oblomov/clinfo/artifacts/clinfo.exe?job=platform:+x64" -FileName clinfo.exe
-  - opencl_runtime_18.1_x64_setup.msi /qn
-  - intel_sdk_for_opencl_2017_7.0.0.2567.exe install --output=output.log --eula=accept
-  - type output.log
-  - set INTELOCLSDKROOT=C:\Intel\OpenCL\sdk
-  - dir %INTELOCLSDKROOT%
+  # install OpenCL Runtime
+  - choco install opencl-intel-cpu-runtime
+  # Install OpenCL headers and libraries
+  - set NUGETDIR=C:\NUGET
+  - nuget install opencl-nug -Version 0.777.77 -OutputDirectory %NUGETDIR%
+  - dir %NUGETDIR%\opencl-nug.0.777.77\build\native\
+  - set OCL_ROOT=%NUGETDIR%\opencl-nug.0.777.77\build\native
 
 build_script:
-  - cmake --version
   - .\clinfo.exe
   - mkdir build && cd build
-  - cmake ..
+  - cmake -G "Visual Studio 15 2017 Win64" ..
   - cmake --build . --config Release
 
 before_test:
@@ -50,6 +54,29 @@ for:
 -
   matrix:
     only:
+    - WHATOPENCL: NVIDIA
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+
+  before_build:
+    - ps: appveyor DownloadFile "https://ci.appveyor.com/api/projects/oblomov/clinfo/artifacts/clinfo.exe?job=platform:+x64" -FileName clinfo.exe
+    - ps: $env:cuda_version = '10.0'
+    - ps: $env:url = "https://developer.nvidia.com/compute/cuda/10.0/Prod/local_installers/cuda_10.0.130_411.31_win10"
+    - ps: $env:arguments = "-s nvcc_10.0"
+    - ps: appveyor DownloadFile -Url $env:url -FileName C:\cuda.exe
+    - C:\cuda.exe %arguments%
+    - set CUDA_PATH=%ProgramFiles%\NVIDIA GPU Computing Toolkit\CUDA\v%CUDA_VERSION%
+    - set PATH=%CUDA_PATH%\bin;%PATH%
+    - nvcc -V
+    # make clinfo not fail
+    - ps: appveyor DownloadFile "http://registrationcenter-download.intel.com/akdlm/irc_nas/vcp/13794/opencl_runtime_18.1_x64_setup.msi"
+    - opencl_runtime_18.1_x64_setup.msi /qn
+
+  test_script:
+    - echo "Appveyor machine doesn't have NVIDIA GPU"
+
+-
+  matrix:
+    only:
     - WHATOPENCL: INTEL
       APPVEYOR_BUILD_WORKER_IMAGE: Ubuntu1804
 
@@ -63,7 +90,6 @@ for:
     - echo $SIZE_FLAG
 
   build_script:
-    - cmake --version
     - clinfo
     - mkdir build && cd build
     - cmake -DCMAKE_BUILD_TYPE=Release ..
@@ -81,6 +107,7 @@ for:
   init:
     - uname -a
   before_build:
+    - sudo apt-get update
     - sudo apt-get install clinfo opencl-headers -y
     - source scripts/amdappsdk_install.sh
     - echo $AMDAPPSDKROOT
@@ -88,14 +115,13 @@ for:
     - echo $SIZE_FLAG
 
   build_script:
-    - cmake --version
     - clinfo
     - mkdir build && cd build
     - cmake -DCMAKE_BUILD_TYPE=Release ..
     - make
 
   test_script:
-  - ctest -V -C Release
+    - ctest -V -C Release
 
 -
   matrix:
@@ -106,6 +132,7 @@ for:
   init:
     - uname -a
   before_build:
+    - sudo apt-get update
     - sudo apt-get install libpocl-dev -y
     - sudo apt-get install opencl-headers clinfo -y
     - echo $AMDAPPSDKROOT
@@ -113,7 +140,6 @@ for:
     - echo $SIZE_FLAG
 
   build_script:
-    - cmake --version
     - poclcc -l
     - clinfo
     - mkdir build && cd build
@@ -135,9 +161,8 @@ for:
     - wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/cuda-repo-ubuntu1804_10.0.130-1_amd64.deb
     - sudo dpkg -i cuda-repo-ubuntu1804_10.0.130-1_amd64.deb
     - sudo apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/7fa2af80.pub
-    - sudo apt-get remove openjdk-11-jre-headless -y --allow-change-held-packages
     - sudo apt-get update
-    - sudo apt-get install cuda -y -o Dpkg::Options::="--force-confnew"
+    - sudo apt-get install nvidia-cuda-toolkit -y
     - sudo apt-get clean
     - sudo apt-get install clinfo -y
     - export CUDA_PATH=/usr/local/cuda
@@ -146,7 +171,6 @@ for:
     - echo $SIZE_FLAG
 
   build_script:
-    - cmake --version
     - clinfo
     - mkdir build && cd build
     - cmake -DCMAKE_BUILD_TYPE=Release ..
