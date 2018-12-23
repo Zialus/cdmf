@@ -13,7 +13,7 @@ inline VALUE_TYPE RankOneUpdate(const smat_t &R, const long j, const vec_t &u, c
     if(R.col_ptr[j+1]==R.col_ptr[j]) return 0;
     for(unsigned idx=R.col_ptr[j]; idx < R.col_ptr[j+1]; ++idx)
     {
-        int i = R.row_idx[idx];
+        unsigned i = R.row_idx[idx];
         g += u[i]*R.val[idx];
         h += u[i]*u[i];
     }

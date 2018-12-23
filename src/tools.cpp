@@ -459,10 +459,10 @@ void calculate_rmse(const mat_t& W_c, const mat_t& H_c, const char* srcdir, cons
     int num_insts = 0;
     int nans_count = 0;
 
-    int i, j;
+    unsigned i, j;
     double v;
 
-    while (fscanf(test_fp, "%d %d %lf", &i, &j, &v) != EOF) {
+    while (fscanf(test_fp, "%u %u %lf", &i, &j, &v) != EOF) {
         double pred_v = 0;
         for (unsigned t = 0; t < k; t++) {
             pred_v += W_c[t][i - 1] * H_c[t][j - 1];

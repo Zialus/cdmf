@@ -39,7 +39,7 @@ public:
     unsigned i, j;
     VALUE_TYPE v, weight;
 
-    rate_t(int ii = 0, int jj = 0, VALUE_TYPE vv = 0, VALUE_TYPE ww = 1.0) : i(ii), j(jj), v(vv), weight(ww) {}
+    rate_t(unsigned ii = 0, unsigned jj = 0, VALUE_TYPE vv = 0, VALUE_TYPE ww = 1.0) : i(ii), j(jj), v(vv), weight(ww) {}
 };
 
 class entry_iterator_t {
