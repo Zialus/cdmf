@@ -1,10 +1,3 @@
-#include <cstdio>
-#include <cstdlib>
-
-#include <iostream>
-#include <string>
-#include <fstream>
-
 #include "util.h"
 #include "tools.h"
 
