@@ -2,6 +2,15 @@ language: cpp
 dist: xenial
 
 script:
+  - mkdir build && cd build
+  - cmake -DCMAKE_BUILD_TYPE=Release ..
+  - cmake --build . --config Release
+  - ctest -V -C Release
+
+before_script:
+  - eval "${MATRIX_EVAL}"
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]];   then export SIZE_FLAG=1; export VERSION_FLAG=1; fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then export SIZE_FLAG=2; export VERSION_FLAG=2; fi
   - cmake --version
   - python --version
   - clinfo
@@ -17,15 +26,6 @@ script:
   - cd data/c/
   - python c.py
   - popd
-  - mkdir build && cd build
-  - cmake -DCMAKE_BUILD_TYPE=Release ..
-  - cmake --build . --config Release
-  - ctest -V -C Release
-
-before_script:
-  - eval "${MATRIX_EVAL}"
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]];   then export SIZE_FLAG=1; export VERSION_FLAG=1; fi
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then export SIZE_FLAG=2; export VERSION_FLAG=2; fi
 
 matrix:
   include:
@@ -224,3 +224,28 @@ matrix:
           packages:
             - g++-8
       install: *linux_extras
+    
+
+    # SONARCLOUD
+    - os: linux
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-8
+        sonarcloud:
+          organization: "zialus-github"
+          token:
+            secure: "IhZuTm2oh+6aKimykUcMXFqWIks5ET6Ytjg1/u+qUxuWu0iKoxPYLwoSqsyUmGlFrMig934TpfhkhVr94edrH2RKxT7+MUeq0tAYqSSHaWlBp5sI3YZWjNmHQmyiyTXyjP1zxbLTBqzYkXrpu/ox4pPR1BLFLHj34CS9GX88OGSRwHfEBHDXygbPGTarOrfJKSWqQxpmrtN3mJHiiSKG7vFc9xUIqDseNIF3NFomhiS8wb0RMbmQpBc/2qHqot2GgvS7TbaddsyNcoUbS/dshJiL91KvN/1yoWgHZtu+o3brEm0UaMdVgCkXnkmXL/cRkOmU5AJ7ZG47640PfssTKX223z7JkxGfg0ZcAKz9Ljup/jMDCZkn5bMqJFduAHfzYRvYD6qDiRI3HHvg3IMt7TS3CBsRyOxwULNpr2HkTiVfJNE8q8h+MSNr7byRSQf9YUgU+nd6n2x8UIerYtNkwftuiq5CZF6iXV+S62WTE0sDuB1b+AupMokGX//Koh4TJWixUDERkwC564d0kuj75Gt97VRn3GPqyyQKJgGaFiNHyjU1sRhZYoqasCguxljmCQmOEFw+trXlRhMcfvgGgleFqE1247OWgUNylDuLlCiKBnXxmjuiUE6sK3ON3rmHXSApUwdGAwZ2vGbRGfXEkFz3wQAqm6bgAtfQ+j+nW9M="
+      script:
+        - mkdir build && cd build
+        - cmake -DCMAKE_BUILD_TYPE=Release ..
+        - build-wrapper-linux-x86-64 --out-dir bw-output make clean all
+        - ctest -V -C Release
+        - cd ..
+        - sonar-scanner
+      install: *linux_extras
+      env:
+        - SONAR_CLOUD="YUP"
+        - MATRIX_EVAL="CC=gcc-8 && CXX=g++-8"
