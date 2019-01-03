@@ -4,3 +4,4 @@ exec/
 data/
 SomeResults/
 SomeStuff/
+*.bc

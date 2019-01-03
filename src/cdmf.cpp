@@ -39,22 +39,22 @@ int main(int argc, char** argv) {
     switch (param.version) {
         case 1: {
             std::cout << "[info] Picked Version 1: Native" << std::endl;
-            char kcode_filename[1024+10];
-            sprintf(kcode_filename, "%s/ccd01.cl", param.kcode_path);
+            char kcode_filename[1024 + 10];
+            snprintf(kcode_filename, sizeof(kcode_filename), "%s/ccd01.cl", param.kcode_path);
             cdmf_ocl(R, W, H, param, kcode_filename);
             break;
         }
         case 2: {
             std::cout << "[info] Picked Version 2: Thread Batching" << std::endl;
-            char kcode_filename[1024+10];
-            sprintf(kcode_filename, "%s/ccd033.cl", param.kcode_path);
+            char kcode_filename[1024 + 10];
+            snprintf(kcode_filename, sizeof(kcode_filename), "%s/ccd033.cl", param.kcode_path);
             cdmf_ocl(R, W, H, param, kcode_filename);
             break;
         }
         case 3: {
             std::cout << "[info] Picked Version 3: Load Balancing" << std::endl;
-            char kcode_filename[1024+10];
-            sprintf(kcode_filename, "%s/ccd033.cl", param.kcode_path);
+            char kcode_filename[1024 + 10];
+            snprintf(kcode_filename, sizeof(kcode_filename), "%s/ccd033.cl", param.kcode_path);
             cdmf_csr5(R, W, H, param, kcode_filename);
             break;
         }

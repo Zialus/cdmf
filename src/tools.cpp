@@ -270,7 +270,7 @@ int report_device(cl_device_id device_id) {
 
 void load(const char* srcdir, smat_t& R, bool ifALS, bool with_weights) {
     char filename[2048], buf[1024];
-    sprintf(filename, "%s/meta", srcdir);
+    snprintf(filename, sizeof(filename), "%s/meta", srcdir);
     FILE* fp = fopen(filename, "r");
     if (fp == nullptr) {
         printf("Can't open input file.\n");
@@ -468,7 +468,7 @@ void calculate_rmse(const mat_t& W_c, const mat_t& H_c, const char* srcdir, cons
             pred_v += W_c[t][i - 1] * H_c[t][j - 1];
         }
         double tmp = (pred_v - v) * (pred_v - v);
-        if (tmp == tmp) {
+        if (!std::isnan(tmp)) {
             rmse += tmp;
         } else {
             nans_count++;
