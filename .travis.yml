@@ -249,3 +249,26 @@ matrix:
       env:
         - SONAR_CLOUD="YUP"
         - MATRIX_EVAL="CC=gcc-8 && CXX=g++-8"
+
+    # COVERITY_SCAN
+    - os: linux
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-8
+        coverity_scan:
+          project:
+            name: "Zialus/cdmf"
+            description: "cdmf"
+          notification_email: raulmendesferreira@gmail.com
+          build_command_prepend: "mkdir build && cd build && cmake -DCMAKE_BUILD_TYPE=Release .."
+          build_command: "make"
+          branch_pattern: master
+      install: *linux_extras
+      script:
+        - echo "Coverity Scan"
+      env:
+        - secure: "gjl98kAMxIEA/SB9FAbHkdpUjnvpvLZVpkcj+GlElyNMye+6fiQYILpVUU4QdGEA+5m8IrATvhusci79MymRg3XALahnwPKSDAPek8DlhvJf828S7KovsiexL82G1ULMxQfT3UZZ76QfYze2HAab8RJ3/EaOKFXKCpAQzZAdGCMSrj3SVeCHprYNU2lVK/eQ+o+amL82h7cogWH1LHpa0v3kT8TwPuewiT/BkJ7t1HbbEUss9eRdTTQc0S76yaFjQHPhtNP/lFnYhQbp9HreNdZwfd9CKp+odvRnwbx1lRsjQfPWM5WM6udBu1nnMHklYyN5PcSBUFgfGU1gjvjKVynfNFT1hnPrDX1gei42VKBiA6XiAOCXqCJ4nfzHia2j707HCWUXsURQ8U6L98Pt/bUNShIG9U/g62S6e14ubdCjQVpnMwvz18UZgJhboT0U7ZeS16c3dMG1MQ5BieI7DHFFYOEF3UjXUm7Xl/0bzja8FHXCcAc24lITTr27QcQ03u2mw8hrVPHIsewy5zRI+44cuThCTfWmdmOvw7oFkm4oE3QBFFNtV3MVzimZ3OYY0ri9K0YUPNhhnrsBYickgMC5j40gSjizCKJ1sf3g+owrMap7EAiXeT+xN8VRnRpgKx+C8C5Wu7Wy+xlrhnRqZqBxJUSJEfNU1yedF8KTGj8="
+        - MATRIX_EVAL="CC=gcc-8 && CXX=g++-8"
