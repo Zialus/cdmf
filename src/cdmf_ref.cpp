@@ -1,6 +1,5 @@
 #include <omp.h>
 
-#include "util.h"
 #include "tools.h"
 
 #define kind dynamic,500
