@@ -427,7 +427,9 @@ void golden_compare(mat_t W, mat_t W_ref, unsigned k, unsigned m) {
     if (error_count == 0) {
         std::cout << "Check... PASS!" << std::endl;
     } else {
-        std::cout << "Check... NO PASS! #Error = " << error_count << " out of " << k * m << " entries." << std::endl;
+        int entries = k * m;
+        float error_percentage = (float) error_count / entries;
+        printf("Check... NO PASS! [%f%%] #Error = %d out of %d entries.\n", error_percentage, error_count, entries);
     }
 }
 
@@ -472,14 +474,15 @@ void calculate_rmse(const mat_t& W_c, const mat_t& H_c, const char* srcdir, cons
             rmse += tmp;
         } else {
             nans_count++;
+//            printf("%d \t - [%u,%u] - v: %lf pred_v: %lf\n", num_insts, i, j, v, pred_v);
         }
-//        printf("%d - %d,%d,%lf,%lf,%lf\n", num_insts, i, j, tmp, v, pred_v);
         num_insts++;
     }
     fclose(test_fp);
 
+    if (num_insts == 0) { exit(EXIT_FAILURE); }
     double nans_percentage = (double) nans_count / num_insts;
-    printf("[INFO] NaNs percentage: %lf, NaNs Count: %d, Total Insts: %d\n", nans_percentage, nans_count, num_insts);
+    printf("[INFO] NaNs: [%lf%%], NaNs Count: %d out of %d entries.\n", nans_percentage, nans_count, num_insts);
     rmse = sqrt(rmse / num_insts);
     printf("[INFO] Test RMSE = %lf\n", rmse);
 }

@@ -1,28 +1,28 @@
-#include "util.h"
 #include "tools.h"
+#include "cdmf.h"
 
-void cdmf_ref(smat_t& R, mat_t& W, mat_t& H, parameter& param);
-
-void cdmf_ocl(smat_t& R, mat_t& W, mat_t& H, parameter& param, char filename[]);
-
-void cdmf_csr5(smat_t& R, mat_t& W, mat_t& H, parameter& param, char filename[]);
+std::chrono::duration<double> deltaT12;
+std::chrono::duration<double> deltaTAB;
 
 int main(int argc, char** argv) {
+    auto t7 = std::chrono::high_resolution_clock::now();
+
     parameter param = parse_command_line(argc, argv);
 
     if (param.verbose) {
         print_all_the_info();
     }
 
+    std::cout << "------------------------------------------------------" << std::endl;
     std::cout << "[info] Loading R matrix..." << std::endl;
-    auto t1 = std::chrono::high_resolution_clock::now();
+    auto t3 = std::chrono::high_resolution_clock::now();
     smat_t R;
     bool with_weights = false;
     bool ifALS = false;
     load(param.scr_dir, R, ifALS, with_weights);
-    auto t2 = std::chrono::high_resolution_clock::now();
-    std::chrono::duration<double> deltaT = t2 - t1;;
-    std::cout << "[INFO] Loading rating data time: " << deltaT.count() << "s.\n";
+    auto t4 = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> deltaT34 = t4 - t3;
+    std::cout << "[info] Loading rating data time: " << deltaT34.count() << "s.\n";
     std::cout << "------------------------------------------------------" << std::endl;
 
     mat_t W;
@@ -34,7 +34,6 @@ int main(int argc, char** argv) {
     mat_t H_ref;
     initial_col(W_ref, param.k, R.rows);
     initial_col(H_ref, param.k, R.cols);
-
 
     switch (param.version) {
         case 1: {
@@ -64,25 +63,46 @@ int main(int argc, char** argv) {
         }
     }
 
+    std::chrono::duration<double> deltaT56{};
+    std::chrono::duration<double> deltaT9_10{};
+    std::chrono::duration<double> deltaT11_12{};
+    std::chrono::duration<double> deltaT13_14{};
+
     // Predict RMSE with the W and H matrices produced by OpenCL kernels
     if (param.do_predict == 1) {
-        auto t5 = std::chrono::high_resolution_clock::now();
         std::cout << "------------------------------------------------------" << std::endl;
+        auto t5 = std::chrono::high_resolution_clock::now();
         calculate_rmse(W, H, param.scr_dir, param.k);
         auto t6 = std::chrono::high_resolution_clock::now();
-        std::chrono::duration<double> deltaT2 = t6 - t5;;
-        printf("[info] Predict time: %lf s\n", deltaT2.count());
+        deltaT56 = t6 - t5;
+        std::cout << "[info] OCL Predict Time: " << deltaT56.count() << " s.\n";
     }
 
     // Compare OpenCL results with reference OpenMP results
     if (param.do_ref == 1) {
         std::cout << "------------------------------------------------------" << std::endl;
         std::cout << "[info] Computing cdmf OpenMP reference results on CPU." << std::endl;
+        auto t9 = std::chrono::high_resolution_clock::now();
         cdmf_ref(R, W_ref, H_ref, param);
+        auto t10 = std::chrono::high_resolution_clock::now();
+        deltaT9_10 = t10 - t9;
+        std::cout << "[info] OMP Training Time: " << deltaT9_10.count() << " s.\n";
+
+        std::cout << "------------------------------------------------------" << std::endl;
+        auto t13 = std::chrono::high_resolution_clock::now();
+        calculate_rmse(W_ref, H_ref, param.scr_dir, param.k);
+        auto t14 = std::chrono::high_resolution_clock::now();
+        deltaT13_14 = t14 - t13;
+        std::cout << "[info] OMP Predict Time: " << deltaT13_14.count() << " s.\n";
+
+        std::cout << "------------------------------------------------------" << std::endl;
         std::cout << "[info] validate the results." << std::endl;
+        auto t11 = std::chrono::high_resolution_clock::now();
         golden_compare(W, W_ref, param.k, R.rows);
         golden_compare(H, H_ref, param.k, R.cols);
-        calculate_rmse(W_ref, H_ref, param.scr_dir, param.k);
+        auto t12 = std::chrono::high_resolution_clock::now();
+        deltaT11_12 = t12 - t11;
+        std::cout << "[info] Validate Time: " << deltaT11_12.count() << " s.\n";
     }
     std::cout << "------------------------------------------------------" << std::endl;
 
@@ -93,5 +113,10 @@ int main(int argc, char** argv) {
 //    print_matrix(W_ref, param.k, R.rows);
 //    print_matrix(H_ref, param.k, R.cols);
 
+    auto t8 = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> deltaT78 = t8 - t7;
+    std::cout << "Total Time: " << deltaT78.count() << " Parcial Sums:"
+              << deltaT12.count() + deltaT34.count() + deltaT56.count() + deltaTAB.count() + deltaT9_10.count()
+                 + deltaT11_12.count() + deltaT13_14.count() << " s.\n";
     return EXIT_SUCCESS;
 }

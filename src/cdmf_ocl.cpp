@@ -1,8 +1,11 @@
-#include "util.h"
 #include "tools.h"
 
+extern std::chrono::duration<double> deltaT12;
+extern std::chrono::duration<double> deltaTAB;
+
 void cdmf_ocl(smat_t& R, mat_t& W_c, mat_t& H_c, parameter& param, char filename[]) {
-    // create context and build the kernel code
+    auto tA = std::chrono::high_resolution_clock::now();
+
     cl_int status;
     cl_int err;
     cl_platform_id platform = getPlatform(param.platform_id);
@@ -14,15 +17,17 @@ void cdmf_ocl(smat_t& R, mat_t& W_c, mat_t& H_c, parameter& param, char filename
     CL_CHECK(clGetContextInfo(context, CL_CONTEXT_NUM_DEVICES, sizeof(cl_uint), &NumDevice, nullptr));
     assert(NumDevice == 1);
     cl_command_queue commandQueue = clCreateCommandQueue(context, devices[0], CL_QUEUE_PROFILING_ENABLE, nullptr);
+    printf("[INFO] Connected!\n");
 
-    printf("[info] - The kernel to be compiled: %s\n", filename);
+    printf("[INFO] - The kernel to be compiled: %s\n", filename);
     std::string sourceStr;
     convertToString(filename, sourceStr);
     const char* source = sourceStr.c_str();
     size_t sourceSize[] = {strlen(source)};
     cl_program program = clCreateProgramWithSource(context, 1, &source, sourceSize, nullptr);
+
     char options[1024];
-    sprintf(options, "-DWG_SIZE=%d -DVALUE_TYPE=%s", param.nThreadsPerBlock, getT(sizeof(VALUE_TYPE)));
+    snprintf(options, sizeof(options), "-DWG_SIZE=%d -DVALUE_TYPE=%s", param.nThreadsPerBlock, getT(sizeof(VALUE_TYPE)));
     status = clBuildProgram(program, 1, devices, options, nullptr, nullptr);
 
     size_t length;
@@ -30,7 +35,7 @@ void cdmf_ocl(smat_t& R, mat_t& W_c, mat_t& H_c, parameter& param, char filename
     char* buffer = (char*) malloc(length + 1);
     clGetProgramBuildInfo(program, devices[0], CL_PROGRAM_BUILD_LOG, length, buffer, nullptr);
 
-    if (buffer != nullptr && strcmp(buffer,"") != 0) {
+    if (buffer != nullptr && strcmp(buffer, "") != 0 && strcmp(buffer, "\n") != 0) {
         printf("[OpenCL Compiler INFO]:\n%s\n", buffer);
         free(buffer);
     } else {
@@ -43,10 +48,14 @@ void cdmf_ocl(smat_t& R, mat_t& W_c, mat_t& H_c, parameter& param, char filename
     clGetProgramInfo(program, CL_PROGRAM_KERNEL_NAMES, 0, nullptr, &length);
     char* buffer2 = (char*) malloc(length + 1);
     clGetProgramInfo(program, CL_PROGRAM_KERNEL_NAMES, length, buffer2, nullptr);
-    if (buffer2 != nullptr) {
+    if (buffer2 != nullptr && param.verbose) {
         printf("[Kernels]: %s\n", buffer2);
         free(buffer2);
     }
+
+    auto tB = std::chrono::high_resolution_clock::now();
+    deltaTAB = tB - tA;
+    std::cout << "[INFO] Initiating OpenCL Time: " << deltaTAB.count() << " s.\n";
 
     for (unsigned t = 0; t < param.k; ++t) {
         for (unsigned c = 0; c < R.cols; ++c) {
@@ -169,17 +178,17 @@ void cdmf_ocl(smat_t& R, mat_t& W_c, mat_t& H_c, parameter& param, char filename
 
     if (param.verbose) {
         size_t local;
-        CL_CHECK(clGetKernelWorkGroupInfo(RankOneUpdate_DUAL_kernel_u, devices[0], CL_KERNEL_WORK_GROUP_SIZE, sizeof(local), &local, NULL));
+        CL_CHECK(clGetKernelWorkGroupInfo(RankOneUpdate_DUAL_kernel_u, devices[0], CL_KERNEL_WORK_GROUP_SIZE, sizeof(local), &local, nullptr));
         printf("[VERBOSE] local_work_size for RankOneUpdate_DUAL_kernel_u should be: %zu\n", local);
-        CL_CHECK(clGetKernelWorkGroupInfo(RankOneUpdate_DUAL_kernel_v, devices[0], CL_KERNEL_WORK_GROUP_SIZE, sizeof(local), &local, NULL));
+        CL_CHECK(clGetKernelWorkGroupInfo(RankOneUpdate_DUAL_kernel_v, devices[0], CL_KERNEL_WORK_GROUP_SIZE, sizeof(local), &local, nullptr));
         printf("[VERBOSE] local_work_size for RankOneUpdate_DUAL_kernel_u should be: %zu\n", local);
-        CL_CHECK(clGetKernelWorkGroupInfo(UpdateRating_DUAL_kernel_NoLoss_r, devices[0], CL_KERNEL_WORK_GROUP_SIZE, sizeof(local), &local, NULL));
+        CL_CHECK(clGetKernelWorkGroupInfo(UpdateRating_DUAL_kernel_NoLoss_r, devices[0], CL_KERNEL_WORK_GROUP_SIZE, sizeof(local), &local, nullptr));
         printf("[VERBOSE] local_work_size for UpdateRating_DUAL_kernel_NoLoss_r should be: %zu\n", local);
-        CL_CHECK(clGetKernelWorkGroupInfo(UpdateRating_DUAL_kernel_NoLoss_c, devices[0], CL_KERNEL_WORK_GROUP_SIZE, sizeof(local), &local, NULL));
+        CL_CHECK(clGetKernelWorkGroupInfo(UpdateRating_DUAL_kernel_NoLoss_c, devices[0], CL_KERNEL_WORK_GROUP_SIZE, sizeof(local), &local, nullptr));
         printf("[VERBOSE] local_work_size for UpdateRating_DUAL_kernel_NoLoss_c should be: %zu\n", local);
-        CL_CHECK(clGetKernelWorkGroupInfo(UpdateRating_DUAL_kernel_NoLoss_r_, devices[0], CL_KERNEL_WORK_GROUP_SIZE, sizeof(local), &local, NULL));
+        CL_CHECK(clGetKernelWorkGroupInfo(UpdateRating_DUAL_kernel_NoLoss_r_, devices[0], CL_KERNEL_WORK_GROUP_SIZE, sizeof(local), &local, nullptr));
         printf("[VERBOSE] local_work_size for UpdateRating_DUAL_kernel_NoLoss_r_ should be: %zu\n", local);
-        CL_CHECK(clGetKernelWorkGroupInfo(UpdateRating_DUAL_kernel_NoLoss_c_, devices[0], CL_KERNEL_WORK_GROUP_SIZE, sizeof(local), &local, NULL));
+        CL_CHECK(clGetKernelWorkGroupInfo(UpdateRating_DUAL_kernel_NoLoss_c_, devices[0], CL_KERNEL_WORK_GROUP_SIZE, sizeof(local), &local, nullptr));
         printf("[VERBOSE] local_work_size for UpdateRating_DUAL_kernel_NoLoss_c_ should be: %zu\n", local);
     }
 
@@ -188,6 +197,8 @@ void cdmf_ocl(smat_t& R, mat_t& W_c, mat_t& H_c, parameter& param, char filename
     cl_ulong t_start;
     cl_ulong t_end;
 
+    std::cout << "------------------------------------------------------" << std::endl;
+    std::cout << "[INFO] Computing clMF OpenCL..." << std::endl;
     auto t1 = std::chrono::high_resolution_clock::now();
     for (int oiter = 1; oiter <= param.maxiter; ++oiter) {
         //printf("[info] the %dth outter iteration.\n", oiter);
@@ -260,10 +271,9 @@ void cdmf_ocl(smat_t& R, mat_t& W_c, mat_t& H_c, parameter& param, char filename
         }
     }
     auto t2 = std::chrono::high_resolution_clock::now();
-    std::chrono::duration<double> deltaT = t2 - t1;;
-    printf("[info] - training time: %lf s\n", deltaT.count());
-    printf("[info] - rank one updating time: %llu ms, R updating time: %llu ms\n", t_rank_one_update / 1000000ULL, t_update_ratings / 1000000ULL);
-
+    deltaT12 = t2 - t1;
+    printf("[INFO] OCL Training time: %lf s\n", deltaT12.count());
+    printf("[VERBOSE] - rank one updating time: %llu ms, R updating time: %llu ms\n", t_rank_one_update / 1000000ULL, t_update_ratings / 1000000ULL);
 
     CL_CHECK(clReleaseKernel(UpdateRating_DUAL_kernel_NoLoss_c));
     CL_CHECK(clReleaseKernel(UpdateRating_DUAL_kernel_NoLoss_r));
@@ -285,4 +295,3 @@ void cdmf_ocl(smat_t& R, mat_t& W_c, mat_t& H_c, parameter& param, char filename
     CL_CHECK(clReleaseDevice(devices[0]));
     free(devices);
 }
-
