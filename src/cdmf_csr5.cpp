@@ -214,8 +214,8 @@ void cdmf_csr5(smat_t& R, mat_t& W_c, mat_t& H_c, parameter& param, char filenam
 
     cl_ulong t_update_ratings = 0;
     cl_ulong t_rank_one_update = 0;
-//    cl_ulong t_start;
-//    cl_ulong t_end;
+    cl_ulong t_start;
+    cl_ulong t_end;
 
     auto t1 = std::chrono::high_resolution_clock::now();
     for (int oiter = 1; oiter <= param.maxiter; ++oiter) {
@@ -226,10 +226,10 @@ void cdmf_csr5(smat_t& R, mat_t& W_c, mat_t& H_c, parameter& param, char filenam
             CL_CHECK(clEnqueueWriteBuffer(commandQueue, WBuffer, CL_TRUE, 0, R.rows * sizeof (VALUE_TYPE), Wt, 0, nullptr, nullptr));
             CL_CHECK(clEnqueueWriteBuffer(commandQueue, HBuffer, CL_TRUE, 0, R.cols * sizeof (VALUE_TYPE), Ht, 0, nullptr, nullptr));
 
-            /*if (oiter > 1)
+            if (oiter > 1)
             {
-                //Av.asCSR_();
-                //Au.asCSR_();
+                Av.asCSR_();
+                Au.asCSR_();
                 // update the rating matrix in CSC format (+)
                 cl_event eventPoint;
                 CL_CHECK(clEnqueueNDRangeKernel (commandQueue, UpdateRating_DUAL_kernel_NoLoss_c, 1,
@@ -248,9 +248,9 @@ void cdmf_csr5(smat_t& R, mat_t& W_c, mat_t& H_c, parameter& param, char filenam
                 t_update_ratings += t_end - t_start;
                 CL_CHECK(clReleaseEvent (eventPoint));
 
-                //Av.asCSR5_();
-                //Au.asCSR5_();
-            }*/
+                Av.asCSR5_();
+                Au.asCSR5_();
+            }
             for (int iter = 1; iter <= param.maxinneriter; ++iter) {
                 cl_event eventPoint1v, eventPoint1u;
 
@@ -270,10 +270,10 @@ void cdmf_csr5(smat_t& R, mat_t& W_c, mat_t& H_c, parameter& param, char filenam
             // Reading Buffer
             CL_CHECK(clEnqueueReadBuffer (commandQueue, WBuffer, CL_TRUE, 0, R.rows * sizeof (VALUE_TYPE), Wt, 0, nullptr, nullptr));
             CL_CHECK(clEnqueueReadBuffer (commandQueue, HBuffer, CL_TRUE, 0, R.cols * sizeof (VALUE_TYPE), Ht, 0, nullptr, nullptr));
-            //Av.asCSR_();
-            //Au.asCSR_();
+            Av.asCSR_();
+            Au.asCSR_();
             // update the rating matrix in CSC format (-)
-            /*cl_event eventPoint2c, eventPoint2r;
+            cl_event eventPoint2c, eventPoint2r;
             CL_CHECK(clEnqueueNDRangeKernel (commandQueue,  UpdateRating_DUAL_kernel_NoLoss_c_, 1, NULL,
                         gws_col, local_work_size, 0, NULL, &eventPoint2c));
             CL_CHECK(clWaitForEvents (1, &eventPoint2c));
@@ -289,10 +289,10 @@ void cdmf_csr5(smat_t& R, mat_t& W_c, mat_t& H_c, parameter& param, char filenam
             clGetEventProfilingInfo(eventPoint2r, CL_PROFILING_COMMAND_END, sizeof(cl_ulong), &t_end, NULL);
             t_update_ratings += t_end - t_start;
             CL_CHECK(clReleaseEvent (eventPoint2c));
-            CL_CHECK(clReleaseEvent (eventPoint2r));*/
+            CL_CHECK(clReleaseEvent (eventPoint2r));
 
-            //Av.asCSR5_();
-            //Au.asCSR5_();
+            Av.asCSR5_();
+            Au.asCSR5_();
 
         }
     }
