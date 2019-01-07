@@ -223,30 +223,29 @@ void cdmf_csr5(smat_t& R, mat_t& W_c, mat_t& H_c, parameter& param, char filenam
             // Writing Buffer
             Wt = &(W_c[t][0]); // u
             Ht = &(H_c[t][0]); // v
-            CL_CHECK(clEnqueueWriteBuffer(commandQueue, WBuffer, CL_TRUE, 0, R.rows * sizeof (VALUE_TYPE), Wt, 0, nullptr, nullptr));
-            CL_CHECK(clEnqueueWriteBuffer(commandQueue, HBuffer, CL_TRUE, 0, R.cols * sizeof (VALUE_TYPE), Ht, 0, nullptr, nullptr));
+            CL_CHECK(clEnqueueWriteBuffer(commandQueue, WBuffer, CL_TRUE, 0, R.rows * sizeof(VALUE_TYPE), Wt, 0, nullptr, nullptr));
+            CL_CHECK(clEnqueueWriteBuffer(commandQueue, HBuffer, CL_TRUE, 0, R.cols * sizeof(VALUE_TYPE), Ht, 0, nullptr, nullptr));
 
-            if (oiter > 1)
-            {
+            if (oiter > 1) {
                 Av.asCSR_();
                 Au.asCSR_();
                 // update the rating matrix in CSC format (+)
                 cl_event eventPoint;
-                CL_CHECK(clEnqueueNDRangeKernel (commandQueue, UpdateRating_DUAL_kernel_NoLoss_c, 1,
-                            NULL, gws_col, local_work_size, 0, NULL, &eventPoint));
-                CL_CHECK(clWaitForEvents (1, &eventPoint));
+                CL_CHECK(clEnqueueNDRangeKernel(commandQueue, UpdateRating_DUAL_kernel_NoLoss_c, 1, NULL, gws_col, local_work_size, 0, NULL, &eventPoint));
+                CL_CHECK(clWaitForEvents(1, &eventPoint));
                 clGetEventProfilingInfo(eventPoint, CL_PROFILING_COMMAND_START, sizeof(cl_ulong), &t_start, NULL);
                 clGetEventProfilingInfo(eventPoint, CL_PROFILING_COMMAND_END, sizeof(cl_ulong), &t_end, NULL);
                 t_update_ratings += t_end - t_start;
 
                 // update the rating matrix in CSR format (+)
-                CL_CHECK(clEnqueueNDRangeKernel (commandQueue, UpdateRating_DUAL_kernel_NoLoss_r, 1,
-                            NULL, gws_row, local_work_size, 0, NULL, &eventPoint));
-                CL_CHECK(clWaitForEvents (1, &eventPoint));
+                CL_CHECK(clEnqueueNDRangeKernel(commandQueue, UpdateRating_DUAL_kernel_NoLoss_r, 1, NULL, gws_row, local_work_size, 0, NULL, &eventPoint));
+                CL_CHECK(clWaitForEvents(1, &eventPoint));
+
                 clGetEventProfilingInfo(eventPoint, CL_PROFILING_COMMAND_START, sizeof(cl_ulong), &t_start, NULL);
                 clGetEventProfilingInfo(eventPoint, CL_PROFILING_COMMAND_END, sizeof(cl_ulong), &t_end, NULL);
                 t_update_ratings += t_end - t_start;
-                CL_CHECK(clReleaseEvent (eventPoint));
+
+                CL_CHECK(clReleaseEvent(eventPoint));
 
                 Av.asCSR5_();
                 Au.asCSR5_();
@@ -256,40 +255,42 @@ void cdmf_csr5(smat_t& R, mat_t& W_c, mat_t& H_c, parameter& param, char filenam
 
                 // update vector v
                 CL_CHECK(Av.spmv(1.0, HtBuffer, HbBuffer, &time));
-                CL_CHECK(clEnqueueNDRangeKernel (commandQueue, _kernel_CALV, 1, nullptr, gws_col, local_work_size, 0, nullptr, &eventPoint1v));
-                CL_CHECK(clWaitForEvents (1, &eventPoint1v));
+                CL_CHECK(clEnqueueNDRangeKernel(commandQueue, _kernel_CALV, 1, nullptr, gws_col, local_work_size, 0, nullptr, &eventPoint1v));
+                CL_CHECK(clWaitForEvents(1, &eventPoint1v));
 
                 // update vector u
                 CL_CHECK(Au.spmv(1.0, WtBuffer, WbBuffer, &time));
-                CL_CHECK(clEnqueueNDRangeKernel (commandQueue, _kernel_CALU, 1, nullptr, gws_row, local_work_size, 0, nullptr, &eventPoint1u));
-                CL_CHECK(clWaitForEvents (1, &eventPoint1u));
+                CL_CHECK(clEnqueueNDRangeKernel(commandQueue, _kernel_CALU, 1, nullptr, gws_row, local_work_size, 0, nullptr, &eventPoint1u));
+                CL_CHECK(clWaitForEvents(1, &eventPoint1u));
 
-                CL_CHECK(clReleaseEvent (eventPoint1v));
-                CL_CHECK(clReleaseEvent (eventPoint1u));
+                CL_CHECK(clReleaseEvent(eventPoint1v));
+                CL_CHECK(clReleaseEvent(eventPoint1u));
             }
             // Reading Buffer
-            CL_CHECK(clEnqueueReadBuffer (commandQueue, WBuffer, CL_TRUE, 0, R.rows * sizeof (VALUE_TYPE), Wt, 0, nullptr, nullptr));
-            CL_CHECK(clEnqueueReadBuffer (commandQueue, HBuffer, CL_TRUE, 0, R.cols * sizeof (VALUE_TYPE), Ht, 0, nullptr, nullptr));
+            CL_CHECK(clEnqueueReadBuffer(commandQueue, WBuffer, CL_TRUE, 0, R.rows * sizeof(VALUE_TYPE), Wt, 0, nullptr, nullptr));
+            CL_CHECK(clEnqueueReadBuffer(commandQueue, HBuffer, CL_TRUE, 0, R.cols * sizeof(VALUE_TYPE), Ht, 0, nullptr, nullptr));
             Av.asCSR_();
             Au.asCSR_();
+
             // update the rating matrix in CSC format (-)
             cl_event eventPoint2c, eventPoint2r;
-            CL_CHECK(clEnqueueNDRangeKernel (commandQueue,  UpdateRating_DUAL_kernel_NoLoss_c_, 1, NULL,
-                        gws_col, local_work_size, 0, NULL, &eventPoint2c));
-            CL_CHECK(clWaitForEvents (1, &eventPoint2c));
+            CL_CHECK(clEnqueueNDRangeKernel(commandQueue, UpdateRating_DUAL_kernel_NoLoss_c_, 1, NULL, gws_col, local_work_size, 0, NULL, &eventPoint2c));
+            CL_CHECK(clWaitForEvents(1, &eventPoint2c));
+
             clGetEventProfilingInfo(eventPoint2c, CL_PROFILING_COMMAND_START, sizeof(cl_ulong), &t_start, NULL);
             clGetEventProfilingInfo(eventPoint2c, CL_PROFILING_COMMAND_END, sizeof(cl_ulong), &t_end, NULL);
             t_update_ratings += t_end - t_start;
 
             // update the rating matrix in CSR format (-)
-            CL_CHECK(clEnqueueNDRangeKernel (commandQueue, UpdateRating_DUAL_kernel_NoLoss_r_, 1, NULL,
-                        gws_row, local_work_size, 0, NULL, &eventPoint2r));
-            CL_CHECK(clWaitForEvents (1, &eventPoint2r));
+            CL_CHECK(clEnqueueNDRangeKernel(commandQueue, UpdateRating_DUAL_kernel_NoLoss_r_, 1, NULL, gws_row, local_work_size, 0, NULL, &eventPoint2r));
+            CL_CHECK(clWaitForEvents(1, &eventPoint2r));
+
             clGetEventProfilingInfo(eventPoint2r, CL_PROFILING_COMMAND_START, sizeof(cl_ulong), &t_start, NULL);
             clGetEventProfilingInfo(eventPoint2r, CL_PROFILING_COMMAND_END, sizeof(cl_ulong), &t_end, NULL);
             t_update_ratings += t_end - t_start;
-            CL_CHECK(clReleaseEvent (eventPoint2c));
-            CL_CHECK(clReleaseEvent (eventPoint2r));
+
+            CL_CHECK(clReleaseEvent(eventPoint2c));
+            CL_CHECK(clReleaseEvent(eventPoint2r));
 
             Av.asCSR5_();
             Au.asCSR5_();
