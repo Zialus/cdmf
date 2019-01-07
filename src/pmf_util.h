@@ -17,7 +17,7 @@ public:
 class entry_iterator_t {
 private:
     FILE* fp;
-    char buf[1000];
+    char buf[1000]{};
 public:
     bool with_weights;
     size_t nnz;
@@ -29,22 +29,20 @@ public:
     }
 
     virtual rate_t next() {
-        int i = 1, j = 1;
+        unsigned i = 1, j = 1;
         VALUE_TYPE v = 0, w = 1.0;
         if (nnz > 0) {
             CHECK_FGETS(fgets(buf, 1000, fp));
             if (with_weights) {
-                (sizeof(VALUE_TYPE) == 8) ? (sscanf(buf, "%d %d %lf %lf", &i, &j, &v, &w)) :
-                (sscanf(buf, "%d %d %f %f", &i, &j, &v, &w));
+                (sizeof(VALUE_TYPE) == 8) ? (sscanf(buf, "%u %u %lf %lf", &i, &j, &v, &w)) : (sscanf(buf, "%u %u %f %f", &i, &j, &v, &w));
             } else {
-                (sizeof(VALUE_TYPE) == 8) ? (sscanf(buf, "%d %d %lf", &i, &j, &v)) :
-                (sscanf(buf, "%d %d %f", &i, &j, &v));
+                (sizeof(VALUE_TYPE) == 8) ? (sscanf(buf, "%u %u %lf", &i, &j, &v)) : (sscanf(buf, "%u %u %f", &i, &j, &v));
             }
             --nnz;
         } else {
             fprintf(stderr, "Error: no more entry to iterate !!\n");
         }
-        return rate_t(i - 1, j - 1, v, w);
+        return {i - 1, j - 1, v, w};
     }
 
     virtual ~entry_iterator_t() {
@@ -52,7 +50,7 @@ public:
     }
 };
 
-// Comparator for sorting rates into row/column comopression storage
+// Comparator for sorting rates into row/column compression storage
 class SparseComp {
 public:
     const unsigned* row_idx;
@@ -221,7 +219,7 @@ public:
 
     ~smat_t() {
         if (mem_alloc_by_me) {
-            //puts("Warnning: Somebody just free me.");
+            //puts("Warning: Somebody just freed me.");
             free(val);
             free(val_t);
             free(row_ptr);
@@ -248,7 +246,6 @@ public:
         }
         mem_alloc_by_me = false;
         with_weights = false;
-
     }
 
     smat_t transpose() {
