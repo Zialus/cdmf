@@ -298,17 +298,17 @@ void exit_with_help() {
     printf(
             "Usage: cdmf [options] data_dir\n"
             "options:\n"
-            "    -c : path to the kernel code (default \"../kcode/\")\n"
-            "    -k rank : set the rank (default 10)\n"
-            "    -n threads : set the number of threads for OpenMP (default 16)\n"
-            "    -l lambda : set the regularization parameter lambda (default 0.1)\n"
-            "    -t max_iter: set the number of iterations (default 5)\n"
-            "    -T max_iter: set the number of inner iterations used in CCDR1 (default 5)\n"
+            "    -c: path to the kernel code (default \"../kcode/\")\n"
+            "    -k rank: set the rank (default 10)\n"
+            "    -n threads: set the number of threads for OpenMP (default 16)\n"
+            "    -l lambda: set the regularization parameter lambda (default 0.1)\n"
+            "    -t max_outer_iter: set the number of outer iterations (default 5)\n"
+            "    -T max_inner_iter: set the number of inner iterations used in CCD (default 5)\n"
             "    -d device_type: select a device (0=gpu, 1=cpu, 2=mic) (default 0)\n"
             "    -P platform_id: select an opencl platform id (default 0)\n"
             "    -q verbose: show information or not (default 0)\n"
-            "    -nBlocks: Number of blocks on cuda (default 16)\n"
-            "    -nThreadsPerBlock: Number of threads per block on cuda (default 32)\n"
+            "    -nBlocks: Number of blocks (default 16)\n"
+            "    -nThreadsPerBlock: Number of threads per block (default 32)\n"
     );
     exit(EXIT_FAILURE);
 }
@@ -341,7 +341,7 @@ parameter parse_command_line(int argc, char** argv) {
                     param.threads = atoi(argv[i]);
                     break;
                 case 'l':
-                    param.lambda = atof(argv[i]);
+                    param.lambda = (VALUE_TYPE) atof(argv[i]);
                     break;
                 case 't':
                     param.maxiter = atoi(argv[i]);
@@ -407,16 +407,10 @@ parameter parse_command_line(int argc, char** argv) {
 
 void golden_compare(mat_t W, mat_t W_ref, unsigned k, unsigned m) {
     int error_count = 0;
-    double epsilon;
-    if (sizeof(VALUE_TYPE) == 8) {
-        epsilon = 0.000000000001;
-    } else {
-        epsilon = 0.001;
-    }
     for (unsigned i = 0; i < k; i++) {
         for (unsigned j = 0; j < m; j++) {
             double delta = fabs(W[i][j] - W_ref[i][j]);
-            if (delta > epsilon) {
+            if (delta > 0.1 * fabs(W_ref[i][j])) {
 //                std::cout << i << "|" << j << " = " << delta << "\n\t";
 //                std::cout << W[i][j] << "\n\t" << W_ref[i][j];
 //                std::cout << std::endl;
@@ -428,7 +422,7 @@ void golden_compare(mat_t W, mat_t W_ref, unsigned k, unsigned m) {
         std::cout << "Check... PASS!" << std::endl;
     } else {
         int entries = k * m;
-        float error_percentage = (float) error_count / entries;
+        double error_percentage = (double) error_count / entries;
         printf("Check... NO PASS! [%f%%] #Error = %d out of %d entries.\n", error_percentage, error_count, entries);
     }
 }

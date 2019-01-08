@@ -12,7 +12,7 @@ set(CMAKE_CXX_STANDARD 14)
 #set(CMAKE_VERBOSE_MAKEFILE ON)
 
 # Add some compilation flags
-set(VALUE "-DVALUE_TYPE=double")
+set(VALUE "-DVALUE_TYPE=float")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${VALUE}")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${VALUE}")
 

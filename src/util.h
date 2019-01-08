@@ -1,18 +1,18 @@
 #ifndef UTIL_H
 #define UTIL_H
 
-#include <cmath>
 #include <cassert>
+#include <cmath>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
 
-#include <iostream>
 #include <algorithm>
-#include <vector>
-#include <fstream>
-#include <sstream>
 #include <chrono>
+#include <fstream>
+#include <iostream>
+#include <sstream>
+#include <vector>
 
 #define MALLOC(type, size) (type*)malloc(sizeof(type)*(size))
 #define SIZEBITS(type, size) sizeof(type)*(size)
@@ -31,4 +31,4 @@
     exit(EXIT_FAILURE); \
 }
 
-#endif // UTIL_H
+#endif //UTIL_H

@@ -18,13 +18,6 @@ inline char* getT(unsigned sz) {
     return (char*) "float";
 }
 
-template<typename T>
-inline std::string to_string(T value) {
-    std::ostringstream os;
-    os << value;
-    return os.str();
-}
-
 const char* get_error_string(cl_int err);
 
 void convertToString(const char* filename, std::string& s);
@@ -55,4 +48,4 @@ void calculate_rmse(const mat_t& W_c, const mat_t& H_c, const char* srcdir, unsi
 
 void print_matrix(mat_t M, unsigned k, unsigned n);
 
-#endif // TOOLS_H
+#endif //TOOLS_H
