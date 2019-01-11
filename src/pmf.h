@@ -14,7 +14,7 @@ public:
     int maxinneriter = 5;
     int maxiter = 5;
     unsigned k = 10;
-    VALUE_TYPE lambda = 0.1;
+    VALUE_TYPE lambda = (VALUE_TYPE) 0.1;
 
     unsigned platform_id = 0;
     int verbose = 0;
