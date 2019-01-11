@@ -36,6 +36,7 @@ matrix:
       env:
         - MATRIX_EVAL="CC=clang-3.9 && CXX=clang++"
       before_install:
+        - brew update
         - brew install llvm@3.9 && brew link --overwrite llvm@3.9 --force
       install: &mac_extra
         - brew install clinfo
@@ -44,6 +45,7 @@ matrix:
       env:
         - MATRIX_EVAL="CC=clang-4.0 && CXX=clang++"
       before_install:
+        - brew update
         - brew install llvm@4 && brew link --overwrite llvm@4 --force
       install: *mac_extra
     - os: osx
@@ -51,6 +53,7 @@ matrix:
       env:
         - MATRIX_EVAL="CC=clang-5.0 && CXX=clang++"
       before_install:
+        - brew update
         - brew install llvm@5 && brew link --overwrite llvm@5 --force
       install: *mac_extra
     - os: osx
@@ -58,6 +61,7 @@ matrix:
       env:
         - MATRIX_EVAL="CC=clang-6.0 && CXX=clang++"
       before_install:
+        - brew update
         - brew install llvm@6 && brew link --overwrite llvm@6 --force
       install: *mac_extra
     - os: osx
@@ -65,6 +69,7 @@ matrix:
       env:
         - MATRIX_EVAL="CC=clang-7 && CXX=clang++"
       before_install:
+        - brew update
         - brew install llvm@7 && brew link --overwrite llvm@7 --force
         - export PATH="/usr/local/opt/llvm/bin:$PATH"
         - export LDFLAGS="-L/usr/local/opt/llvm/lib"
@@ -77,6 +82,7 @@ matrix:
       env:
         - MATRIX_EVAL="CC=gcc-4.9 && CXX=g++-4.9"
       before_install:
+        - brew update
         - brew install gcc@4.9
       install: *mac_extra
     - os: osx
@@ -84,6 +90,7 @@ matrix:
       env:
         - MATRIX_EVAL="CC=gcc-5 && CXX=g++-5"
       before_install:
+        - brew update
         - brew install gcc@5
       install: *mac_extra
     - os: osx
@@ -91,6 +98,7 @@ matrix:
       env:
         - MATRIX_EVAL="CC=gcc-6 && CXX=g++-6"
       before_install:
+        - brew update
         - brew install gcc@6
       install: *mac_extra
     - os: osx
@@ -98,14 +106,16 @@ matrix:
       env:
         - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
       before_install:
+        - brew update
         - brew install gcc@7
       install: *mac_extra
     - os: osx
-      osx_image: xcode10
+      osx_image: xcode10.1
       env:
         - MATRIX_EVAL="CC=gcc-8 && CXX=g++-8"
       before_install:
-        - brew install gcc@8
+        - brew update
+        - brew link gcc@8
       install: *mac_extra
 
     ######## LINUX CLANG ########
@@ -224,7 +234,7 @@ matrix:
           packages:
             - g++-8
       install: *linux_extras
-    
+
 
     # SONARCLOUD
     - os: linux
