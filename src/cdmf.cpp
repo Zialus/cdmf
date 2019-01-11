@@ -17,9 +17,8 @@ int main(int argc, char** argv) {
     std::cout << "[info] Loading R matrix..." << std::endl;
     auto t3 = std::chrono::high_resolution_clock::now();
     smat_t R;
-    bool with_weights = false;
     bool ifALS = false;
-    load(param.scr_dir, R, ifALS, with_weights);
+    load(param.scr_dir, R, ifALS);
     auto t4 = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> deltaT34 = t4 - t3;
     std::cout << "[info] Loading rating data time: " << deltaT34.count() << "s.\n";

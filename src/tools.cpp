@@ -268,7 +268,7 @@ int report_device(cl_device_id device_id) {
     return 0;
 }
 
-void load(const char* srcdir, smat_t& R, bool ifALS, bool with_weights) {
+void load(const char* srcdir, smat_t& R, bool ifALS) {
     char filename[2048], buf[1024];
     snprintf(filename, sizeof(filename), "%s/meta", srcdir);
     FILE* fp = fopen(filename, "r");
@@ -280,7 +280,7 @@ void load(const char* srcdir, smat_t& R, bool ifALS, bool with_weights) {
     CHECK_FSCAN(fscanf(fp, "%u %u", &m, &n), 2);
     CHECK_FSCAN(fscanf(fp, "%u %1023s", &nnz, buf), 2);
     snprintf(filename, sizeof(filename), "%s/%s", srcdir, buf);
-    R.load(m, n, nnz, filename, ifALS, with_weights);
+    R.load(m, n, nnz, filename, ifALS);
     fclose(fp);
 }
 

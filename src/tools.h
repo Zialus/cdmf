@@ -34,7 +34,7 @@ void print_platform_info(cl_platform_id* platforms, unsigned id);
 
 int report_device(cl_device_id device_id);
 
-void load(const char* srcdir, smat_t& R, bool ifALS, bool with_weights);
+void load(const char* srcdir, smat_t& R, bool ifALS);
 
 void initial_col(mat_t& X, unsigned k, unsigned n);
 

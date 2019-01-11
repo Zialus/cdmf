@@ -8,46 +8,9 @@ typedef std::vector<vec_t> mat_t;
 
 class rate_t {
 public:
-    unsigned i, j;
-    VALUE_TYPE v, weight;
-
-    rate_t(unsigned ii = 0, unsigned jj = 0, VALUE_TYPE vv = 0, VALUE_TYPE ww = 1.0) : i(ii), j(jj), v(vv), weight(ww) {}
-};
-
-class entry_iterator_t {
-private:
-    FILE* fp;
-    char buf[1000]{};
-public:
-    bool with_weights;
-    size_t nnz;
-
-    entry_iterator_t(size_t nnz_, const char* filename, bool with_weights_ = false) {
-        nnz = nnz_;
-        fp = fopen(filename, "r");
-        with_weights = with_weights_;
-    }
-
-    virtual rate_t next() {
-        unsigned i = 1, j = 1;
-        VALUE_TYPE v = 0, w = 1.0;
-        if (nnz > 0) {
-            CHECK_FGETS(fgets(buf, 1000, fp));
-            if (with_weights) {
-                (sizeof(VALUE_TYPE) == 8) ? (sscanf(buf, "%u %u %lf %lf", &i, &j, &v, &w)) : (sscanf(buf, "%u %u %f %f", &i, &j, &v, &w));
-            } else {
-                (sizeof(VALUE_TYPE) == 8) ? (sscanf(buf, "%u %u %lf", &i, &j, &v)) : (sscanf(buf, "%u %u %f", &i, &j, &v));
-            }
-            --nnz;
-        } else {
-            fprintf(stderr, "Error: no more entry to iterate !!\n");
-        }
-        return {i - 1, j - 1, v, w};
-    }
-
-    virtual ~entry_iterator_t() {
-        if (fp) { fclose(fp); }
-    }
+    unsigned i;
+    unsigned j;
+    VALUE_TYPE v;
 };
 
 // Comparator for sorting rates into row/column compression storage
@@ -67,55 +30,70 @@ public:
 };
 
 // Sparse matrix format CCS & RCS
-// Access column fomat only when you use it..
+// Access column format only when you use it..
 class smat_t {
 public:
-    unsigned rows, cols;
-    unsigned nnz, max_row_nnz, max_col_nnz;
-    VALUE_TYPE* val, * val_t;
-    size_t nbits_val, nbits_val_t;
-    VALUE_TYPE* weight, * weight_t;
-    size_t nbits_weight, nbits_weight_t;
-    unsigned* col_ptr, * row_ptr;
-    size_t nbits_col_ptr, nbits_row_ptr;
-    unsigned* col_nnz, * row_nnz;
-    size_t nbits_col_nnz, nbits_row_nnz;
-    unsigned* row_idx, * col_idx;    // condensed
-    size_t nbits_row_idx, nbits_col_idx;
+    unsigned rows;
+    unsigned cols;
+    unsigned nnz;
+    unsigned max_row_nnz;
+    unsigned max_col_nnz;
+    VALUE_TYPE* val;
+    VALUE_TYPE* val_t;
+    size_t nbits_val;
+    size_t nbits_val_t;
+    unsigned* col_ptr;
+    unsigned* row_ptr;
+    size_t nbits_col_ptr;
+    size_t nbits_row_ptr;
+    unsigned* col_nnz;
+    unsigned* row_nnz;
+    size_t nbits_col_nnz;
+    size_t nbits_row_nnz;
+    unsigned* row_idx;
+    unsigned* col_idx;
+    size_t nbits_row_idx;
+    size_t nbits_col_idx;
     unsigned* colMajored_sparse_idx;
     size_t nbits_colMajored_sparse_idx;
-    bool mem_alloc_by_me, with_weights;
+    bool mem_alloc_by_me;
 
-    smat_t() : mem_alloc_by_me(false), with_weights(false) {}
+    smat_t() : mem_alloc_by_me(false) {}
 
     smat_t(const smat_t& m) {
         *this = m;
         mem_alloc_by_me = false;
     }
 
-    void load(unsigned _rows, unsigned _cols, unsigned _nnz, const char* filename, bool ifALS, bool use_weights = false) {
-        entry_iterator_t entry_it(_nnz, filename, use_weights);
-        load_from_iterator(_rows, _cols, _nnz, &entry_it, ifALS);
+    rate_t read_next_line(FILE* fp) {
+        unsigned i;
+        unsigned j;
+        VALUE_TYPE v;
+        if (sizeof(VALUE_TYPE) == 8) {
+            CHECK_FSCAN(fscanf(fp, "%u %u %lf", &i, &j, &v), 3);
+        } else {
+            CHECK_FSCAN(fscanf(fp, "%u %u %f", &i, &j, &v), 3);
+        };
+        return {i - 1, j - 1, v};
     }
 
-    void load_from_iterator(unsigned _rows, unsigned _cols, unsigned _nnz, entry_iterator_t* entry_it, bool ifALS) {
+    void load(unsigned _rows, unsigned _cols, unsigned _nnz, const char* filename, bool ifALS) {
+        FILE* fp = fopen(filename, "r");
+        load_from_file(_rows, _cols, _nnz, ifALS, fp);
+        fclose(fp);
+    }
+
+    void load_from_file(unsigned _rows, unsigned _cols, unsigned _nnz, bool ifALS, FILE* fp) {
         rows = _rows;
         cols = _cols;
         nnz = _nnz;
         mem_alloc_by_me = true;
-        with_weights = entry_it->with_weights;
         val = MALLOC(VALUE_TYPE, nnz);
         val_t = MALLOC(VALUE_TYPE, nnz);
         nbits_val = SIZEBITS(VALUE_TYPE, nnz);
         nbits_val_t = SIZEBITS(VALUE_TYPE, nnz);
-        if (with_weights) {
-            weight = MALLOC(VALUE_TYPE, nnz);
-            weight_t = MALLOC(VALUE_TYPE, nnz);
-            nbits_weight = SIZEBITS(VALUE_TYPE, nnz);
-            nbits_weight_t = SIZEBITS(VALUE_TYPE, nnz);
-        }
         row_idx = MALLOC(unsigned, nnz);
-        col_idx = MALLOC(unsigned, nnz);  // switch to this for memory
+        col_idx = MALLOC(unsigned, nnz);
         nbits_row_idx = SIZEBITS(unsigned, nnz);
         nbits_col_idx = SIZEBITS(unsigned, nnz);
         row_ptr = MALLOC(unsigned, rows + 1);
@@ -134,17 +112,13 @@ public:
         unsigned* tmp_row_idx = col_idx;
         unsigned* tmp_col_idx = row_idx;
         VALUE_TYPE* tmp_val = val;
-        VALUE_TYPE* tmp_weight = weight;
         for (unsigned idx = 0; idx < _nnz; idx++) {
-            rate_t rate = entry_it->next();
+            rate_t rate = read_next_line(fp);
             row_ptr[rate.i + 1]++;
             col_ptr[rate.j + 1]++;
             tmp_row_idx[idx] = rate.i;
             tmp_col_idx[idx] = rate.j;
             tmp_val[idx] = rate.v;
-            if (with_weights) {
-                tmp_weight[idx] = rate.weight;
-            }
             perm[idx] = idx;
         }
         // sort entries into row-majored ordering
@@ -154,9 +128,6 @@ public:
         for (unsigned idx = 0; idx < _nnz; idx++) {
             val_t[idx] = tmp_val[perm[idx]];
             col_idx[idx] = tmp_col_idx[perm[idx]];
-            if (with_weights) {
-                weight_t[idx] = tmp_weight[idx];
-            }
         }
 
         // Calculate nnz for each row and col
@@ -176,7 +147,6 @@ public:
                 unsigned c = col_idx[i];
                 row_idx[col_ptr[c]] = r;
                 val[col_ptr[c]] = val_t[i];
-                if (with_weights) { weight[col_ptr[c]] = weight_t[i]; }
                 col_ptr[c]++;
             }
         }
@@ -184,8 +154,8 @@ public:
         col_ptr[0] = 0;
 
         if (ifALS) {
-            unsigned * mapIDX;
-            mapIDX = MALLOC(unsigned , rows);
+            unsigned* mapIDX;
+            mapIDX = MALLOC(unsigned, rows);
             for (unsigned r = 0; r < rows; ++r) {
                 mapIDX[r] = row_ptr[r];
             }
@@ -208,14 +178,10 @@ public:
         return sum / nnz;
     }
 
-    void remove_bias(VALUE_TYPE bias = 0) {
-        if (bias) {
-            for (unsigned i = 0; i < nnz; ++i) { val[i] -= bias; }
-            for (unsigned i = 0; i < nnz; ++i) { val_t[i] -= bias; }
-        }
+    void remove_bias(VALUE_TYPE bias) {
+        for (unsigned i = 0; i < nnz; ++i) { val[i] -= bias; }
+        for (unsigned i = 0; i < nnz; ++i) { val_t[i] -= bias; }
     }
-
-    void free(void* ptr) { if (ptr) { ::free(ptr); }}
 
     ~smat_t() {
         if (mem_alloc_by_me) {
@@ -226,10 +192,6 @@ public:
             free(row_idx);
             free(col_ptr);
             free(col_idx);
-            if (with_weights) {
-                free(weight);
-                free(weight_t);
-            }
         }
     }
 
@@ -240,12 +202,7 @@ public:
         free(row_idx);
         free(col_ptr);
         free(col_idx);
-        if (with_weights) {
-            free(weight);
-            free(weight_t);
-        }
         mem_alloc_by_me = false;
-        with_weights = false;
     }
 
     smat_t transpose() {
@@ -257,12 +214,7 @@ public:
         mt.val_t = val;
         mt.nbits_val = nbits_val_t;
         mt.nbits_val_t = nbits_val;
-        mt.with_weights = with_weights;
 
-        mt.weight = weight_t;
-        mt.weight_t = weight;
-        mt.nbits_weight = nbits_weight_t;
-        mt.nbits_weight_t = nbits_weight;
         mt.col_ptr = row_ptr;
         mt.row_ptr = col_ptr;
         mt.nbits_col_ptr = nbits_row_ptr;
