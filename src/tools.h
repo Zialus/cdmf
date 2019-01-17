@@ -48,4 +48,6 @@ void calculate_rmse(const mat_t& W_c, const mat_t& H_c, const char* srcdir, unsi
 
 void print_matrix(mat_t M, unsigned k, unsigned n);
 
+double executionTime(cl_event& event);
+
 #endif //TOOLS_H

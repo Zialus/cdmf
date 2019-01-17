@@ -490,3 +490,12 @@ void print_matrix(mat_t M, unsigned k, unsigned n) {
         printf("\n-----------------------------------------\n");
     }
 }
+
+double executionTime(cl_event& event) {
+    cl_ulong start, end;
+
+    CL_CHECK(clGetEventProfilingInfo(event, CL_PROFILING_COMMAND_END, sizeof(cl_ulong), &end, nullptr));
+    CL_CHECK(clGetEventProfilingInfo(event, CL_PROFILING_COMMAND_START, sizeof(cl_ulong), &start, nullptr));
+
+    return (double) 1.0e-9 * (end - start); // convert nanoseconds to seconds on return
+}
