@@ -55,7 +55,7 @@ inline VALUE_TYPE UpdateRating(smat_t& R, const vec_t& Wt, const vec_t& Ht, bool
             VALUE_TYPE Htc = Ht[c], loss_inner = 0;
             for (unsigned idx = R.col_ptr[c]; idx < R.col_ptr[c + 1]; ++idx) {
                 R.val[idx] += Wt[R.row_idx[idx]] * Htc;
-                loss_inner += 1.0 * R.val[idx] * R.val[idx];
+                loss_inner += R.val[idx] * R.val[idx];
             }
             loss += loss_inner;
         }
@@ -66,7 +66,7 @@ inline VALUE_TYPE UpdateRating(smat_t& R, const vec_t& Wt, const vec_t& Ht, bool
             VALUE_TYPE Htc = Ht[c], loss_inner = 0;
             for (unsigned idx = R.col_ptr[c]; idx < R.col_ptr[c + 1]; ++idx) {
                 R.val[idx] -= Wt[R.row_idx[idx]] * Htc;
-                loss_inner += 1.0 * R.val[idx] * R.val[idx];
+                loss_inner += R.val[idx] * R.val[idx];
             }
             loss += loss_inner;
         }
