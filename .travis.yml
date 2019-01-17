@@ -132,8 +132,8 @@ matrix:
             - libomp-dev
       install: &linux_extras
         - sudo apt-get install opencl-headers clinfo
-        - source scripts/intel_opencl_install.sh
-        - source scripts/cmake_install.sh
+        - source .ci/intel_opencl_install.sh
+        - source .ci/cmake_install.sh
     - os: linux
       env:
         - MATRIX_EVAL="CC=clang-4.0 && CXX=clang++-4.0"

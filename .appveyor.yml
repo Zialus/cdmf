@@ -84,7 +84,7 @@ for:
   before_build:
     - sudo apt-get update
     - sudo apt-get install ocl-icd-opencl-dev opencl-headers clinfo -y
-    - source scripts/intel_opencl_install.sh
+    - source .ci/intel_opencl_install.sh
 
   build_script: &linux_script
     - clinfo
@@ -103,7 +103,7 @@ for:
   before_build:
     - sudo apt-get update
     - sudo apt-get install clinfo  -y
-    - source scripts/amdappsdk_install.sh
+    - source .ci/amdappsdk_install.sh
     - echo $AMDAPPSDKROOT
     - ls -l $AMDAPPSDKROOT
 
