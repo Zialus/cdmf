@@ -6,9 +6,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <cmath>
-#include <cstring>
 
-#include <string>
 #include <iostream>
 
 #define ANONYMOUSLIB_SUCCESS                   0
