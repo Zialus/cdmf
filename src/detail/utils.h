@@ -14,12 +14,9 @@ double getFLOP(const iT nnz) {
 }
 
 template<typename T>
-void print_tile_t(T *input, int m, int n)
-{
-    for (int i = 0; i < n; i++)
-    {
-        for (int local_id = 0; local_id < m; local_id++)
-        {
+void print_tile_t(T* input, int m, int n) {
+    for (int i = 0; i < n; i++) {
+        for (int local_id = 0; local_id < m; local_id++) {
             std::cout << input[local_id * n + i] << ", ";
         }
         std::cout << std::endl;
@@ -27,12 +24,9 @@ void print_tile_t(T *input, int m, int n)
 }
 
 template<typename T>
-void print_tile(T *input, int m, int n)
-{
-    for (int i = 0; i < m; i++)
-    {
-        for (int local_id = 0; local_id < n; local_id++)
-        {
+void print_tile(T* input, int m, int n) {
+    for (int i = 0; i < m; i++) {
+        for (int local_id = 0; local_id < n; local_id++) {
             std::cout << input[i * n + local_id] << ", ";
         }
         std::cout << std::endl;
@@ -40,10 +34,10 @@ void print_tile(T *input, int m, int n)
 }
 
 template<typename T>
-void print_1darray(T *input, int l)
-{
-    for (int i = 0; i < l; i++)
+void print_1darray(T* input, int l) {
+    for (int i = 0; i < l; i++) {
         std::cout << input[i] << ", ";
+    }
     std::cout << std::endl;
 }
 
