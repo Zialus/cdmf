@@ -23,16 +23,13 @@ int format_warmup(cl_kernel           ocl_kernel_warmup,
 
     err  = clSetKernelArg(ocl_kernel_warmup, 0,  sizeof(cl_mem), (void*)&d_scan);
 
-    for (int i = 0; i < 50; i++)
-    {
-
-        err = clEnqueueNDRangeKernel(ocl_command_queue, ocl_kernel_warmup, 1,
-                                     nullptr, szGlobalWorkSize, szLocalWorkSize, 0, nullptr, nullptr);
-        if(err != CL_SUCCESS) { std::cout << "ocl_kernel_warmup kernel run error = " << err << std::endl; return err; }
+    for (int i = 0; i < 50; i++) {
+        err = clEnqueueNDRangeKernel(ocl_command_queue, ocl_kernel_warmup, 1, nullptr, szGlobalWorkSize, szLocalWorkSize, 0, nullptr, nullptr);
+        CL_CHECK(err);
     }
 
     if (d_scan) { err = clReleaseMemObject(d_scan); }
-    if (err != CL_SUCCESS) { return err; }
+    CL_CHECK(err);
 
     return err;
 }
@@ -76,13 +73,14 @@ int generate_partition_pointer(cl_kernel           ocl_kernel_generate_partition
     err |= clSetKernelArg(ocl_kernel_generate_partition_pointer_s1, 3, sizeof(cl_int), (void*)&p);
     err |= clSetKernelArg(ocl_kernel_generate_partition_pointer_s1, 4, sizeof(cl_int), (void*)&m);
     err |= clSetKernelArg(ocl_kernel_generate_partition_pointer_s1, 5, sizeof(cl_int), (void*)&nnz);
+    CL_CHECK(err);
 
     err = clEnqueueNDRangeKernel(ocl_command_queue, ocl_kernel_generate_partition_pointer_s1, 1,
                                  nullptr, szGlobalWorkSize, szLocalWorkSize, 0, nullptr, &ceTimer);
-    if(err != CL_SUCCESS) { std::cout << "ocl_kernel_generate_partition_pointer_s1 kernel run error = " << err << std::endl; return err; }
+    CL_CHECK(err);
 
     err = clWaitForEvents(1, &ceTimer);
-    if(err != CL_SUCCESS) { std::cout << "event error = " << err << std::endl; return err; }
+    CL_CHECK(err);
 
     basicCL.getEventTimer(ceTimer, &queuedTime, &submitTime, &startTime, &endTime);
     conv_time += double(endTime - startTime) / 1000000.0;
@@ -96,13 +94,14 @@ int generate_partition_pointer(cl_kernel           ocl_kernel_generate_partition
 
     err  = clSetKernelArg(ocl_kernel_generate_partition_pointer_s2, 0, sizeof(cl_mem), (void*)&row_pointer);
     err |= clSetKernelArg(ocl_kernel_generate_partition_pointer_s2, 1, sizeof(cl_mem), (void*)&partition_pointer);
+    CL_CHECK(err);
 
     err = clEnqueueNDRangeKernel(ocl_command_queue, ocl_kernel_generate_partition_pointer_s2, 1,
                                  nullptr, szGlobalWorkSize, szLocalWorkSize, 0, nullptr, &ceTimer);
-    if(err != CL_SUCCESS) { std::cout << "ocl_kernel_generate_partition_pointer_s2 kernel run error = " << err << std::endl; return err; }
+    CL_CHECK(err);
 
     err = clWaitForEvents(1, &ceTimer);
-    if(err != CL_SUCCESS) { std::cout << "event error = " << err << std::endl; return err; }
+    CL_CHECK(err);
 
     basicCL.getEventTimer(ceTimer, &queuedTime, &submitTime, &startTime, &endTime);
     conv_time += double(endTime - startTime) / 1000000.0;
@@ -161,13 +160,14 @@ int generate_partition_descriptor(cl_kernel           ocl_kernel_generate_partit
 
     err  = clSetKernelArg(ocl_kernel_generate_partition_descriptor_s0, 0, sizeof(cl_mem), (void*)&partition_descriptor);
     err |= clSetKernelArg(ocl_kernel_generate_partition_descriptor_s0, 1, sizeof(cl_int), (void*)&num_packet);
+    CL_CHECK(err);
 
     err = clEnqueueNDRangeKernel(ocl_command_queue, ocl_kernel_generate_partition_descriptor_s0, 1,
                                  nullptr, szGlobalWorkSize, szLocalWorkSize, 0, nullptr, &ceTimer);
-    if(err != CL_SUCCESS) { std::cout << "ocl_kernel_generate_partition_descriptor_s0 kernel run error = " << err << std::endl; return err; }
+    CL_CHECK(err);
 
     err = clWaitForEvents(1, &ceTimer);
-    if(err != CL_SUCCESS) { std::cout << "event error = " << err << std::endl; return err; }
+    CL_CHECK(err);
 
     basicCL.getEventTimer(ceTimer, &queuedTime, &submitTime, &startTime, &endTime);
     conv_time += double(endTime - startTime) / 1000000.0;
@@ -188,13 +188,14 @@ int generate_partition_descriptor(cl_kernel           ocl_kernel_generate_partit
     err |= clSetKernelArg(ocl_kernel_generate_partition_descriptor_s1, 3, sizeof(cl_int), (void*)&sigma);
     err |= clSetKernelArg(ocl_kernel_generate_partition_descriptor_s1, 4, sizeof(cl_int), (void*)&bit_all_offset);
     err |= clSetKernelArg(ocl_kernel_generate_partition_descriptor_s1, 5, sizeof(cl_int), (void*)&num_packet);
+    CL_CHECK(err);
 
     err = clEnqueueNDRangeKernel(ocl_command_queue, ocl_kernel_generate_partition_descriptor_s1, 1,
                                  nullptr, szGlobalWorkSize, szLocalWorkSize, 0, nullptr, &ceTimer);
-    if(err != CL_SUCCESS) { std::cout << "ocl_kernel_generate_partition_descriptor_s1 kernel run error = " << err << std::endl; return err; }
+    CL_CHECK(err);
 
     err = clWaitForEvents(1, &ceTimer);
-    if(err != CL_SUCCESS) { std::cout << "event error = " << err << std::endl; return err; }
+    CL_CHECK(err);
 
     basicCL.getEventTimer(ceTimer, &queuedTime, &submitTime, &startTime, &endTime);
     conv_time += double(endTime - startTime) / 1000000.0;
@@ -216,13 +217,14 @@ int generate_partition_descriptor(cl_kernel           ocl_kernel_generate_partit
     err |= clSetKernelArg(ocl_kernel_generate_partition_descriptor_s2, 5, sizeof(cl_int), (void*)&bit_y_offset);
     err |= clSetKernelArg(ocl_kernel_generate_partition_descriptor_s2, 6, sizeof(cl_int), (void*)&bit_scansum_offset);
     err |= clSetKernelArg(ocl_kernel_generate_partition_descriptor_s2, 7, sizeof(cl_int), (void*)&p);
+    CL_CHECK(err);
 
     err = clEnqueueNDRangeKernel(ocl_command_queue, ocl_kernel_generate_partition_descriptor_s2, 1,
                                  nullptr, szGlobalWorkSize, szLocalWorkSize, 0, nullptr, &ceTimer);
-    if(err != CL_SUCCESS) { std::cout << "ocl_kernel_generate_partition_descriptor_s2 kernel run error = " << err << std::endl; return err; }
+    CL_CHECK(err);
 
     err = clWaitForEvents(1, &ceTimer);
-    if(err != CL_SUCCESS) { std::cout << "event error = " << err << std::endl; return err; }
+    CL_CHECK(err);
 
     basicCL.getEventTimer(ceTimer, &queuedTime, &submitTime, &startTime, &endTime);
     conv_time += double(endTime - startTime) / 1000000.0;
@@ -253,22 +255,23 @@ int generate_partition_descriptor(cl_kernel           ocl_kernel_generate_partit
 
         err  = clSetKernelArg(ocl_kernel_generate_partition_descriptor_s3, 0, sizeof(cl_mem), (void*)&partition_descriptor_offset_pointer);
         err |= clSetKernelArg(ocl_kernel_generate_partition_descriptor_s3, 1, sizeof(cl_int), (void*)&p);
+        CL_CHECK(err);
 
         err = clEnqueueNDRangeKernel(ocl_command_queue, ocl_kernel_generate_partition_descriptor_s3, 1,
                                      nullptr, szGlobalWorkSize, szLocalWorkSize, 0, nullptr, &ceTimer);
-        if(err != CL_SUCCESS) { std::cout << "ocl_kernel_generate_partition_descriptor_s3 kernel run error = " << err << std::endl; return err; }
+        CL_CHECK(err);
 
         err = clWaitForEvents(1, &ceTimer);
-        if(err != CL_SUCCESS) { std::cout << "event error = " << err << std::endl; return err; }
+        CL_CHECK(err);
 
         basicCL.getEventTimer(ceTimer, &queuedTime, &submitTime, &startTime, &endTime);
         conv_time += double(endTime - startTime) / 1000000.0;
 
         err = clEnqueueReadBuffer(ocl_command_queue, partition_descriptor_offset_pointer, CL_TRUE,
                                   p * sizeof(ANONYMOUSLIB_IT), sizeof(ANONYMOUSLIB_IT), &num_offsets, 0, NULL, &ceTimer);
-        if(err != CL_SUCCESS) return err;
+        CL_CHECK(err);
         err = clWaitForEvents(1, &ceTimer);
-        if(err != CL_SUCCESS) { std::cout << "event error = " << err << std::endl; return err; }
+        CL_CHECK(err);
 
         basicCL.getEventTimer(ceTimer, &queuedTime, &submitTime, &startTime, &endTime);
         conv_time += double(endTime - startTime) / 1000000.0;
@@ -283,32 +286,31 @@ int generate_partition_descriptor(cl_kernel           ocl_kernel_generate_partit
 }
 
 template<typename ANONYMOUSLIB_IT, typename ANONYMOUSLIB_UIT>
-int generate_partition_descriptor_offset(cl_kernel           ocl_kernel_generate_partition_descriptor_offset,
-                                         cl_command_queue    ocl_command_queue,
-                                         const int           sigma,
-                                         const ANONYMOUSLIB_IT   p,
-                                         const int           bit_y_offset,
-                                         const int           bit_scansum_offset,
-                                         const int           num_packet,
-                                         cl_mem              row_pointer,
-                                         cl_mem              partition_pointer,
-                                         cl_mem              partition_descriptor,
-                                         cl_mem              partition_descriptor_offset_pointer,
-                                         cl_mem              partition_descriptor_offset,
-                                         double                    *time)
-{
+int generate_partition_descriptor_offset(cl_kernel ocl_kernel_generate_partition_descriptor_offset,
+                                         cl_command_queue ocl_command_queue,
+                                         const int sigma,
+                                         const ANONYMOUSLIB_IT p,
+                                         const int bit_y_offset,
+                                         const int bit_scansum_offset,
+                                         const int num_packet,
+                                         cl_mem row_pointer,
+                                         cl_mem partition_pointer,
+                                         cl_mem partition_descriptor,
+                                         cl_mem partition_descriptor_offset_pointer,
+                                         cl_mem partition_descriptor_offset,
+                                         double* time) {
     int err = ANONYMOUSLIB_SUCCESS;
 
     double conv_time = 0;
 
     BasicCL basicCL;
-    cl_event            ceTimer;                 // OpenCL event
-    cl_ulong            queuedTime;
-    cl_ulong            submitTime;
-    cl_ulong            startTime;
-    cl_ulong            endTime;
+    cl_event ceTimer;
+    cl_ulong queuedTime;
+    cl_ulong submitTime;
+    cl_ulong startTime;
+    cl_ulong endTime;
 
-    if (p <= 1) return err;
+    if (p <= 1) { return err; }
 
     size_t szLocalWorkSize[1];
     size_t szGlobalWorkSize[1];
@@ -319,25 +321,28 @@ int generate_partition_descriptor_offset(cl_kernel           ocl_kernel_generate
     szLocalWorkSize[0] = (size_t) num_threads;
     szGlobalWorkSize[0] = (size_t) num_blocks * szLocalWorkSize[0];
 
-    err  = clSetKernelArg(ocl_kernel_generate_partition_descriptor_offset, 0, sizeof(cl_mem), (void*)&row_pointer);
-    err |= clSetKernelArg(ocl_kernel_generate_partition_descriptor_offset, 1, sizeof(cl_mem), (void*)&partition_pointer);
-    err |= clSetKernelArg(ocl_kernel_generate_partition_descriptor_offset, 2, sizeof(cl_mem), (void*)&partition_descriptor);
-    err |= clSetKernelArg(ocl_kernel_generate_partition_descriptor_offset, 3, sizeof(cl_mem), (void*)&partition_descriptor_offset_pointer);
-    err |= clSetKernelArg(ocl_kernel_generate_partition_descriptor_offset, 4, sizeof(cl_mem), (void*)&partition_descriptor_offset);
-    err |= clSetKernelArg(ocl_kernel_generate_partition_descriptor_offset, 5, sizeof(cl_int), (void*)&p);
-    err |= clSetKernelArg(ocl_kernel_generate_partition_descriptor_offset, 6, sizeof(cl_int), (void*)&num_packet);
-    err |= clSetKernelArg(ocl_kernel_generate_partition_descriptor_offset, 7, sizeof(cl_int), (void*)&bit_y_offset);
-    err |= clSetKernelArg(ocl_kernel_generate_partition_descriptor_offset, 8, sizeof(cl_int), (void*)&bit_scansum_offset);
-    err |= clSetKernelArg(ocl_kernel_generate_partition_descriptor_offset, 9, sizeof(cl_int), (void*)&sigma);
+    err = clSetKernelArg(ocl_kernel_generate_partition_descriptor_offset, 0, sizeof(cl_mem), (void*) &row_pointer);
+    err |= clSetKernelArg(ocl_kernel_generate_partition_descriptor_offset, 1, sizeof(cl_mem), (void*) &partition_pointer);
+    err |= clSetKernelArg(ocl_kernel_generate_partition_descriptor_offset, 2, sizeof(cl_mem), (void*) &partition_descriptor);
+    err |= clSetKernelArg(ocl_kernel_generate_partition_descriptor_offset, 3, sizeof(cl_mem), (void*) &partition_descriptor_offset_pointer);
+    err |= clSetKernelArg(ocl_kernel_generate_partition_descriptor_offset, 4, sizeof(cl_mem), (void*) &partition_descriptor_offset);
+    err |= clSetKernelArg(ocl_kernel_generate_partition_descriptor_offset, 5, sizeof(cl_int), (void*) &p);
+    err |= clSetKernelArg(ocl_kernel_generate_partition_descriptor_offset, 6, sizeof(cl_int), (void*) &num_packet);
+    err |= clSetKernelArg(ocl_kernel_generate_partition_descriptor_offset, 7, sizeof(cl_int), (void*) &bit_y_offset);
+    err |= clSetKernelArg(ocl_kernel_generate_partition_descriptor_offset, 8, sizeof(cl_int), (void*) &bit_scansum_offset);
+    err |= clSetKernelArg(ocl_kernel_generate_partition_descriptor_offset, 9, sizeof(cl_int), (void*) &sigma);
+    CL_CHECK(err);
 
     err = clEnqueueNDRangeKernel(ocl_command_queue, ocl_kernel_generate_partition_descriptor_offset, 1,
                                  nullptr, szGlobalWorkSize, szLocalWorkSize, 0, nullptr, &ceTimer);
-    if(err != CL_SUCCESS) { std::cout << "ocl_kernel_generate_partition_descriptor_offset kernel run error = " << err << std::endl; return err; }
+    CL_CHECK(err);
 
     err = clWaitForEvents(1, &ceTimer);
-    if(err != CL_SUCCESS) { std::cout << "event error = " << err << std::endl; return err; }
+    CL_CHECK(err);
 
-    basicCL.getEventTimer(ceTimer, &queuedTime, &submitTime, &startTime, &endTime);
+    err = basicCL.getEventTimer(ceTimer, &queuedTime, &submitTime, &startTime, &endTime);
+    CL_CHECK(err);
+
     conv_time += double(endTime - startTime) / 1000000.0;
 
     *time = conv_time;
@@ -346,27 +351,26 @@ int generate_partition_descriptor_offset(cl_kernel           ocl_kernel_generate
 }
 
 template<typename ANONYMOUSLIB_IT, typename ANONYMOUSLIB_UIT, typename ANONYMOUSLIB_VT>
-int aosoa_transpose(cl_kernel           _ocl_kernel_aosoa_transpose_smem_iT,
-                    cl_kernel           _ocl_kernel_aosoa_transpose_smem_vT,
-                    cl_command_queue    ocl_command_queue,
-                    const int           sigma,
-                    const int           nnz,
-                    cl_mem              partition_pointer,
-                    cl_mem              column_index,
-                    cl_mem              value,
-                    int                R2C,
-                    double                    *time)
-{
-    int err = ANONYMOUSLIB_SUCCESS;
+int aosoa_transpose(cl_kernel _ocl_kernel_aosoa_transpose_smem_iT,
+                    cl_kernel _ocl_kernel_aosoa_transpose_smem_vT,
+                    cl_command_queue ocl_command_queue,
+                    const int sigma,
+                    const int nnz,
+                    cl_mem partition_pointer,
+                    cl_mem column_index,
+                    cl_mem value,
+                    int R2C,
+                    double* time) {
+    int err;
 
     double conv_time = 0;
 
     BasicCL basicCL;
-    cl_event            ceTimer;                 // OpenCL event
-    cl_ulong            queuedTime;
-    cl_ulong            submitTime;
-    cl_ulong            startTime;
-    cl_ulong            endTime;
+    cl_event ceTimer;
+    cl_ulong queuedTime;
+    cl_ulong submitTime;
+    cl_ulong startTime;
+    cl_ulong endTime;
 
     size_t szLocalWorkSize[1];
     size_t szGlobalWorkSize[1];
@@ -377,34 +381,38 @@ int aosoa_transpose(cl_kernel           _ocl_kernel_aosoa_transpose_smem_iT,
     szLocalWorkSize[0] = (size_t) num_threads;
     szGlobalWorkSize[0] = (size_t) num_blocks * szLocalWorkSize[0];
 
-    err  = clSetKernelArg(_ocl_kernel_aosoa_transpose_smem_iT, 0, sizeof(cl_mem), (void*)&column_index);
-    err |= clSetKernelArg(_ocl_kernel_aosoa_transpose_smem_iT, 1, sizeof(cl_mem), (void*)&partition_pointer);
-    err |= clSetKernelArg(_ocl_kernel_aosoa_transpose_smem_iT, 2, sizeof(cl_int), (void*)&R2C);
+    err = clSetKernelArg(_ocl_kernel_aosoa_transpose_smem_iT, 0, sizeof(cl_mem), (void*) &column_index);
+    err |= clSetKernelArg(_ocl_kernel_aosoa_transpose_smem_iT, 1, sizeof(cl_mem), (void*) &partition_pointer);
+    err |= clSetKernelArg(_ocl_kernel_aosoa_transpose_smem_iT, 2, sizeof(cl_int), (void*) &R2C);
+    CL_CHECK(err);
 
     err = clEnqueueNDRangeKernel(ocl_command_queue, _ocl_kernel_aosoa_transpose_smem_iT, 1,
                                  nullptr, szGlobalWorkSize, szLocalWorkSize, 0, nullptr, &ceTimer);
-    if(err != CL_SUCCESS) { std::cout << "_ocl_kernel_aosoa_transpose_smem_iT kernel run error = " << err << std::endl; return err; }
+    CL_CHECK(err);
 
     err = clWaitForEvents(1, &ceTimer);
-    if(err != CL_SUCCESS) { std::cout << "event error = " << err << std::endl; return err; }
+    CL_CHECK(err);
 
-    basicCL.getEventTimer(ceTimer, &queuedTime, &submitTime, &startTime, &endTime);
+    err = basicCL.getEventTimer(ceTimer, &queuedTime, &submitTime, &startTime, &endTime);
+    CL_CHECK(err);
+
     conv_time += double(endTime - startTime) / 1000000.0;
 
-
-
-    err  = clSetKernelArg(_ocl_kernel_aosoa_transpose_smem_vT, 0, sizeof(cl_mem), (void*)&value);
-    err |= clSetKernelArg(_ocl_kernel_aosoa_transpose_smem_vT, 1, sizeof(cl_mem), (void*)&partition_pointer);
-    err |= clSetKernelArg(_ocl_kernel_aosoa_transpose_smem_vT, 2, sizeof(cl_int), (void*)&R2C);
+    err = clSetKernelArg(_ocl_kernel_aosoa_transpose_smem_vT, 0, sizeof(cl_mem), (void*) &value);
+    err |= clSetKernelArg(_ocl_kernel_aosoa_transpose_smem_vT, 1, sizeof(cl_mem), (void*) &partition_pointer);
+    err |= clSetKernelArg(_ocl_kernel_aosoa_transpose_smem_vT, 2, sizeof(cl_int), (void*) &R2C);
+    CL_CHECK(err);
 
     err = clEnqueueNDRangeKernel(ocl_command_queue, _ocl_kernel_aosoa_transpose_smem_vT, 1,
                                  nullptr, szGlobalWorkSize, szLocalWorkSize, 0, nullptr, &ceTimer);
-    if(err != CL_SUCCESS) { std::cout << "_ocl_kernel_aosoa_transpose_smem_vT kernel run error = " << err << std::endl; return err; }
+    CL_CHECK(err);
 
     err = clWaitForEvents(1, &ceTimer);
-    if(err != CL_SUCCESS) { std::cout << "event error = " << err << std::endl; return err; }
+    CL_CHECK(err);
 
-    basicCL.getEventTimer(ceTimer, &queuedTime, &submitTime, &startTime, &endTime);
+    err = basicCL.getEventTimer(ceTimer, &queuedTime, &submitTime, &startTime, &endTime);
+    CL_CHECK(err);
+
     conv_time += double(endTime - startTime) / 1000000.0;
 
     *time = conv_time;

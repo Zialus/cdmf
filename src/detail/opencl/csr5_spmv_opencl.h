@@ -29,12 +29,12 @@ int csr5_spmv(cl_kernel ocl_kernel_spmv_csr5_compute,
               cl_mem y_t,
               cl_mem y_b,
               double* time) {
-    int err = ANONYMOUSLIB_SUCCESS;
+    int err;
 
     double spmv_time = 0;
 
     BasicCL basicCL;
-    cl_event ceTimer; // OpenCL event
+    cl_event ceTimer;
     cl_ulong queuedTime;
     cl_ulong submitTime;
     cl_ulong startTime;
@@ -66,19 +66,14 @@ int csr5_spmv(cl_kernel ocl_kernel_spmv_csr5_compute,
     err |= clSetKernelArg(ocl_kernel_spmv_csr5_compute, 14, sizeof(cl_int), (void*) &bit_y_offset);
     err |= clSetKernelArg(ocl_kernel_spmv_csr5_compute, 15, sizeof(cl_int), (void*) &bit_scansum_offset);
     err |= clSetKernelArg(ocl_kernel_spmv_csr5_compute, 16, sizeof(ANONYMOUSLIB_VT), (void*) &alpha);
+    CL_CHECK(err);
 
-    err = clEnqueueNDRangeKernel(ocl_command_queue, ocl_kernel_spmv_csr5_compute, 1,
-                                 nullptr, szGlobalWorkSize, szLocalWorkSize, 0, nullptr, &ceTimer);
-    if (err != CL_SUCCESS) {
-        std::cout << "ocl_kernel_spmv_csr5_compute kernel run error = " << err << std::endl;
-        return err;
-    }
+    err = clEnqueueNDRangeKernel(ocl_command_queue, ocl_kernel_spmv_csr5_compute, 1, nullptr, szGlobalWorkSize,
+                                 szLocalWorkSize, 0, nullptr, &ceTimer);
+    CL_CHECK(err);
 
     err = clWaitForEvents(1, &ceTimer);
-    if (err != CL_SUCCESS) {
-        std::cout << "event error = " << err << " line: " << __LINE__ << std::endl;
-        return err;
-    }
+    CL_CHECK(err);
 
     basicCL.getEventTimer(ceTimer, &queuedTime, &submitTime, &startTime, &endTime);
     spmv_time += double(endTime - startTime) / 1000000.0;
@@ -96,19 +91,14 @@ int csr5_spmv(cl_kernel ocl_kernel_spmv_csr5_compute,
     err |= clSetKernelArg(ocl_kernel_spmv_csr5_calibrate, 3, sizeof(cl_mem), (void*) &y_t);
     err |= clSetKernelArg(ocl_kernel_spmv_csr5_calibrate, 4, sizeof(cl_mem), (void*) &y_b);
     err |= clSetKernelArg(ocl_kernel_spmv_csr5_calibrate, 5, sizeof(cl_int), (void*) &p);
+    CL_CHECK(err);
 
-    err = clEnqueueNDRangeKernel(ocl_command_queue, ocl_kernel_spmv_csr5_calibrate, 1,
-                                 nullptr, szGlobalWorkSize, szLocalWorkSize, 0, nullptr, &ceTimer);
-    if (err != CL_SUCCESS) {
-        std::cout << "ocl_kernel_spmv_csr5_calibrate kernel run error = " << err << std::endl;
-        return err;
-    }
+    err = clEnqueueNDRangeKernel(ocl_command_queue, ocl_kernel_spmv_csr5_calibrate, 1, nullptr, szGlobalWorkSize,
+                                 szLocalWorkSize, 0, nullptr, &ceTimer);
+    CL_CHECK(err);
 
     err = clWaitForEvents(1, &ceTimer);
-    if (err != CL_SUCCESS) {
-        std::cout << "event error = " << err << std::endl;
-        return err;
-    }
+    CL_CHECK(err);
 
     basicCL.getEventTimer(ceTimer, &queuedTime, &submitTime, &startTime, &endTime);
     spmv_time += double(endTime - startTime) / 1000000.0;
@@ -129,19 +119,14 @@ int csr5_spmv(cl_kernel ocl_kernel_spmv_csr5_compute,
     err |= clSetKernelArg(ocl_kernel_spmv_csr5_tail_partition, 7, sizeof(cl_int), (void*) &p);
     err |= clSetKernelArg(ocl_kernel_spmv_csr5_tail_partition, 8, sizeof(cl_int), (void*) &sigma);
     err |= clSetKernelArg(ocl_kernel_spmv_csr5_tail_partition, 9, sizeof(ANONYMOUSLIB_VT), (void*) &alpha);
+    CL_CHECK(err);
 
-    err = clEnqueueNDRangeKernel(ocl_command_queue, ocl_kernel_spmv_csr5_tail_partition, 1,
-                                 nullptr, szGlobalWorkSize, szLocalWorkSize, 0, nullptr, &ceTimer);
-    if (err != CL_SUCCESS) {
-        std::cout << "ocl_kernel_spmv_csr5_tail_partition kernel run error = " << err << std::endl;
-        return err;
-    }
+    err = clEnqueueNDRangeKernel(ocl_command_queue, ocl_kernel_spmv_csr5_tail_partition, 1, nullptr, szGlobalWorkSize,
+                                 szLocalWorkSize, 0, nullptr, &ceTimer);
+    CL_CHECK(err);
 
     err = clWaitForEvents(1, &ceTimer);
-    if (err != CL_SUCCESS) {
-        std::cout << "event error = " << err << std::endl;
-        return err;
-    }
+    CL_CHECK(err);
 
     basicCL.getEventTimer(ceTimer, &queuedTime, &submitTime, &startTime, &endTime);
     spmv_time += double(endTime - startTime) / 1000000.0;

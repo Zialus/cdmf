@@ -3,6 +3,10 @@
 
 #include "common_opencl.h"
 
+#define CL_CHECK(res) \
+    {if (res != CL_SUCCESS) {fprintf(stderr,"Error \"%s\" (%d) in file %s on line %d\n", \
+        get_error_string(res), res, __FILE__,__LINE__); abort();}}
+
 struct anonymouslib_timer {
     std::chrono::high_resolution_clock::time_point t1;
     std::chrono::high_resolution_clock::time_point t2;

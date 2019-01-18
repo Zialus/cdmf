@@ -30,101 +30,87 @@ public:
                       cl_ulong* startTime, cl_ulong* endTime);
 
 private:
-    cl_int _ciErr;
+    cl_int _ciErr{};
 };
 
-BasicCL::BasicCL() {
-}
+BasicCL::BasicCL() = default;
 
 int BasicCL::getNumPlatform(cl_uint* numPlatforms) {
-    _ciErr = clGetPlatformIDs(0, NULL, numPlatforms);
+    _ciErr = clGetPlatformIDs(0, nullptr, numPlatforms);
     return _ciErr;
 }
 
 int BasicCL::getPlatformIDs(cl_platform_id* platforms, cl_uint numPlatforms) {
-    _ciErr = clGetPlatformIDs(numPlatforms, platforms, NULL);
+    _ciErr = clGetPlatformIDs(numPlatforms, platforms, nullptr);
     return _ciErr;
 }
 
 int BasicCL::getPlatformInfo(cl_platform_id platform, char* platformVendor, char* platformVersion) {
-    _ciErr = clGetPlatformInfo(platform, CL_PLATFORM_VENDOR, CL_STRING_LENGTH * sizeof(char), platformVendor, NULL);
+    _ciErr = clGetPlatformInfo(platform, CL_PLATFORM_VENDOR, CL_STRING_LENGTH * sizeof(char), platformVendor, nullptr);
     if (_ciErr != CL_SUCCESS) { return _ciErr; }
-    _ciErr = clGetPlatformInfo(platform, CL_PLATFORM_VERSION, CL_STRING_LENGTH * sizeof(char), platformVersion, NULL);
+    _ciErr = clGetPlatformInfo(platform, CL_PLATFORM_VERSION, CL_STRING_LENGTH * sizeof(char), platformVersion, nullptr);
     if (_ciErr != CL_SUCCESS) { return _ciErr; }
     return CL_SUCCESS;
 }
 
 int BasicCL::getNumCpuDevices(cl_platform_id platform, cl_uint* numCpuDevices) {
-    _ciErr = clGetDeviceIDs(platform, CL_DEVICE_TYPE_CPU, 0, NULL, numCpuDevices);
+    _ciErr = clGetDeviceIDs(platform, CL_DEVICE_TYPE_CPU, 0, nullptr, numCpuDevices);
     return _ciErr;
 }
 
 int BasicCL::getCpuDeviceIDs(cl_platform_id platform, cl_uint numCpuDevices, cl_device_id* CpuDevices) {
-    _ciErr = clGetDeviceIDs(platform, CL_DEVICE_TYPE_CPU, numCpuDevices, CpuDevices, NULL);
+    _ciErr = clGetDeviceIDs(platform, CL_DEVICE_TYPE_CPU, numCpuDevices, CpuDevices, nullptr);
     return _ciErr;
 }
 
 int BasicCL::getNumGpuDevices(cl_platform_id platform, cl_uint* numGpuDevices) {
-    _ciErr = clGetDeviceIDs(platform, CL_DEVICE_TYPE_GPU, 0, NULL, numGpuDevices);
+    _ciErr = clGetDeviceIDs(platform, CL_DEVICE_TYPE_GPU, 0, nullptr, numGpuDevices);
     return _ciErr;
 }
 
 int BasicCL::getGpuDeviceIDs(cl_platform_id platform, cl_uint numGpuDevices, cl_device_id* GpuDevices) {
-    _ciErr = clGetDeviceIDs(platform, CL_DEVICE_TYPE_GPU, numGpuDevices, GpuDevices, NULL);
+    _ciErr = clGetDeviceIDs(platform, CL_DEVICE_TYPE_GPU, numGpuDevices, GpuDevices, nullptr);
     return _ciErr;
 }
 
 int BasicCL::getDeviceInfo(cl_device_id device, char* deviceName, char* deviceVersion,
                            int* deviceComputeUnits, cl_ulong* deviceGlobalMem,
                            cl_ulong* deviceLocalMem, int* maxSubDevices) {
-    _ciErr = clGetDeviceInfo(device, CL_DEVICE_NAME, CL_STRING_LENGTH * sizeof(char), deviceName, NULL);
+    _ciErr = clGetDeviceInfo(device, CL_DEVICE_NAME, CL_STRING_LENGTH * sizeof(char), deviceName, nullptr);
     if (_ciErr != CL_SUCCESS) { return _ciErr; }
-    _ciErr = clGetDeviceInfo(device, CL_DEVICE_VERSION, CL_STRING_LENGTH * sizeof(char), deviceVersion, NULL);
+    _ciErr = clGetDeviceInfo(device, CL_DEVICE_VERSION, CL_STRING_LENGTH * sizeof(char), deviceVersion, nullptr);
     if (_ciErr != CL_SUCCESS) { return _ciErr; }
-    _ciErr = clGetDeviceInfo(device, CL_DEVICE_MAX_COMPUTE_UNITS, sizeof(cl_uint), deviceComputeUnits, NULL);
+    _ciErr = clGetDeviceInfo(device, CL_DEVICE_MAX_COMPUTE_UNITS, sizeof(cl_uint), deviceComputeUnits, nullptr);
     if (_ciErr != CL_SUCCESS) { return _ciErr; }
-    _ciErr = clGetDeviceInfo(device, CL_DEVICE_GLOBAL_MEM_SIZE, sizeof(cl_ulong), deviceGlobalMem, NULL);
+    _ciErr = clGetDeviceInfo(device, CL_DEVICE_GLOBAL_MEM_SIZE, sizeof(cl_ulong), deviceGlobalMem, nullptr);
     if (_ciErr != CL_SUCCESS) { return _ciErr; }
-    _ciErr = clGetDeviceInfo(device, CL_DEVICE_LOCAL_MEM_SIZE, sizeof(cl_ulong), deviceLocalMem, NULL);
+    _ciErr = clGetDeviceInfo(device, CL_DEVICE_LOCAL_MEM_SIZE, sizeof(cl_ulong), deviceLocalMem, nullptr);
     if (_ciErr != CL_SUCCESS) { return _ciErr; }
-    _ciErr = clGetDeviceInfo(device, CL_DEVICE_PARTITION_MAX_SUB_DEVICES, sizeof(cl_uint), maxSubDevices, NULL);
+    _ciErr = clGetDeviceInfo(device, CL_DEVICE_PARTITION_MAX_SUB_DEVICES, sizeof(cl_uint), maxSubDevices, nullptr);
     if (_ciErr != CL_SUCCESS) { return _ciErr; }
     return CL_SUCCESS;
 }
 
 int BasicCL::getContext(cl_context* context, cl_device_id* devices, cl_uint numDevices) {
-    context[0] = clCreateContext(0, numDevices, devices, NULL, NULL, &_ciErr);
-    //std::cout << "------------ _ciErr " << _ciErr << std::endl;
+    context[0] = clCreateContext(nullptr, numDevices, devices, nullptr, nullptr, &_ciErr);
     return _ciErr;
 }
 
 int BasicCL::getCommandQueue(cl_command_queue* commandQueue, cl_context context, cl_device_id device) {
-    // use clCreateCommandQueueWithProperties for ocl2.0
     commandQueue[0] = clCreateCommandQueue(context, device, 0, &_ciErr);
-    //CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE
-    //CL_QUEUE_PROFILING_ENABLE
-    //std::cout << "------------ _ciErr " << _ciErr << std::endl;
     return _ciErr;
 }
 
 int BasicCL::getCommandQueueProfilingEnable(cl_command_queue* commandQueue, cl_context context, cl_device_id device) {
-    // use clCreateCommandQueueWithProperties for ocl2.0
     commandQueue[0] = clCreateCommandQueue(context, device, CL_QUEUE_PROFILING_ENABLE, &_ciErr);
-    //CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE
-    //CL_QUEUE_PROFILING_ENABLE
-    //std::cout << "------------ _ciErr " << _ciErr << std::endl;
     return _ciErr;
 }
 
 int BasicCL::getProgram(cl_program* program, cl_context context, const char* kernelSourceCode) {
     size_t SourceSize[] = {strlen(kernelSourceCode)};
     program[0] = clCreateProgramWithSource(context, 1, &kernelSourceCode, SourceSize, &_ciErr);
-    //std::cout << "------------ _ciErr " << _ciErr << std::endl;
     if (_ciErr != CL_SUCCESS) { return _ciErr; }
-    //_ciErr = clBuildProgram(program[0], 0, NULL, "-cl-opt-disable", NULL, NULL);
-    // std::cout << "------------ _ciErr " << _ciErr << std::endl;
-    _ciErr = clBuildProgram(program[0], 0, NULL, NULL, NULL, NULL);
-    //std::cout << "------------ _ciErr " << _ciErr << std::endl;
+    _ciErr = clBuildProgram(program[0], 0, nullptr, nullptr, nullptr, nullptr);
     if (_ciErr != CL_SUCCESS) { return _ciErr; }
     return CL_SUCCESS;
 }
@@ -138,7 +124,7 @@ char* readSource(const char* sourceFilename) {
     char* source;
 
     fp = fopen(sourceFilename, "rb");
-    if (fp == NULL) {
+    if (fp == nullptr) {
         printf("Could not open kernel file: %s\n", sourceFilename);
         exit(-1);
     }
@@ -162,7 +148,7 @@ char* readSource(const char* sourceFilename) {
     }
 
     source = (char*) malloc(size + 1);
-    if (source == NULL) {
+    if (source == nullptr) {
         printf("Error allocating %d bytes for the program source\n", size + 1);
         exit(-1);
     }
@@ -197,16 +183,16 @@ int BasicCL::getEventTimer(cl_event event,
                            cl_ulong* queuedTime, cl_ulong* submitTime,
                            cl_ulong* startTime, cl_ulong* endTime) {
 
-    _ciErr = clGetEventProfilingInfo(event, CL_PROFILING_COMMAND_QUEUED, sizeof(cl_ulong), queuedTime, NULL);
+    _ciErr = clGetEventProfilingInfo(event, CL_PROFILING_COMMAND_QUEUED, sizeof(cl_ulong), queuedTime, nullptr);
     if (_ciErr != CL_SUCCESS) { return _ciErr; }
 
-    _ciErr = clGetEventProfilingInfo(event, CL_PROFILING_COMMAND_SUBMIT, sizeof(cl_ulong), submitTime, NULL);
+    _ciErr = clGetEventProfilingInfo(event, CL_PROFILING_COMMAND_SUBMIT, sizeof(cl_ulong), submitTime, nullptr);
     if (_ciErr != CL_SUCCESS) { return _ciErr; }
 
-    _ciErr = clGetEventProfilingInfo(event, CL_PROFILING_COMMAND_START, sizeof(cl_ulong), startTime, NULL);
+    _ciErr = clGetEventProfilingInfo(event, CL_PROFILING_COMMAND_START, sizeof(cl_ulong), startTime, nullptr);
     if (_ciErr != CL_SUCCESS) { return _ciErr; }
 
-    _ciErr = clGetEventProfilingInfo(event, CL_PROFILING_COMMAND_END, sizeof(cl_ulong), endTime, NULL);
+    _ciErr = clGetEventProfilingInfo(event, CL_PROFILING_COMMAND_END, sizeof(cl_ulong), endTime, nullptr);
     if (_ciErr != CL_SUCCESS) { return _ciErr; }
 
     return CL_SUCCESS;
