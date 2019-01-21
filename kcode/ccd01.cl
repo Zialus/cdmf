@@ -33,11 +33,16 @@ __kernel void RankOneUpdate_DUAL_kernel_v(const unsigned cols,
                                           __global const unsigned* row_idx_t,
                                           __global VALUE_TYPE* val_t) {
     unsigned ii = get_global_id(0);
+//    unsigned jj = get_global_size(0);
+//    unsigned ss = get_local_id(0);
+    unsigned gg = get_local_size(0);
+//    unsigned aa = get_group_id(0);
+    unsigned dd = get_num_groups(0);
 
-    size_t c = ii;
-    if (c < cols) {
+    for (unsigned c = ii; c < cols; c+=gg*dd) {
         v[c] = RankOneUpdate_dev(col_ptr, row_idx, val, c, u, lambda * (col_ptr[c + 1] - col_ptr[c]), v[c]);
     }
+
 }
 
 /**
@@ -55,9 +60,13 @@ __kernel void RankOneUpdate_DUAL_kernel_u(const unsigned cols,
                                           __global const unsigned* row_idx_t,
                                           __global VALUE_TYPE* val_t) {
     unsigned ii = get_global_id(0);
+//    unsigned jj = get_global_size(0);
+//    unsigned ss = get_local_id(0);
+    unsigned gg = get_local_size(0);
+//    unsigned aa = get_group_id(0);
+    unsigned dd = get_num_groups(0);
 
-    size_t c = ii;
-    if (c < cols_t) {
+    for (unsigned c = ii; c < cols_t; c+=gg*dd) {
         u[c] = RankOneUpdate_dev(col_ptr_t, row_idx_t, val_t, c, v, lambda * (col_ptr_t[c + 1] - col_ptr_t[c]), u[c]);
     }
 }
@@ -71,31 +80,48 @@ static void UpdateRating_dev(const unsigned cols,
                              __global VALUE_TYPE* v,
                              const int isAdd) {
 
-    unsigned ii = get_global_id(0);
-//    unsigned jj = get_global_size(0);
-//    unsigned ss = get_local_id(0);
-//    unsigned gg = get_local_size(0);
-//    unsigned aa = get_group_id(0);
-//    unsigned dd = get_num_groups(0);
+//  unsigned ii = get_global_id(0);
+//  unsigned jj = get_global_size(0);
+    unsigned ss = get_local_id(0);
+    unsigned gg = get_local_size(0);
+    unsigned aa = get_group_id(0);
+//  unsigned dd = get_num_groups(0);
 
     if (isAdd == 1) // +
     {
-        size_t i = ii;
-        if (i < cols) {
-            VALUE_TYPE Htc = v[i];
-            for (size_t idx = col_ptr[i]; idx < col_ptr[i + 1]; ++idx) {
-                val[idx] += u[row_idx[idx]] * Htc;
+        size_t i = aa;
+        VALUE_TYPE Htc = v[i];
+        unsigned nnz = col_ptr[i + 1] - col_ptr[i];
+        size_t bidx = col_ptr[i];
+        if (nnz <= gg && ss < nnz) {
+            size_t idx = bidx + ss;
+            unsigned rIdx = row_idx[idx];
+            val[idx] += u[rIdx] * Htc;
+        } else {
+            for (unsigned iter = ss; iter < nnz; iter += gg) {
+                size_t idx = bidx + iter;
+                unsigned rIdx = row_idx[idx];
+                val[idx] += u[rIdx] * Htc;
             }
         }
-    } else  // -
+    } else // -
     {
-        size_t i = ii;
-        if (i < cols) {
-            VALUE_TYPE Htc = v[i];
-            for (size_t idx = col_ptr[i]; idx < col_ptr[i + 1]; ++idx) {
-                val[idx] -= u[row_idx[idx]] * Htc;
+        size_t i = aa;
+        VALUE_TYPE Htc = v[i];
+        unsigned nnz = col_ptr[i + 1] - col_ptr[i];
+        size_t bidx = col_ptr[i];
+        if (nnz <= gg && ss < nnz) {
+            size_t idx = bidx + ss;
+            unsigned rIdx = row_idx[idx];
+            val[idx] -= u[rIdx] * Htc;
+        } else {
+            for (unsigned iter = ss; iter < nnz; iter += gg) {
+                size_t idx = bidx + iter;
+                unsigned rIdx = row_idx[idx];
+                val[idx] -= u[rIdx] * Htc;
             }
         }
+
     }
 
 }
