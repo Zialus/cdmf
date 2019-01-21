@@ -8,6 +8,25 @@
 #include "detail/opencl/format_opencl.h"
 #include "detail/opencl/csr5_spmv_opencl.h"
 
+void build_and_check(cl_program program, const char* options, cl_device_id device) {
+    cl_int status = clBuildProgram(program, 0, nullptr, options, nullptr, nullptr);
+
+    size_t length;
+    clGetProgramBuildInfo(program, device, CL_PROGRAM_BUILD_LOG, 0, nullptr, &length);
+    char* buffer = (char*) malloc(length + 1);
+    clGetProgramBuildInfo(program, device, CL_PROGRAM_BUILD_LOG, length, buffer, nullptr);
+
+    if (buffer != nullptr && strcmp(buffer, "") != 0 && strcmp(buffer, "\n") != 0) {
+        printf("[OpenCL Compiler INFO]:\n%s\n", buffer);
+        free(buffer);
+    } else {
+        printf("[OpenCL Compiler]: No info to print\n");
+    }
+
+    CL_CHECK(status);
+    std::cout << "[INFO]: Compiled OpenCl code successfully!\n";
+}
+
 template <class ANONYMOUSLIB_IT, class ANONYMOUSLIB_UIT, class ANONYMOUSLIB_VT>
 class anonymouslibHandle
 {
@@ -79,67 +98,61 @@ class anonymouslibHandle
         cl_mem         _x;
 };
 
-template <class ANONYMOUSLIB_IT, class ANONYMOUSLIB_UIT, class ANONYMOUSLIB_VT>
-anonymouslibHandle<ANONYMOUSLIB_IT, ANONYMOUSLIB_UIT, ANONYMOUSLIB_VT>::anonymouslibHandle(ANONYMOUSLIB_IT m, ANONYMOUSLIB_IT n)
-{
+template<class ANONYMOUSLIB_IT, class ANONYMOUSLIB_UIT, class ANONYMOUSLIB_VT>
+anonymouslibHandle<ANONYMOUSLIB_IT, ANONYMOUSLIB_UIT, ANONYMOUSLIB_VT>::anonymouslibHandle(ANONYMOUSLIB_IT m,
+                                                                                           ANONYMOUSLIB_IT n) {
     _m = m;
     _n = n;
 }
 
-template <class ANONYMOUSLIB_IT, class ANONYMOUSLIB_UIT, class ANONYMOUSLIB_VT>
-int anonymouslibHandle<ANONYMOUSLIB_IT, ANONYMOUSLIB_UIT, ANONYMOUSLIB_VT>::warmup()
-{
+template<class ANONYMOUSLIB_IT, class ANONYMOUSLIB_UIT, class ANONYMOUSLIB_VT>
+int anonymouslibHandle<ANONYMOUSLIB_IT, ANONYMOUSLIB_UIT, ANONYMOUSLIB_VT>::warmup() {
     format_warmup(_ocl_kernel_warmup, _ocl_context, _ocl_command_queue);
 
     return ANONYMOUSLIB_SUCCESS;
 }
 
-template <class ANONYMOUSLIB_IT, class ANONYMOUSLIB_UIT, class ANONYMOUSLIB_VT>
+template<class ANONYMOUSLIB_IT, class ANONYMOUSLIB_UIT, class ANONYMOUSLIB_VT>
 int anonymouslibHandle<ANONYMOUSLIB_IT, ANONYMOUSLIB_UIT, ANONYMOUSLIB_VT>::inputCSR(ANONYMOUSLIB_IT nnz,
-        cl_mem csr_row_pointer,
-        cl_mem csr_column_index,
-        cl_mem csr_value)
-{
+                                                                                     cl_mem csr_row_pointer,
+                                                                                     cl_mem csr_column_index,
+                                                                                     cl_mem csr_value) {
     _format = ANONYMOUSLIB_FORMAT_CSR;
 
     _nnz = nnz;
 
-    _csr_row_pointer  = csr_row_pointer;
+    _csr_row_pointer = csr_row_pointer;
     _csr_column_index = csr_column_index;
-    _csr_value        = csr_value;
+    _csr_value = csr_value;
 
     return ANONYMOUSLIB_SUCCESS;
 }
 
-template <class ANONYMOUSLIB_IT, class ANONYMOUSLIB_UIT, class ANONYMOUSLIB_VT>
-int anonymouslibHandle<ANONYMOUSLIB_IT, ANONYMOUSLIB_UIT, ANONYMOUSLIB_VT>::asCSR()
-{
+template<class ANONYMOUSLIB_IT, class ANONYMOUSLIB_UIT, class ANONYMOUSLIB_VT>
+int anonymouslibHandle<ANONYMOUSLIB_IT, ANONYMOUSLIB_UIT, ANONYMOUSLIB_VT>::asCSR() {
     int err = ANONYMOUSLIB_SUCCESS;
 
-    if (_format == ANONYMOUSLIB_FORMAT_CSR)
+    if (_format == ANONYMOUSLIB_FORMAT_CSR) {
         return err;
+    }
 
-    if (_format == ANONYMOUSLIB_FORMAT_CSR5)
-    {
-        // convert csr5 data to csr data
+    if (_format == ANONYMOUSLIB_FORMAT_CSR5) { // convert csr5 data to csr data
         double time = 0;
-        err = aosoa_transpose<ANONYMOUSLIB_IT, ANONYMOUSLIB_UIT, ANONYMOUSLIB_VT>
-            (_ocl_kernel_aosoa_transpose_smem_iT, _ocl_kernel_aosoa_transpose_smem_vT, _ocl_command_queue,
-             _csr5_sigma, _nnz, _csr5_partition_pointer, _csr_column_index, _csr_value, 0, &time);
+        err = aosoa_transpose<ANONYMOUSLIB_IT, ANONYMOUSLIB_UIT, ANONYMOUSLIB_VT>(_ocl_kernel_aosoa_transpose_smem_iT,
+                                                                                  _ocl_kernel_aosoa_transpose_smem_vT,
+                                                                                  _ocl_command_queue, _csr5_sigma, _nnz,
+                                                                                  _csr5_partition_pointer,
+                                                                                  _csr_column_index, _csr_value, 0,
+                                                                                  &time);
+        CL_CHECK(err);
 
         // free the two newly added CSR5 arrays
-        if (_csr5_partition_pointer) { err = clReleaseMemObject(_csr5_partition_pointer); }
-        if (err != CL_SUCCESS) { return err; }
-        if (_csr5_partition_descriptor) { err = clReleaseMemObject(_csr5_partition_descriptor); }
-        if (err != CL_SUCCESS) { return err; }
-        if (_temp_calibrator_t) { err = clReleaseMemObject(_temp_calibrator_t); }
-        if (err != CL_SUCCESS) { return err; }
-        if (_temp_calibrator_b) { err = clReleaseMemObject(_temp_calibrator_b); }
-        if (err != CL_SUCCESS) { return err; }
-        if (_csr5_partition_descriptor_offset_pointer) { err = clReleaseMemObject(_csr5_partition_descriptor_offset_pointer); }
-        if (err != CL_SUCCESS) { return err; }
-        if (_csr5_partition_descriptor_offset) { err = clReleaseMemObject(_csr5_partition_descriptor_offset); }
-        if (err != CL_SUCCESS) { return err; }
+        if (_csr5_partition_pointer) { err = clReleaseMemObject(_csr5_partition_pointer); CL_CHECK(err); }
+        if (_csr5_partition_descriptor) { err = clReleaseMemObject(_csr5_partition_descriptor); CL_CHECK(err); }
+        if (_temp_calibrator_t) { err = clReleaseMemObject(_temp_calibrator_t); CL_CHECK(err); }
+        if (_temp_calibrator_b) { err = clReleaseMemObject(_temp_calibrator_b); CL_CHECK(err); }
+        if (_csr5_partition_descriptor_offset_pointer) { err = clReleaseMemObject(_csr5_partition_descriptor_offset_pointer); CL_CHECK(err); }
+        if (_csr5_partition_descriptor_offset) { err = clReleaseMemObject(_csr5_partition_descriptor_offset); CL_CHECK(err); }
 
         _format = ANONYMOUSLIB_FORMAT_CSR;
     }
@@ -147,23 +160,25 @@ int anonymouslibHandle<ANONYMOUSLIB_IT, ANONYMOUSLIB_UIT, ANONYMOUSLIB_VT>::asCS
     return err;
 }
 
-template <class ANONYMOUSLIB_IT, class ANONYMOUSLIB_UIT, class ANONYMOUSLIB_VT>
-int anonymouslibHandle<ANONYMOUSLIB_IT, ANONYMOUSLIB_UIT, ANONYMOUSLIB_VT>::asCSR_()
-{
+template<class ANONYMOUSLIB_IT, class ANONYMOUSLIB_UIT, class ANONYMOUSLIB_VT>
+int anonymouslibHandle<ANONYMOUSLIB_IT, ANONYMOUSLIB_UIT, ANONYMOUSLIB_VT>::asCSR_() {
     int err = ANONYMOUSLIB_SUCCESS;
 
-    if (_format == ANONYMOUSLIB_FORMAT_CSR)
+    if (_format == ANONYMOUSLIB_FORMAT_CSR) {
         return err;
+    }
 
-    if (_format == ANONYMOUSLIB_FORMAT_CSR5)
-    {
+    if (_format == ANONYMOUSLIB_FORMAT_CSR5) {
         // convert csr5 data to csr data
         double time = 0;
-        err = aosoa_transpose<ANONYMOUSLIB_IT, ANONYMOUSLIB_UIT, ANONYMOUSLIB_VT>
-            (_ocl_kernel_aosoa_transpose_smem_iT, _ocl_kernel_aosoa_transpose_smem_vT, _ocl_command_queue,
-             _csr5_sigma, _nnz, _csr5_partition_pointer, _csr_column_index, _csr_value, 0, &time);
+        err = aosoa_transpose<ANONYMOUSLIB_IT, ANONYMOUSLIB_UIT, ANONYMOUSLIB_VT>(_ocl_kernel_aosoa_transpose_smem_iT,
+                                                                                  _ocl_kernel_aosoa_transpose_smem_vT,
+                                                                                  _ocl_command_queue, _csr5_sigma, _nnz,
+                                                                                  _csr5_partition_pointer,
+                                                                                  _csr_column_index, _csr_value, 0,
+                                                                                  &time);
+        CL_CHECK(err);
 
-        // free the two newly added CSR5 arrays
         _format = ANONYMOUSLIB_FORMAT_CSR;
     }
 
@@ -363,9 +378,8 @@ int anonymouslibHandle<ANONYMOUSLIB_IT, ANONYMOUSLIB_UIT, ANONYMOUSLIB_VT>::asCS
     return err;
 }
 
-template <class ANONYMOUSLIB_IT, class ANONYMOUSLIB_UIT, class ANONYMOUSLIB_VT>
-int anonymouslibHandle<ANONYMOUSLIB_IT, ANONYMOUSLIB_UIT, ANONYMOUSLIB_VT>::setX(cl_mem x)
-{
+template<class ANONYMOUSLIB_IT, class ANONYMOUSLIB_UIT, class ANONYMOUSLIB_VT>
+int anonymouslibHandle<ANONYMOUSLIB_IT, ANONYMOUSLIB_UIT, ANONYMOUSLIB_VT>::setX(cl_mem x) {
     int err = ANONYMOUSLIB_SUCCESS;
 
     _x = x;
@@ -373,89 +387,80 @@ int anonymouslibHandle<ANONYMOUSLIB_IT, ANONYMOUSLIB_UIT, ANONYMOUSLIB_VT>::setX
     return err;
 }
 
-template <class ANONYMOUSLIB_IT, class ANONYMOUSLIB_UIT, class ANONYMOUSLIB_VT>
+template<class ANONYMOUSLIB_IT, class ANONYMOUSLIB_UIT, class ANONYMOUSLIB_VT>
 int anonymouslibHandle<ANONYMOUSLIB_IT, ANONYMOUSLIB_UIT, ANONYMOUSLIB_VT>::spmv(const ANONYMOUSLIB_VT alpha,
-        cl_mem y_t,
-        cl_mem y_b,
-        double *time)
-{
+                                                                                 cl_mem y_t,
+                                                                                 cl_mem y_b,
+                                                                                 double* time) {
     int err = ANONYMOUSLIB_SUCCESS;
 
-    if (_format == ANONYMOUSLIB_FORMAT_CSR)
-    {
+    if (_format == ANONYMOUSLIB_FORMAT_CSR) {
         return ANONYMOUSLIB_UNSUPPORTED_CSR_SPMV;
     }
 
-    if (_format == ANONYMOUSLIB_FORMAT_CSR5)
-    {
-        csr5_spmv<ANONYMOUSLIB_IT, ANONYMOUSLIB_UIT, ANONYMOUSLIB_VT>
-            (_ocl_kernel_spmv_csr5_compute,
-             _ocl_kernel_spmv_csr5_calibrate,
-             _ocl_kernel_spmv_csr5_tail_partition,
-             _ocl_command_queue,
-             _csr5_sigma, _p, _m,
-             _bit_y_offset, _bit_scansum_offset, _num_packet,
-             _csr_row_pointer, _csr_column_index, _csr_value,
-             _csr5_partition_pointer, _csr5_partition_descriptor,
-             _csr5_partition_descriptor_offset_pointer, _csr5_partition_descriptor_offset,
-             _temp_calibrator_t, _temp_calibrator_b, _tail_partition_start,
-             alpha, _x, /*beta,*/ y_t, y_b, time);
+    if (_format == ANONYMOUSLIB_FORMAT_CSR5) {
+        csr5_spmv<ANONYMOUSLIB_IT, ANONYMOUSLIB_UIT, ANONYMOUSLIB_VT>(_ocl_kernel_spmv_csr5_compute, _ocl_kernel_spmv_csr5_calibrate,
+                                                                      _ocl_kernel_spmv_csr5_tail_partition, _ocl_command_queue,
+                                                                      _csr5_sigma, _p, _m, _bit_y_offset, _bit_scansum_offset, _num_packet,
+                                                                      _csr_row_pointer, _csr_column_index, _csr_value, _csr5_partition_pointer,
+                                                                      _csr5_partition_descriptor, _csr5_partition_descriptor_offset_pointer,
+                                                                      _csr5_partition_descriptor_offset,_temp_calibrator_t, _temp_calibrator_b,
+                                                                      _tail_partition_start, alpha, _x, /*beta,*/ y_t, y_b, time);
     }
 
     return err;
 }
 
-template <class ANONYMOUSLIB_IT, class ANONYMOUSLIB_UIT, class ANONYMOUSLIB_VT>
-int anonymouslibHandle<ANONYMOUSLIB_IT, ANONYMOUSLIB_UIT, ANONYMOUSLIB_VT>::destroy()
-{
+template<class ANONYMOUSLIB_IT, class ANONYMOUSLIB_UIT, class ANONYMOUSLIB_VT>
+int anonymouslibHandle<ANONYMOUSLIB_IT, ANONYMOUSLIB_UIT, ANONYMOUSLIB_VT>::destroy() {
     return asCSR();
 }
 
-template <class ANONYMOUSLIB_IT, class ANONYMOUSLIB_UIT, class ANONYMOUSLIB_VT>
-int anonymouslibHandle<ANONYMOUSLIB_IT, ANONYMOUSLIB_UIT, ANONYMOUSLIB_VT>::setSigma(int sigma)
-{
+template<class ANONYMOUSLIB_IT, class ANONYMOUSLIB_UIT, class ANONYMOUSLIB_VT>
+int anonymouslibHandle<ANONYMOUSLIB_IT, ANONYMOUSLIB_UIT, ANONYMOUSLIB_VT>::setSigma(int sigma) {
     int err = ANONYMOUSLIB_SUCCESS;
 
-    if (sigma == ANONYMOUSLIB_AUTO_TUNED_SIGMA)
-    {
+    if (sigma == ANONYMOUSLIB_AUTO_TUNED_SIGMA) {
         int r = 4;
         int s = 7;
         int t = 256;
         int u = 4;
 
         int nnz_per_row = _nnz / _m;
-        if (nnz_per_row <= r)
+        if (nnz_per_row <= r) {
             _csr5_sigma = r;
-        else if (nnz_per_row > r && nnz_per_row <= s)
+        } else if (nnz_per_row > r && nnz_per_row <= s) {
             _csr5_sigma = nnz_per_row;
-        else if (nnz_per_row <= t && nnz_per_row > s)
+        } else if (nnz_per_row <= t && nnz_per_row > s) {
             _csr5_sigma = s;
-        else // nnz_per_row > t
+        } else { // nnz_per_row > t
             _csr5_sigma = u;
-    }
-    else
-    {
+        }
+    } else {
         _csr5_sigma = sigma;
     }
 
-    char omega_str [3]; //supports up to omega = 999
-    sprintf (omega_str, "%d", ANONYMOUSLIB_CSR5_OMEGA);
-    char sigma_str [3]; //supports up to omega = 999
-    sprintf (sigma_str, "%d", _csr5_sigma);
-    char threadgroup_str [4]; //supports up to omega = 9999
-    sprintf (threadgroup_str, "%d", ANONYMOUSLIB_THREAD_GROUP);
-    char threadbunch_str [3]; //supports up to omega = 999
-    sprintf (threadbunch_str, "%d", ANONYMOUSLIB_THREAD_BUNCH);
-    //std::cout << "sigma_str = " << sigma_str << std::endl;
+    char omega_str[3]; //supports up to 999
+    snprintf(omega_str, sizeof(omega_str), "%d", ANONYMOUSLIB_CSR5_OMEGA);
+    char sigma_str[3]; //supports up to 999
+    snprintf(sigma_str, sizeof(sigma_str), "%d", _csr5_sigma);
+    char threadgroup_str[4]; //supports up to 9999
+    snprintf(threadgroup_str, sizeof(threadgroup_str), "%d", ANONYMOUSLIB_THREAD_GROUP);
+    char threadbunch_str[3]; //supports up to 999
+    snprintf(threadbunch_str, sizeof(threadbunch_str), "%d", ANONYMOUSLIB_THREAD_BUNCH);
 
-    char *it_str = (char *)"int";
-    char *uit_str = (char *)"unsigned";
+    char* it_str = (char*) "int";
+    char* uit_str = (char*) "unsigned";
 
-    char *vt_str;
-    if (sizeof(ANONYMOUSLIB_VT) == 8)
-        vt_str = (char *)"double";
-    else if (sizeof(ANONYMOUSLIB_VT) == 4)
-        vt_str = (char *)"float";
+    char* vt_str;
+    if (sizeof(ANONYMOUSLIB_VT) == 8) {
+        vt_str = (char*) "double";
+    } else if (sizeof(ANONYMOUSLIB_VT) == 4) {
+        vt_str = (char*) "float";
+    } else {
+        perror("wrong ANONYMOUSLIB_VT size");
+        exit(EXIT_FAILURE);
+    }
 
     std::string ocl_source_code_string_format = _ocl_source_code_string_format_const;
     std::string ocl_source_code_string_csr5_spmv = _ocl_source_code_string_csr5_spmv_const;
@@ -463,172 +468,111 @@ int anonymouslibHandle<ANONYMOUSLIB_IT, ANONYMOUSLIB_UIT, ANONYMOUSLIB_VT>::setS
     std::string format_ocl_options;
     std::string csr5_spmv_ocl_options;
 
-    // replace 'omega_replace_str' to 'omega_str'
-//    const std::string omega_replace_str ("_REPLACE_ANONYMOUSLIB_CSR5_OMEGA_SEGMENT_");
-//    size_t omega_found = ocl_source_code_string_format.find(omega_replace_str);
-//    ocl_source_code_string_format.replace( omega_found, omega_replace_str.length(), omega_str);
-//    omega_found = ocl_source_code_string_csr5_spmv.find(omega_replace_str);
-//    ocl_source_code_string_csr5_spmv.replace( omega_found, omega_replace_str.length(), omega_str);
-
+    // replace 'omega_replace_str' by 'omega_str'
     format_ocl_options.append(" -D_REPLACE_ANONYMOUSLIB_CSR5_OMEGA_SEGMENT_=");
     format_ocl_options.append(omega_str);
     csr5_spmv_ocl_options.append(" -D_REPLACE_ANONYMOUSLIB_CSR5_OMEGA_SEGMENT_=");
     csr5_spmv_ocl_options.append(omega_str);
 
-//    // replace 'sigma_replace_str' to 'sigma_str'
-//    const std::string sigma_replace_str ("_REPLACE_ANONYMOUSLIB_CSR5_SIGMA_SEGMENT_");
-//    size_t sigma_found = ocl_source_code_string_format.find(sigma_replace_str);
-//    ocl_source_code_string_format.replace( sigma_found, sigma_replace_str.length(), sigma_str);
-//    sigma_found = ocl_source_code_string_csr5_spmv.find(sigma_replace_str);
-//    ocl_source_code_string_csr5_spmv.replace( sigma_found, sigma_replace_str.length(), sigma_str);
-
+    // replace 'sigma_replace_str' by 'sigma_str'
     format_ocl_options.append(" -D_REPLACE_ANONYMOUSLIB_CSR5_SIGMA_SEGMENT_=");
     format_ocl_options.append(sigma_str);
     csr5_spmv_ocl_options.append(" -D_REPLACE_ANONYMOUSLIB_CSR5_SIGMA_SEGMENT_=");
     csr5_spmv_ocl_options.append(sigma_str);
 
-//    // replace 'threadgroup_replace_str' to 'threadgroup_str'
-//    const std::string threadgroup_replace_str ("_REPLACE_ANONYMOUSLIB_THREAD_GROUP_SEGMENT_");
-//    size_t threadgroup_found = ocl_source_code_string_format.find(threadgroup_replace_str);
-//    ocl_source_code_string_format.replace( threadgroup_found, threadgroup_replace_str.length(), threadgroup_str);
-//    threadgroup_found = ocl_source_code_string_csr5_spmv.find(threadgroup_replace_str);
-//    ocl_source_code_string_csr5_spmv.replace( threadgroup_found, threadgroup_replace_str.length(), threadgroup_str);
-
+    // replace 'threadgroup_replace_str' by 'threadgroup_str'
     format_ocl_options.append(" -D_REPLACE_ANONYMOUSLIB_THREAD_GROUP_SEGMENT_=");
     format_ocl_options.append(threadgroup_str);
     csr5_spmv_ocl_options.append(" -D_REPLACE_ANONYMOUSLIB_THREAD_GROUP_SEGMENT_=");
     csr5_spmv_ocl_options.append(threadgroup_str);
 
-//    // replace 'threadbunch_replace_str' to 'threadbunch_str'
-//    const std::string threadbunch_replace_str ("_REPLACE_ANONYMOUSLIB_THREAD_BUNCH_SEGMENT_");
-//    size_t threadbunch_found = ocl_source_code_string_csr5_spmv.find(threadbunch_replace_str);
-//    ocl_source_code_string_csr5_spmv.replace( threadbunch_found, threadbunch_replace_str.length(), threadbunch_str);
-
+    // replace 'threadbunch_replace_str' by 'threadbunch_str'
     csr5_spmv_ocl_options.append(" -D_REPLACE_ANONYMOUSLIB_THREAD_BUNCH_SEGMENT_=");
     csr5_spmv_ocl_options.append(threadbunch_str);
 
-//    // replace 'it_replace_str' to 'it_str'
-//    const std::string it_replace_str ("_REPLACE_ANONYMOUSLIB_CSR5_INDEX_TYPE_SEGMENT_");
-//    size_t it_found = ocl_source_code_string_format.find(it_replace_str);
-//    ocl_source_code_string_format.replace( it_found, it_replace_str.length(), it_str);
-//    it_found = ocl_source_code_string_csr5_spmv.find(it_replace_str);
-//    ocl_source_code_string_csr5_spmv.replace( it_found, it_replace_str.length(), it_str);
-
+    // replace 'it_replace_str' by 'it_str'
     format_ocl_options.append(" -D_REPLACE_ANONYMOUSLIB_CSR5_INDEX_TYPE_SEGMENT_=");
     format_ocl_options.append(it_str);
     csr5_spmv_ocl_options.append(" -D_REPLACE_ANONYMOUSLIB_CSR5_INDEX_TYPE_SEGMENT_=");
     csr5_spmv_ocl_options.append(it_str);
 
-//    // replace 'uit_replace_str' to 'uit_str'
-//    const std::string uit_replace_str ("_REPLACE_ANONYMOUSLIB_CSR5_UNSIGNED_INDEX_TYPE_SEGMENT_");
-//    size_t uit_found = ocl_source_code_string_format.find(uit_replace_str);
-//    ocl_source_code_string_format.replace( uit_found, uit_replace_str.length(), uit_str);
-//    uit_found = ocl_source_code_string_csr5_spmv.find(uit_replace_str);
-//    ocl_source_code_string_csr5_spmv.replace( uit_found, uit_replace_str.length(), uit_str);
-
+    // replace 'uit_replace_str' by 'uit_str'
     format_ocl_options.append(" -D_REPLACE_ANONYMOUSLIB_CSR5_UNSIGNED_INDEX_TYPE_SEGMENT_=");
     format_ocl_options.append(uit_str);
     csr5_spmv_ocl_options.append(" -D_REPLACE_ANONYMOUSLIB_CSR5_UNSIGNED_INDEX_TYPE_SEGMENT_=");
     csr5_spmv_ocl_options.append(uit_str);
 
-//    // replace 'vt_replace_str' to 'vt_str'
-//    const std::string vt_replace_str ("_REPLACE_ANONYMOUSLIB_CSR5_VALUE_TYPE_SEGMENT_");
-//    size_t vt_found = ocl_source_code_string_format.find(vt_replace_str);
-//    ocl_source_code_string_format.replace( vt_found, vt_replace_str.length(), vt_str);
-//    vt_found = ocl_source_code_string_csr5_spmv.find(vt_replace_str);
-//    ocl_source_code_string_csr5_spmv.replace( vt_found, vt_replace_str.length(), vt_str);
-
-
+    // replace 'vt_replace_str' by 'vt_str'
     format_ocl_options.append(" -D_REPLACE_ANONYMOUSLIB_CSR5_VALUE_TYPE_SEGMENT_=");
     format_ocl_options.append(vt_str);
     csr5_spmv_ocl_options.append(" -D_REPLACE_ANONYMOUSLIB_CSR5_VALUE_TYPE_SEGMENT_=");
     csr5_spmv_ocl_options.append(vt_str);
 
-    const char *ocl_source_code_format = ocl_source_code_string_format.c_str();
-    const char *ocl_source_code_csr5_spmv = ocl_source_code_string_csr5_spmv.c_str();
+    const char* ocl_source_code_format = ocl_source_code_string_format.c_str();
+    const char* ocl_source_code_csr5_spmv = ocl_source_code_string_csr5_spmv.c_str();
 
-    //std::cout << ocl_source_code_csr5_spmv << std::endl;
+//    std::cout << ocl_source_code_csr5_spmv << std::endl;
+//    std::cout << ocl_source_code_format << std::endl;
+
+//    std::cout << csr5_spmv_ocl_options << std::endl;
+//    std::cout << format_ocl_options << std::endl;
 
     // Create the program
-    size_t source_size_format[] = { strlen(ocl_source_code_format)};
+    size_t source_size_format[] = {strlen(ocl_source_code_format)};
     _ocl_program_format = clCreateProgramWithSource(_ocl_context, 1, &ocl_source_code_format, source_size_format, &err);
-    if(err != CL_SUCCESS) return err;
-    size_t source_size_csr5_spmv[] = { strlen(ocl_source_code_csr5_spmv)};
+    CL_CHECK(err);
+    size_t source_size_csr5_spmv[] = {strlen(ocl_source_code_csr5_spmv)};
     _ocl_program_csr5_spmv = clCreateProgramWithSource(_ocl_context, 1, &ocl_source_code_csr5_spmv, source_size_csr5_spmv, &err);
-    if(err != CL_SUCCESS) return err;
+    CL_CHECK(err);
+
 
     // Build the program
+    build_and_check(_ocl_program_format,format_ocl_options.c_str(), _ocl_device[0]);
 
-//    std::cout << format_ocl_options << std::endl;
-//    std::cout << csr5_spmv_ocl_options << std::endl;
+    build_and_check(_ocl_program_csr5_spmv,csr5_spmv_ocl_options.c_str(), _ocl_device[0]);
 
 
-    err = clBuildProgram(_ocl_program_format, 0, NULL, format_ocl_options.c_str(), NULL, NULL);
-    if (err != CL_SUCCESS) 
-    {
-        size_t length;
-        clGetProgramBuildInfo (_ocl_program_format, _ocl_device[0], CL_PROGRAM_BUILD_LOG, 0, NULL, &length);
-        char *buffer = (char *) malloc (length + 1);
-        clGetProgramBuildInfo (_ocl_program_format, _ocl_device[0], CL_PROGRAM_BUILD_LOG, length, buffer, NULL);
-        printf ("[program format] build info: \n %s\n", buffer);
-        if(buffer!= nullptr) free(buffer);
-        return err;
-    }
-
-    err = clBuildProgram(_ocl_program_csr5_spmv, 0, NULL, csr5_spmv_ocl_options.c_str(), NULL, NULL);
-    if (err != CL_SUCCESS) 
-    {
-        size_t length;
-        clGetProgramBuildInfo (_ocl_program_csr5_spmv, _ocl_device[0], CL_PROGRAM_BUILD_LOG, 0, NULL, &length);
-        char *buffer = (char *) malloc (length + 1);
-        clGetProgramBuildInfo (_ocl_program_csr5_spmv, _ocl_device[0], CL_PROGRAM_BUILD_LOG, length, buffer, NULL);
-        printf ("[csr5 spmv] build info: \n %s\n", buffer);
-        if(buffer!= nullptr) free(buffer);
-        return err;
-    }
     // Create kernels
     _ocl_kernel_warmup = clCreateKernel(_ocl_program_format, "warmup_kernel", &err);
-    if(err != CL_SUCCESS) return err;
+    CL_CHECK(err);
     _ocl_kernel_generate_partition_pointer_s1 = clCreateKernel(_ocl_program_format, "generate_partition_pointer_s1_kernel", &err);
-    if(err != CL_SUCCESS) return err;
+    CL_CHECK(err);
     _ocl_kernel_generate_partition_pointer_s2 = clCreateKernel(_ocl_program_format, "generate_partition_pointer_s2_kernel", &err);
-    if(err != CL_SUCCESS) return err;
+    CL_CHECK(err);
     _ocl_kernel_generate_partition_descriptor_s0 = clCreateKernel(_ocl_program_format, "generate_partition_descriptor_s0_kernel", &err);
-    if(err != CL_SUCCESS) return err;
+    CL_CHECK(err);
     _ocl_kernel_generate_partition_descriptor_s1 = clCreateKernel(_ocl_program_format, "generate_partition_descriptor_s1_kernel", &err);
-    if(err != CL_SUCCESS) return err;
+    CL_CHECK(err);
     _ocl_kernel_generate_partition_descriptor_s2 = clCreateKernel(_ocl_program_format, "generate_partition_descriptor_s2_kernel", &err);
-    if(err != CL_SUCCESS) return err;
+    CL_CHECK(err);
     _ocl_kernel_generate_partition_descriptor_s3 = clCreateKernel(_ocl_program_format, "generate_partition_descriptor_s3_kernel", &err);
-    if(err != CL_SUCCESS) return err;
+    CL_CHECK(err);
     _ocl_kernel_generate_partition_descriptor_offset = clCreateKernel(_ocl_program_format, "generate_partition_descriptor_offset_kernel", &err);
-    if(err != CL_SUCCESS) return err;
+    CL_CHECK(err);
     _ocl_kernel_aosoa_transpose_smem_iT = clCreateKernel(_ocl_program_format, "aosoa_transpose_kernel_smem_iT", &err);
-    if(err != CL_SUCCESS) return err;
+    CL_CHECK(err);
     _ocl_kernel_aosoa_transpose_smem_vT = clCreateKernel(_ocl_program_format, "aosoa_transpose_kernel_smem_vT", &err);
-    if(err != CL_SUCCESS) return err;
+    CL_CHECK(err);
 
     _ocl_kernel_spmv_csr5_compute = clCreateKernel(_ocl_program_csr5_spmv, "spmv_csr5_compute_kernel", &err);
-    if(err != CL_SUCCESS) return err;
+    CL_CHECK(err);
     _ocl_kernel_spmv_csr5_calibrate = clCreateKernel(_ocl_program_csr5_spmv, "spmv_csr5_calibrate_kernel", &err);
-    if(err != CL_SUCCESS) return err;
+    CL_CHECK(err);
     _ocl_kernel_spmv_csr5_tail_partition = clCreateKernel(_ocl_program_csr5_spmv, "spmv_csr5_tail_partition_kernel", &err);
-    if(err != CL_SUCCESS) return err;
+    CL_CHECK(err);
 
     return err;
 }
 
-template <class ANONYMOUSLIB_IT, class ANONYMOUSLIB_UIT, class ANONYMOUSLIB_VT>
-int anonymouslibHandle<ANONYMOUSLIB_IT, ANONYMOUSLIB_UIT, ANONYMOUSLIB_VT>::computeSigma()
-{
+template<class ANONYMOUSLIB_IT, class ANONYMOUSLIB_UIT, class ANONYMOUSLIB_VT>
+int anonymouslibHandle<ANONYMOUSLIB_IT, ANONYMOUSLIB_UIT, ANONYMOUSLIB_VT>::computeSigma() {
     return _csr5_sigma;
 }
 
-template <class ANONYMOUSLIB_IT, class ANONYMOUSLIB_UIT, class ANONYMOUSLIB_VT>
-int anonymouslibHandle<ANONYMOUSLIB_IT, ANONYMOUSLIB_UIT, ANONYMOUSLIB_VT>::setOCLENV(cl_context       ocl_context,
-        cl_command_queue ocl_command_queue,
-        cl_device_id *  ocl_device)
-{
+template<class ANONYMOUSLIB_IT, class ANONYMOUSLIB_UIT, class ANONYMOUSLIB_VT>
+int anonymouslibHandle<ANONYMOUSLIB_IT, ANONYMOUSLIB_UIT, ANONYMOUSLIB_VT>::setOCLENV(cl_context ocl_context,
+                                                                                      cl_command_queue ocl_command_queue,
+                                                                                      cl_device_id* ocl_device) {
     int err = ANONYMOUSLIB_SUCCESS;
 
     _ocl_context = ocl_context;
@@ -638,14 +582,6 @@ int anonymouslibHandle<ANONYMOUSLIB_IT, ANONYMOUSLIB_UIT, ANONYMOUSLIB_VT>::setO
     convertToString("../src/detail/kcode/format.cl", _ocl_source_code_string_format_const);
 
     convertToString("../src/detail/kcode/csr5_spmv.cl", _ocl_source_code_string_csr5_spmv_const);
-
-    //    BasicCL basicCL;
-    //    cl_program cpSpMV;
-    //    err  = basicCL.getProgramFromFile(&cpSpMV, _ocl_context, "format_kernels.cl");
-    //    if(err != CL_SUCCESS)
-    //        std::cout << "BUILD ERROR = " << err << std::endl;
-    //    else
-    //        std::cout << "BUILD SUCCESS" << std::endl;
 
     return err;
 }
