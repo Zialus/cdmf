@@ -23,4 +23,23 @@ struct anonymouslib_timer {
 
 };
 
+void build_and_check(cl_program program, const char* options, cl_device_id device) {
+    cl_int status = clBuildProgram(program, 0, nullptr, options, nullptr, nullptr);
+
+    size_t length;
+    clGetProgramBuildInfo(program, device, CL_PROGRAM_BUILD_LOG, 0, nullptr, &length);
+    char* buffer = (char*) malloc(length + 1);
+    clGetProgramBuildInfo(program, device, CL_PROGRAM_BUILD_LOG, length, buffer, nullptr);
+
+    if (buffer != nullptr && strcmp(buffer, "") != 0 && strcmp(buffer, "\n") != 0) {
+        printf("[OpenCL Compiler INFO]:\n%s\n", buffer);
+        free(buffer);
+    } else {
+        printf("[OpenCL Compiler]: No info to print\n");
+    }
+
+    CL_CHECK(status);
+    std::cout << "[INFO]: Compiled OpenCl code successfully!\n";
+}
+
 #endif // UTILS_OPENCL_H

@@ -191,7 +191,9 @@ void cdmf_csr5(smat_t& R, mat_t& W_c, mat_t& H_c, parameter& param, char filenam
     printf("[info] - blocks: %d | threads per block: %d | GWS_ROW: %zu | GWS_COL: %zu | local_work_size: %zu !\n",
            param.nBlocks, param.nThreadsPerBlock, gws_row[0], gws_col[0], local_work_size[0]);
 
-    double time = 0.0;
+    double time = 0;
+    double final_time = 0;
+    double convert_time = 0;
     anonymouslibHandle<int, unsigned int, VALUE_TYPE> Av(R.cols, R.rows);
     CL_CHECK(Av.setOCLENV(context, commandQueue, devices));
     CL_CHECK(Av.inputCSR(R.nnz, col_ptrBuffer, row_idxBuffer, valBuffer));
@@ -233,8 +235,12 @@ void cdmf_csr5(smat_t& R, mat_t& W_c, mat_t& H_c, parameter& param, char filenam
             CL_CHECK(clEnqueueWriteBuffer(commandQueue, HBuffer, CL_TRUE, 0, R.cols * sizeof(VALUE_TYPE), Ht, 0, nullptr, nullptr));
 
             if (oiter > 1) {
-                Av.asCSR_();
-                Au.asCSR_();
+                Av.asCSR_(&time);
+                convert_time+=time;
+
+                Au.asCSR_(&time);
+                convert_time+=time;
+
                 // update the rating matrix in CSC format (+)
                 cl_event eventPoint;
                 CL_CHECK(clEnqueueNDRangeKernel(commandQueue, UpdateRating_DUAL_kernel_NoLoss_c, 1, nullptr, gws_col, local_work_size, 0, nullptr, &eventPoint));
@@ -250,8 +256,12 @@ void cdmf_csr5(smat_t& R, mat_t& W_c, mat_t& H_c, parameter& param, char filenam
 
                 CL_CHECK(clReleaseEvent(eventPoint));
 
-                Av.asCSR5_();
-                Au.asCSR5_();
+                Av.asCSR5_(&time);
+                convert_time+=time;
+
+                Au.asCSR5_(&time);
+                convert_time+=time;
+
             }
             for (int iter = 1; iter <= param.maxinneriter; ++iter) {
                 cl_event eventPoint1v, eventPoint1u;
@@ -261,14 +271,16 @@ void cdmf_csr5(smat_t& R, mat_t& W_c, mat_t& H_c, parameter& param, char filenam
                 CL_CHECK(clEnqueueNDRangeKernel(commandQueue, _kernel_CALV, 1, nullptr, gws_col, local_work_size, 0, nullptr, &eventPoint1v));
                 CL_CHECK(clWaitForEvents(1, &eventPoint1v));
 
-                t_rank_one_update += executionTime(eventPoint1v);
+                t_rank_one_update += executionTime(eventPoint1v) + time;
+                final_time+=time;
 
                 // update vector u
                 CL_CHECK(Au.spmv(1.0, WtBuffer, WbBuffer, &time));
                 CL_CHECK(clEnqueueNDRangeKernel(commandQueue, _kernel_CALU, 1, nullptr, gws_row, local_work_size, 0, nullptr, &eventPoint1u));
                 CL_CHECK(clWaitForEvents(1, &eventPoint1u));
 
-                t_rank_one_update += executionTime(eventPoint1u);
+                t_rank_one_update += executionTime(eventPoint1u) + time;
+                final_time+=time;
 
                 CL_CHECK(clReleaseEvent(eventPoint1v));
                 CL_CHECK(clReleaseEvent(eventPoint1u));
@@ -276,8 +288,11 @@ void cdmf_csr5(smat_t& R, mat_t& W_c, mat_t& H_c, parameter& param, char filenam
             // Reading Buffer
             CL_CHECK(clEnqueueReadBuffer(commandQueue, WBuffer, CL_TRUE, 0, R.rows * sizeof(VALUE_TYPE), Wt, 0, nullptr, nullptr));
             CL_CHECK(clEnqueueReadBuffer(commandQueue, HBuffer, CL_TRUE, 0, R.cols * sizeof(VALUE_TYPE), Ht, 0, nullptr, nullptr));
-            Av.asCSR_();
-            Au.asCSR_();
+            Av.asCSR_(&time);
+            convert_time+=time;
+
+            Au.asCSR_(&time);
+            convert_time+=time;
 
             // update the rating matrix in CSC format (-)
             cl_event eventPoint2c, eventPoint2r;
@@ -295,8 +310,11 @@ void cdmf_csr5(smat_t& R, mat_t& W_c, mat_t& H_c, parameter& param, char filenam
             CL_CHECK(clReleaseEvent(eventPoint2c));
             CL_CHECK(clReleaseEvent(eventPoint2r));
 
-            Av.asCSR5_();
-            Au.asCSR5_();
+            Av.asCSR5_(&time);
+            final_time+=time;
+
+            Au.asCSR5_(&time);
+            final_time+=time;
 
         }
 
@@ -312,6 +330,7 @@ void cdmf_csr5(smat_t& R, mat_t& W_c, mat_t& H_c, parameter& param, char filenam
     auto t2 = std::chrono::high_resolution_clock::now();
     deltaT12 = t2 - t1;
     printf("[INFO] OCL Training time: %lf s\n", deltaT12.count());
+    printf("[INFO] spmv time: %lf s | conversion time %lf s\n", final_time, convert_time);
 
     CL_CHECK(Au.destroy());
     CL_CHECK(Av.destroy());

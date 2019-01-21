@@ -3,32 +3,31 @@
 
 #include "utils_opencl.h"
 
-int format_warmup(cl_kernel           ocl_kernel_warmup,
-                  cl_context          ocl_context,
-                  cl_command_queue    ocl_command_queue)
-{
+int format_warmup(cl_kernel ocl_kernel_warmup, cl_context ocl_context, cl_command_queue ocl_command_queue) {
     int err = ANONYMOUSLIB_SUCCESS;
 
     cl_mem d_scan;
     d_scan = clCreateBuffer(ocl_context, CL_MEM_READ_WRITE, ANONYMOUSLIB_CSR5_OMEGA * sizeof(int), nullptr, &err);
+    CL_CHECK(err);
 
     size_t szLocalWorkSize[1];
     size_t szGlobalWorkSize[1];
 
     int num_threads = ANONYMOUSLIB_CSR5_OMEGA;
-    int num_blocks  = 4000;
+    int num_blocks = 4000;
+    szLocalWorkSize[0] = (size_t) num_threads;
+    szGlobalWorkSize[0] = (size_t) num_blocks * szLocalWorkSize[0];
 
-    szLocalWorkSize[0]  = num_threads;
-    szGlobalWorkSize[0] = num_blocks * szLocalWorkSize[0];
-
-    err  = clSetKernelArg(ocl_kernel_warmup, 0,  sizeof(cl_mem), (void*)&d_scan);
+    err = clSetKernelArg(ocl_kernel_warmup, 0, sizeof(cl_mem), (void*) &d_scan);
+    CL_CHECK(err);
 
     for (int i = 0; i < 50; i++) {
-        err = clEnqueueNDRangeKernel(ocl_command_queue, ocl_kernel_warmup, 1, nullptr, szGlobalWorkSize, szLocalWorkSize, 0, nullptr, nullptr);
+        err = clEnqueueNDRangeKernel(ocl_command_queue, ocl_kernel_warmup, 1, nullptr, szGlobalWorkSize,
+                                     szLocalWorkSize, 0, nullptr, nullptr);
         CL_CHECK(err);
     }
 
-    if (d_scan) { err = clReleaseMemObject(d_scan); }
+    err = clReleaseMemObject(d_scan);
     CL_CHECK(err);
 
     return err;
@@ -333,16 +332,14 @@ int generate_partition_descriptor_offset(cl_kernel ocl_kernel_generate_partition
     err |= clSetKernelArg(ocl_kernel_generate_partition_descriptor_offset, 9, sizeof(cl_int), (void*) &sigma);
     CL_CHECK(err);
 
-    err = clEnqueueNDRangeKernel(ocl_command_queue, ocl_kernel_generate_partition_descriptor_offset, 1,
-                                 nullptr, szGlobalWorkSize, szLocalWorkSize, 0, nullptr, &ceTimer);
+    err = clEnqueueNDRangeKernel(ocl_command_queue, ocl_kernel_generate_partition_descriptor_offset, 1, nullptr,
+                                 szGlobalWorkSize, szLocalWorkSize, 0, nullptr, &ceTimer);
     CL_CHECK(err);
 
     err = clWaitForEvents(1, &ceTimer);
     CL_CHECK(err);
 
-    err = basicCL.getEventTimer(ceTimer, &queuedTime, &submitTime, &startTime, &endTime);
-    CL_CHECK(err);
-
+    basicCL.getEventTimer(ceTimer, &queuedTime, &submitTime, &startTime, &endTime);
     conv_time += double(endTime - startTime) / 1000000.0;
 
     *time = conv_time;
@@ -361,7 +358,7 @@ int aosoa_transpose(cl_kernel _ocl_kernel_aosoa_transpose_smem_iT,
                     cl_mem value,
                     int R2C,
                     double* time) {
-    int err;
+    int err = ANONYMOUSLIB_SUCCESS;
 
     double conv_time = 0;
 
@@ -372,48 +369,50 @@ int aosoa_transpose(cl_kernel _ocl_kernel_aosoa_transpose_smem_iT,
     cl_ulong startTime;
     cl_ulong endTime;
 
+    int num_threads;
+    int num_blocks;
     size_t szLocalWorkSize[1];
     size_t szGlobalWorkSize[1];
 
-    int num_threads = 128;
-    int num_blocks = (int) ceil((double) nnz / (double) (ANONYMOUSLIB_CSR5_OMEGA * sigma)) - 1;
-
+    num_threads = 128;
+    num_blocks = (int) ceil((double) nnz / (double) (ANONYMOUSLIB_CSR5_OMEGA * sigma)) - 1;
     szLocalWorkSize[0] = (size_t) num_threads;
     szGlobalWorkSize[0] = (size_t) num_blocks * szLocalWorkSize[0];
 
     err = clSetKernelArg(_ocl_kernel_aosoa_transpose_smem_iT, 0, sizeof(cl_mem), (void*) &column_index);
-    err |= clSetKernelArg(_ocl_kernel_aosoa_transpose_smem_iT, 1, sizeof(cl_mem), (void*) &partition_pointer);
-    err |= clSetKernelArg(_ocl_kernel_aosoa_transpose_smem_iT, 2, sizeof(cl_int), (void*) &R2C);
+    CL_CHECK(err);
+    err = clSetKernelArg(_ocl_kernel_aosoa_transpose_smem_iT, 1, sizeof(cl_mem), (void*) &partition_pointer);
+    CL_CHECK(err);
+    err = clSetKernelArg(_ocl_kernel_aosoa_transpose_smem_iT, 2, sizeof(cl_int), (void*) &R2C);
     CL_CHECK(err);
 
-    err = clEnqueueNDRangeKernel(ocl_command_queue, _ocl_kernel_aosoa_transpose_smem_iT, 1,
-                                 nullptr, szGlobalWorkSize, szLocalWorkSize, 0, nullptr, &ceTimer);
+    err = clEnqueueNDRangeKernel(ocl_command_queue, _ocl_kernel_aosoa_transpose_smem_iT, 1, nullptr,
+                                 szGlobalWorkSize, szLocalWorkSize, 0, nullptr, &ceTimer);
     CL_CHECK(err);
 
     err = clWaitForEvents(1, &ceTimer);
     CL_CHECK(err);
 
-    err = basicCL.getEventTimer(ceTimer, &queuedTime, &submitTime, &startTime, &endTime);
-    CL_CHECK(err);
+    basicCL.getEventTimer(ceTimer, &queuedTime, &submitTime, &startTime, &endTime);
+    conv_time += double(endTime - startTime) * 1.0e-9;
 
-    conv_time += double(endTime - startTime) / 1000000.0;
 
     err = clSetKernelArg(_ocl_kernel_aosoa_transpose_smem_vT, 0, sizeof(cl_mem), (void*) &value);
-    err |= clSetKernelArg(_ocl_kernel_aosoa_transpose_smem_vT, 1, sizeof(cl_mem), (void*) &partition_pointer);
-    err |= clSetKernelArg(_ocl_kernel_aosoa_transpose_smem_vT, 2, sizeof(cl_int), (void*) &R2C);
+    CL_CHECK(err);
+    err = clSetKernelArg(_ocl_kernel_aosoa_transpose_smem_vT, 1, sizeof(cl_mem), (void*) &partition_pointer);
+    CL_CHECK(err);
+    err = clSetKernelArg(_ocl_kernel_aosoa_transpose_smem_vT, 2, sizeof(cl_int), (void*) &R2C);
     CL_CHECK(err);
 
-    err = clEnqueueNDRangeKernel(ocl_command_queue, _ocl_kernel_aosoa_transpose_smem_vT, 1,
-                                 nullptr, szGlobalWorkSize, szLocalWorkSize, 0, nullptr, &ceTimer);
+    err = clEnqueueNDRangeKernel(ocl_command_queue, _ocl_kernel_aosoa_transpose_smem_vT, 1, nullptr,
+                                 szGlobalWorkSize, szLocalWorkSize, 0, nullptr, &ceTimer);
     CL_CHECK(err);
 
     err = clWaitForEvents(1, &ceTimer);
     CL_CHECK(err);
 
-    err = basicCL.getEventTimer(ceTimer, &queuedTime, &submitTime, &startTime, &endTime);
-    CL_CHECK(err);
-
-    conv_time += double(endTime - startTime) / 1000000.0;
+    basicCL.getEventTimer(ceTimer, &queuedTime, &submitTime, &startTime, &endTime);
+    conv_time += double(endTime - startTime) * 1.0e-9;
 
     *time = conv_time;
 

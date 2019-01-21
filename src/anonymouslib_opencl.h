@@ -8,25 +8,6 @@
 #include "detail/opencl/format_opencl.h"
 #include "detail/opencl/csr5_spmv_opencl.h"
 
-void build_and_check(cl_program program, const char* options, cl_device_id device) {
-    cl_int status = clBuildProgram(program, 0, nullptr, options, nullptr, nullptr);
-
-    size_t length;
-    clGetProgramBuildInfo(program, device, CL_PROGRAM_BUILD_LOG, 0, nullptr, &length);
-    char* buffer = (char*) malloc(length + 1);
-    clGetProgramBuildInfo(program, device, CL_PROGRAM_BUILD_LOG, length, buffer, nullptr);
-
-    if (buffer != nullptr && strcmp(buffer, "") != 0 && strcmp(buffer, "\n") != 0) {
-        printf("[OpenCL Compiler INFO]:\n%s\n", buffer);
-        free(buffer);
-    } else {
-        printf("[OpenCL Compiler]: No info to print\n");
-    }
-
-    CL_CHECK(status);
-    std::cout << "[INFO]: Compiled OpenCl code successfully!\n";
-}
-
 template <class ANONYMOUSLIB_IT, class ANONYMOUSLIB_UIT, class ANONYMOUSLIB_VT>
 class anonymouslibHandle
 {
@@ -36,9 +17,9 @@ class anonymouslibHandle
         int warmup();
         int inputCSR(ANONYMOUSLIB_IT  nnz, cl_mem csr_row_pointer, cl_mem csr_column_index, cl_mem csr_value);
         int asCSR();
-        int asCSR_();
+        int asCSR_(double* time);
         int asCSR5();
-        int asCSR5_();
+        int asCSR5_(double *time);
         int setX(cl_mem x);
         int spmv(const ANONYMOUSLIB_VT alpha, cl_mem y, cl_mem yb, double *time);
         int destroy();
@@ -161,7 +142,7 @@ int anonymouslibHandle<ANONYMOUSLIB_IT, ANONYMOUSLIB_UIT, ANONYMOUSLIB_VT>::asCS
 }
 
 template<class ANONYMOUSLIB_IT, class ANONYMOUSLIB_UIT, class ANONYMOUSLIB_VT>
-int anonymouslibHandle<ANONYMOUSLIB_IT, ANONYMOUSLIB_UIT, ANONYMOUSLIB_VT>::asCSR_() {
+int anonymouslibHandle<ANONYMOUSLIB_IT, ANONYMOUSLIB_UIT, ANONYMOUSLIB_VT>::asCSR_(double* time) {
     int err = ANONYMOUSLIB_SUCCESS;
 
     if (_format == ANONYMOUSLIB_FORMAT_CSR) {
@@ -170,13 +151,12 @@ int anonymouslibHandle<ANONYMOUSLIB_IT, ANONYMOUSLIB_UIT, ANONYMOUSLIB_VT>::asCS
 
     if (_format == ANONYMOUSLIB_FORMAT_CSR5) {
         // convert csr5 data to csr data
-        double time = 0;
         err = aosoa_transpose<ANONYMOUSLIB_IT, ANONYMOUSLIB_UIT, ANONYMOUSLIB_VT>(_ocl_kernel_aosoa_transpose_smem_iT,
                                                                                   _ocl_kernel_aosoa_transpose_smem_vT,
                                                                                   _ocl_command_queue, _csr5_sigma, _nnz,
                                                                                   _csr5_partition_pointer,
                                                                                   _csr_column_index, _csr_value, 0,
-                                                                                  &time);
+                                                                                  time);
         CL_CHECK(err);
 
         _format = ANONYMOUSLIB_FORMAT_CSR;
@@ -338,7 +318,7 @@ int anonymouslibHandle<ANONYMOUSLIB_IT, ANONYMOUSLIB_UIT, ANONYMOUSLIB_VT>::asCS
 }
 
 template <class ANONYMOUSLIB_IT, class ANONYMOUSLIB_UIT, class ANONYMOUSLIB_VT>
-int anonymouslibHandle<ANONYMOUSLIB_IT, ANONYMOUSLIB_UIT, ANONYMOUSLIB_VT>::asCSR5_()
+int anonymouslibHandle<ANONYMOUSLIB_IT, ANONYMOUSLIB_UIT, ANONYMOUSLIB_VT>::asCSR5_(double *time)
 {
     int err = ANONYMOUSLIB_SUCCESS;
 
@@ -348,10 +328,8 @@ int anonymouslibHandle<ANONYMOUSLIB_IT, ANONYMOUSLIB_UIT, ANONYMOUSLIB_VT>::asCS
     if (_format == ANONYMOUSLIB_FORMAT_CSR)
     {
         // double malloc_time = 0, tile_ptr_time = 0, tile_desc_time = 0;
-        double transpose_time = 0;
+        // double transpose_time = 0;
         // anonymouslib_timer malloc_timer, tile_ptr_timer, tile_desc_timer, transpose_timer;
-        double time = 0;
-
         // compute sigma
 
         // calculate the number of partitions
@@ -366,10 +344,10 @@ int anonymouslibHandle<ANONYMOUSLIB_IT, ANONYMOUSLIB_UIT, ANONYMOUSLIB_VT>::asCS
         // step 3. transpose column_index and value arrays
         err = aosoa_transpose<ANONYMOUSLIB_IT, ANONYMOUSLIB_UIT, ANONYMOUSLIB_VT>
             (_ocl_kernel_aosoa_transpose_smem_iT, _ocl_kernel_aosoa_transpose_smem_vT, _ocl_command_queue,
-             _csr5_sigma, _nnz, _csr5_partition_pointer, _csr_column_index, _csr_value, 1, &time);
+             _csr5_sigma, _nnz, _csr5_partition_pointer, _csr_column_index, _csr_value, 1, time);
         if (err != ANONYMOUSLIB_SUCCESS)
             return ANONYMOUSLIB_CSR_TO_CSR5_FAILED;
-        transpose_time += time;
+        //transpose_time += time;
 
 
         _format = ANONYMOUSLIB_FORMAT_CSR5;

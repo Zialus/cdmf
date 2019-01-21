@@ -7,8 +7,6 @@
 #include <cstring>
 #include <cmath>
 
-#include <iostream>
-
 #define ANONYMOUSLIB_SUCCESS                   0
 #define ANONYMOUSLIB_UNKOWN_FORMAT            -1
 #define ANONYMOUSLIB_UNSUPPORTED_CSR5_OMEGA   -2

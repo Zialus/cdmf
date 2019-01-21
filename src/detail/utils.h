@@ -1,8 +1,6 @@
 #ifndef UTILS_H
 #define UTILS_H
 
-#include "common.h"
-
 template<typename iT, typename vT>
 double getB(const iT m, const iT nnz) {
     return (double) ((m + 1 + nnz) * sizeof(iT) + (2 * nnz + m) * sizeof(vT));
