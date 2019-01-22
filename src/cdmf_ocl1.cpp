@@ -172,6 +172,8 @@ void cdmf_ocl_01(smat_t& R, mat_t& W_c, mat_t& H_c, parameter& param, char filen
     CL_CHECK(clSetKernelArg(UpdateRating_DUAL_kernel_NoLoss_c_, 8, sizeof(cl_mem), (void*) &col_idxBuffer));
     CL_CHECK(clSetKernelArg(UpdateRating_DUAL_kernel_NoLoss_c_, 9, sizeof(cl_mem), (void*) &val_tBuffer));
 
+    size_t gws_row[1] = {static_cast<size_t>(R.rows * param.nThreadsPerBlock)};
+    size_t gws_col[1] = {static_cast<size_t>(R.cols * param.nThreadsPerBlock)};
     size_t global_work_size[1] = {static_cast<size_t>(param.nBlocks * param.nThreadsPerBlock)};
     size_t local_work_size[1] = {static_cast<size_t>(param.nThreadsPerBlock)};
     printf("[INFO] - blocks: %d | threads per block: %d | global_work_size: %zu | local_work_size: %zu !\n",
@@ -214,13 +216,13 @@ void cdmf_ocl_01(smat_t& R, mat_t& W_c, mat_t& H_c, parameter& param, char filen
             if (oiter > 1) {
                 // update the rating matrix in CSC format (+)
                 cl_event eventPoint0c, eventPoint0r;
-                CL_CHECK(clEnqueueNDRangeKernel(commandQueue, UpdateRating_DUAL_kernel_NoLoss_c, 1, nullptr, global_work_size, local_work_size, 0, nullptr, &eventPoint0c));
+                CL_CHECK(clEnqueueNDRangeKernel(commandQueue, UpdateRating_DUAL_kernel_NoLoss_c, 1, nullptr, gws_col, local_work_size, 0, nullptr, &eventPoint0c));
                 CL_CHECK(clWaitForEvents(1, &eventPoint0c));
 
                 t_update_ratings += executionTime(eventPoint0c);
 
                 // update the rating matrix in CSR format (+)
-                CL_CHECK(clEnqueueNDRangeKernel(commandQueue, UpdateRating_DUAL_kernel_NoLoss_r, 1, nullptr, global_work_size, local_work_size, 0, nullptr, &eventPoint0r));
+                CL_CHECK(clEnqueueNDRangeKernel(commandQueue, UpdateRating_DUAL_kernel_NoLoss_r, 1, nullptr, gws_row, local_work_size, 0, nullptr, &eventPoint0r));
                 CL_CHECK(clWaitForEvents(1, &eventPoint0r));
 
                 t_update_ratings += executionTime(eventPoint0r);
@@ -232,13 +234,13 @@ void cdmf_ocl_01(smat_t& R, mat_t& W_c, mat_t& H_c, parameter& param, char filen
             for (int iter = 1; iter <= param.maxinneriter; ++iter) {
                 // update vector v
                 cl_event eventPoint1v, eventPoint1u;
-                CL_CHECK(clEnqueueNDRangeKernel(commandQueue, RankOneUpdate_DUAL_kernel_v, 1, nullptr, global_work_size, local_work_size, 0, nullptr, &eventPoint1v));
+                CL_CHECK(clEnqueueNDRangeKernel(commandQueue, RankOneUpdate_DUAL_kernel_v, 1, nullptr, gws_col, local_work_size, 0, nullptr, &eventPoint1v));
                 CL_CHECK(clWaitForEvents(1, &eventPoint1v));
 
                 t_rank_one_update += executionTime(eventPoint1v);
 
                 // update vector u
-                CL_CHECK(clEnqueueNDRangeKernel(commandQueue, RankOneUpdate_DUAL_kernel_u, 1, nullptr, global_work_size, local_work_size, 0, nullptr, &eventPoint1u));
+                CL_CHECK(clEnqueueNDRangeKernel(commandQueue, RankOneUpdate_DUAL_kernel_u, 1, nullptr, gws_row, local_work_size, 0, nullptr, &eventPoint1u));
                 CL_CHECK(clWaitForEvents(1, &eventPoint1u));
 
                 t_rank_one_update += executionTime(eventPoint1u);
@@ -252,13 +254,13 @@ void cdmf_ocl_01(smat_t& R, mat_t& W_c, mat_t& H_c, parameter& param, char filen
 
             // update the rating matrix in CSC format (-)
             cl_event eventPoint2c, eventPoint2r;
-            CL_CHECK(clEnqueueNDRangeKernel(commandQueue, UpdateRating_DUAL_kernel_NoLoss_c_, 1, nullptr, global_work_size, local_work_size, 0, nullptr, &eventPoint2c));
+            CL_CHECK(clEnqueueNDRangeKernel(commandQueue, UpdateRating_DUAL_kernel_NoLoss_c_, 1, nullptr, gws_col, local_work_size, 0, nullptr, &eventPoint2c));
             CL_CHECK(clWaitForEvents(1, &eventPoint2c));
 
             t_update_ratings += executionTime(eventPoint2c);
 
             // update the rating matrix in CSR format (-)
-            CL_CHECK(clEnqueueNDRangeKernel(commandQueue, UpdateRating_DUAL_kernel_NoLoss_r_, 1, nullptr, global_work_size, local_work_size, 0, nullptr, &eventPoint2r));
+            CL_CHECK(clEnqueueNDRangeKernel(commandQueue, UpdateRating_DUAL_kernel_NoLoss_r_, 1, nullptr, gws_row, local_work_size, 0, nullptr, &eventPoint2r));
             CL_CHECK(clWaitForEvents(1, &eventPoint2r));
 
             t_update_ratings += executionTime(eventPoint2r);
