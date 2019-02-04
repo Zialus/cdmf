@@ -75,7 +75,7 @@ inline VALUE_TYPE UpdateRating(smat_t& R, const vec_t& Wt, const vec_t& Ht, bool
 }
 
 // Matrix Factorization based on Coordinate Descent
-void cdmf_ref(smat_t& R, mat_t& W, mat_t& H, parameter& param) {
+void cdmf_ref(smat_t& R, mat_t& W, mat_t& H, testset_t &T, parameter& param) {
     VALUE_TYPE lambda = param.lambda;
 
     int num_threads_old = omp_get_num_threads();
@@ -94,9 +94,17 @@ void cdmf_ref(smat_t& R, mat_t& W, mat_t& H, parameter& param) {
     vec_t u(R.rows);
     vec_t v(R.cols);
 
+    double t_update_ratings_acc = 0;
+    double t_rank_one_update_acc = 0;
+
     for (int oiter = 1; oiter <= param.maxiter; ++oiter) {
 
+        double t_update_ratings = 0;
+        double t_rank_one_update = 0;
+
         for (unsigned t = 0; t < param.k; ++t) {
+            double start = omp_get_wtime();
+
             vec_t& Wt = W[t];
             vec_t& Ht = H[t];
 
@@ -111,20 +119,30 @@ void cdmf_ref(smat_t& R, mat_t& W, mat_t& H, parameter& param) {
                 UpdateRating(Rt, Ht, Wt, true);
             }
 
+            t_update_ratings += omp_get_wtime() - start;
+
             for (int iter = 1; iter <= param.maxinneriter; ++iter) {
                 // Update H[t]
+                start = omp_get_wtime();
 #pragma omp parallel for schedule(kind) shared(u, v)
                 for (long c = 0; c < R.cols; ++c) {
                     v[c] = RankOneUpdate(R, c, u, lambda * (R.col_ptr[c + 1] - R.col_ptr[c]), param.do_nmf);
                 }
+                t_rank_one_update += omp_get_wtime() - start;
+
                 // Update W[t]
+                start = omp_get_wtime();
 #pragma omp parallel for schedule(kind) shared(u, v)
                 for (long c = 0; c < Rt.cols; ++c) {
                     u[c] = RankOneUpdate(Rt, c, v, lambda * (Rt.col_ptr[c + 1] - Rt.col_ptr[c]), param.do_nmf);
                 }
+                t_rank_one_update += omp_get_wtime() - start;
+
             }
 
             // Update R and Rt
+            start = omp_get_wtime();
+
 #pragma omp parallel for
             for (long i = 0; i < R.rows; ++i) { Wt[i] = u[i]; }
 #pragma omp parallel for
@@ -132,8 +150,22 @@ void cdmf_ref(smat_t& R, mat_t& W, mat_t& H, parameter& param) {
 
             UpdateRating(R, u, v, false);
             UpdateRating(Rt, v, u, false);
-        }
-    }
 
+            t_update_ratings += omp_get_wtime() - start;
+
+        }
+
+        t_rank_one_update_acc += t_rank_one_update;
+        t_update_ratings_acc += t_update_ratings;
+
+        double start = omp_get_wtime();
+        double rmse = calculate_rmse_directly(W, H, T, param.k, false);
+        double end = omp_get_wtime();
+        double rmse_timer = end - start;
+
+        printf("[-INFO-] iteration num %d \trank_time %.4lf|%.4lf s \tupdate_time %.4lf|%.4lfs \tRMSE=%lf time:%fs\n",
+               oiter, t_rank_one_update, t_rank_one_update_acc, t_update_ratings, t_update_ratings_acc, rmse, rmse_timer);
+
+    }
     omp_set_num_threads(num_threads_old);
 }

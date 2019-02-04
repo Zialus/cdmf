@@ -272,10 +272,9 @@ void cdmf_ocl_01(smat_t& R, mat_t& W_c, mat_t& H_c, parameter& param, char filen
         t_update_ratings_acc += t_update_ratings;
         t_rank_one_update_acc += t_rank_one_update;
 
-        if (param.verbose) {
-            printf("[VERBOSE] outter iteration num %d \trank_time %.4lf|%.4lf s \tupdate_time %.4lf|%.4lf s \n",
-                   oiter, t_rank_one_update, t_rank_one_update_acc, t_update_ratings, t_update_ratings_acc);
-        }
+        printf("[-INFO-] iteration num %d \trank_time %.4lf|%.4lf s \tupdate_time %.4lf|%.4lf s \n",
+               oiter, t_rank_one_update, t_rank_one_update_acc, t_update_ratings, t_update_ratings_acc);
+
 
     }
     auto t2 = std::chrono::high_resolution_clock::now();

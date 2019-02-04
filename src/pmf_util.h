@@ -229,4 +229,47 @@ public:
     }
 };
 
+// Test set in COO format
+class testset_t {
+public:
+    unsigned rows;
+    unsigned cols;
+    unsigned nnz;
+    unsigned* test_row;
+    unsigned* test_col;
+    VALUE_TYPE* test_val;
+
+    void load(unsigned _rows, unsigned _cols, unsigned _nnz, const char* filename) {
+        unsigned r, c;
+        VALUE_TYPE v;
+        rows = _rows;
+        cols = _cols;
+        nnz = _nnz;
+
+        test_row = new unsigned[nnz];
+        test_col = new unsigned[nnz];
+        test_val = new float[nnz];
+
+        FILE* fp = fopen(filename, "r");
+        for (unsigned idx = 0; idx < nnz; ++idx) {
+            if (sizeof(VALUE_TYPE) == 8) {
+                CHECK_FSCAN(fscanf(fp, "%u %u %lf", &r, &c, &v), 3);
+            } else {
+                CHECK_FSCAN(fscanf(fp, "%u %u %f", &r, &c, &v), 3);
+            }
+            test_row[idx] = r - 1;
+            test_col[idx] = c - 1;
+            test_val[idx] = v;
+        }
+        fclose(fp);
+    }
+
+    ~testset_t() {
+        delete[] test_row;
+        delete[] test_col;
+        delete[] test_val;
+    }
+
+};
+
 #endif //PMF_UTIL_H

@@ -17,8 +17,9 @@ int main(int argc, char** argv) {
     std::cout << "[info] Loading R matrix..." << std::endl;
     auto t3 = std::chrono::high_resolution_clock::now();
     smat_t R;
+    testset_t T;
     bool ifALS = false;
-    load(param.scr_dir, R, ifALS);
+    load(param.scr_dir, R, T, ifALS);
     auto t4 = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> deltaT34 = t4 - t3;
     std::cout << "[info] Loading rating data time: " << deltaT34.count() << "s.\n";
@@ -82,7 +83,7 @@ int main(int argc, char** argv) {
         std::cout << "------------------------------------------------------" << std::endl;
         std::cout << "[info] Computing cdmf OpenMP reference results on CPU." << std::endl;
         auto t9 = std::chrono::high_resolution_clock::now();
-        cdmf_ref(R, W_ref, H_ref, param);
+        cdmf_ref(R, W_ref, H_ref, T, param);
         auto t10 = std::chrono::high_resolution_clock::now();
         deltaT9_10 = t10 - t9;
         std::cout << "[info] OMP Training Time: " << deltaT9_10.count() << " s.\n";

@@ -268,19 +268,25 @@ int report_device(cl_device_id device_id) {
     return 0;
 }
 
-void load(const char* srcdir, smat_t& R, bool ifALS) {
+void load(const char* srcdir, smat_t& R, testset_t& T, bool ifALS) {
     char filename[2048], buf[1024];
     snprintf(filename, sizeof(filename), "%s/meta", srcdir);
     FILE* fp = fopen(filename, "r");
     if (fp == nullptr) {
-        printf("Can't open input file.\n");
+        fprintf(stderr, "Can't open input file.\n");
         exit(EXIT_FAILURE);
     }
     unsigned m, n, nnz;
     CHECK_FSCAN(fscanf(fp, "%u %u", &m, &n), 2);
+
     CHECK_FSCAN(fscanf(fp, "%u %1023s", &nnz, buf), 2);
     snprintf(filename, sizeof(filename), "%s/%s", srcdir, buf);
     R.load(m, n, nnz, filename, ifALS);
+
+    CHECK_FSCAN(fscanf(fp, "%u %1023s", &nnz, buf), 2);
+    snprintf(filename, sizeof(filename), "%s/%s", srcdir, buf);
+    T.load(m, n, nnz, filename);
+
     fclose(fp);
 }
 
@@ -479,6 +485,49 @@ void calculate_rmse(const mat_t& W_c, const mat_t& H_c, const char* srcdir, cons
     printf("[INFO] NaNs: [%lf%%], NaNs Count: %d out of %d entries.\n", nans_percentage, nans_count, num_insts);
     rmse = sqrt(rmse / num_insts);
     printf("[INFO] Test RMSE = %lf\n", rmse);
+}
+
+double calculate_rmse_directly(mat_t& W, mat_t& H, testset_t& T, int rank, bool ifALS) {
+
+    double rmse = 0;
+    int num_insts = 0;
+//    int nans_count = 0;
+
+    long nnz = T.nnz;
+
+    for (long idx = 0; idx < nnz; ++idx) {
+        long i = T.test_row[idx];
+        long j = T.test_col[idx];
+        double v = T.test_val[idx];
+
+        double pred_v = 0;
+        if (ifALS) {
+//#pragma omp parallel for  reduction(+:pred_v)
+            for (int t = 0; t < rank; t++) {
+                pred_v += W[i][t] * H[j][t];
+            }
+        } else {
+//#pragma omp parallel for  reduction(+:pred_v)
+            for (int t = 0; t < rank; t++) {
+                pred_v += W[t][i] * H[t][j];
+            }
+        }
+        double tmp = (pred_v - v) * (pred_v - v);
+        if (!std::isnan(tmp)) {
+            rmse += tmp;
+        } else {
+//            nans_count++;
+//            printf("%d \t - [%u,%u] - v: %lf pred_v: %lf\n", num_insts, i, j, v, pred_v);
+        }
+        num_insts++;
+    }
+
+    if (num_insts == 0) { exit(EXIT_FAILURE); }
+//    double nans_percentage = (double) nans_count / num_insts;
+//    printf("[INFO] NaNs: [%lf%%], NaNs Count: %d out of %d entries.\n", nans_percentage, nans_count, num_insts);
+    rmse = sqrt(rmse / num_insts);
+//    printf("[INFO] Test RMSE = %lf\n", rmse);
+    return rmse;
 }
 
 void print_matrix(mat_t M, unsigned k, unsigned n) {
