@@ -2,10 +2,12 @@
 
 AMD
 ```
-cmake .. -DOpenCL_LIBRARY=/opt/rocm/opencl/lib/x86_64/libOpenCL.so -DOpenCL_INCLUDE_DIR=/opt/rocm/opencl/include -DCMAKE_BUILD_TYPE=Release
+export AMDAPPSDKROOT=/opt/rocm/opencl/
+cmake .. -DCMAKE_BUILD_TYPE=Release
 ```
 
 NVIDIA
 ```
-cmake .. -DCUDA_PATH=/usr/local/cuda-9.2/ -DCMAKE_BUILD_TYPE=Release
+export CUDA_PATH=/usr/local/cuda/
+cmake .. -DCMAKE_BUILD_TYPE=Release
 ```
