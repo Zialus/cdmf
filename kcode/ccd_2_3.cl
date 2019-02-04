@@ -1,5 +1,3 @@
-#define WG_HALF WG_SIZE/2
-
 static void UV(const unsigned cols,
                __global const unsigned* col_ptr,
                __global VALUE_TYPE* Ht,
@@ -67,7 +65,7 @@ __kernel void RankOneUpdate_dev(__global const unsigned* col_ptr,
     }
     barrier(CLK_LOCAL_MEM_FENCE);
 
-    for (unsigned i = WG_HALF; i > 0; i = i / 2) {
+    for (unsigned i = WG_SIZE/2; i > 0; i = i / 2) {
         if (ss < i) {
             g[ss] += g[ss + i];
             h[ss] += h[ss + i];
