@@ -428,7 +428,7 @@ void golden_compare(mat_t W, mat_t W_ref, unsigned k, unsigned m) {
         std::cout << "Check... PASS!" << std::endl;
     } else {
         unsigned entries = k * m;
-        double error_percentage = (double) error_count / entries;
+        double error_percentage = 100 * (double) error_count / entries;
         printf("Check... NO PASS! [%f%%] #Error = %u out of %u entries.\n", error_percentage, error_count, entries);
     }
 }
