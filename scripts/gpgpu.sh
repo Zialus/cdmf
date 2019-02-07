@@ -13,21 +13,21 @@ rawA="dat.float.rmse.v2"
 
 if [[ -e ${rawA} ]]
 then
-        rm ${rawA}
+    rm ${rawA}
 fi
 
 for ts in "${TS[@]}"; do
-        echo "T=${ts}:" >> ${rawA}
-        for ds in "${DS[@]}"; do
-                for lws in "${LWS[@]}"; do
-                        ../exec/cdmf -k 40 -t "$lws" -T "$ts" -P 0 -d 1 -l 0.05 -nThreadsPerBlock 64 -p 1 -V 2 ../data/"$ds"/ > tmp.dat
-                        echo -ne $(grep "OCL Training time" ./tmp.dat | cut -d':' -f2 | cut -d' ' -f2) >> ${rawA}
-                        echo -ne "\\t" >> ${rawA}
-                        echo -ne $(grep "Test RMSE" ./tmp.dat | cut -d'=' -f2 | cut -d' ' -f2) >> ${rawA}
-                        echo "" >> ${rawA}
-                done
-                echo "" >> ${rawA}
+    echo "T=${ts}:" >> ${rawA}
+    for ds in "${DS[@]}"; do
+        for lws in "${LWS[@]}"; do
+            ../exec/cdmf -k 40 -t "$lws" -T "$ts" -P 0 -d 1 -l 0.05 -nThreadsPerBlock 64 -p 1 -V 2 ../data/"$ds"/ > tmp.dat
+            echo -ne $(grep "OCL Training time" ./tmp.dat | cut -d':' -f2 | cut -d' ' -f2) >> ${rawA}
+            echo -ne "\\t" >> ${rawA}
+            echo -ne $(grep "Test RMSE" ./tmp.dat | cut -d'=' -f2 | cut -d' ' -f2) >> ${rawA}
+            echo "" >> ${rawA}
         done
+        echo "" >> ${rawA}
+    done
 done
 
 
@@ -37,19 +37,19 @@ rawB="dat.float.rmse.v1"
 
 if [[ -e ${rawB} ]]
 then
-        rm ${rawB}
+    rm ${rawB}
 fi
 
 for ts in "${TS[@]}"; do
-        echo "T=${ts}:" >> ${rawB}
-        for ds in "${DS[@]}"; do
-                for lws in "${LWS[@]}"; do
-                        ../exec/cdmf -k 40 -t "$lws" -T "$ts" -P 0 -d 1 -l 0.05 -nThreadsPerBlock 64 -p 1 -V 1 ../data/"$ds"/ > tmp.dat
-                        echo -ne $(grep "OCL Training time" ./tmp.dat | cut -d':' -f2 | cut -d' ' -f2) >> ${rawB}
-                        echo -ne "\\t" >> ${rawB}
-                        echo -ne $(grep "Test RMSE" ./tmp.dat | cut -d'=' -f2 | cut -d' ' -f2) >> ${rawB}
-                        echo "" >> ${rawB}
-                done
-                echo "" >> ${rawB}
+    echo "T=${ts}:" >> ${rawB}
+    for ds in "${DS[@]}"; do
+        for lws in "${LWS[@]}"; do
+             ../exec/cdmf -k 40 -t "$lws" -T "$ts" -P 0 -d 1 -l 0.05 -nThreadsPerBlock 64 -p 1 -V 1 ../data/"$ds"/ > tmp.dat
+             echo -ne $(grep "OCL Training time" ./tmp.dat | cut -d':' -f2 | cut -d' ' -f2) >> ${rawB}
+             echo -ne "\\t" >> ${rawB}
+             echo -ne $(grep "Test RMSE" ./tmp.dat | cut -d'=' -f2 | cut -d' ' -f2) >> ${rawB}
+             echo "" >> ${rawB}
         done
+        echo "" >> ${rawB}
+    done
 done
