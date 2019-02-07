@@ -1,0 +1,47 @@
+rferreira@cracs-gpu03:~/clMF/exec$ ./clMF -k 10 -t 10 -l 0.05 -P 0 -nBlocks 1000 -nThreadsPerBlock 16 ../../DATASETS/ml10M/
+Training Time: 1.52281 s.
+CALCULATED RMSE = 0.814761.
+
+rferreira@cracs-gpu03:~/clMF/exec$ ./clMF -k 10 -t 10 -l 0.05 -P 0 -nBlocks 8192 -nThreadsPerBlock 16 ../../DATASETS/ml10M/
+Training Time: 1.23333 s.
+CALCULATED RMSE = 0.814761.
+
+
+
+rferreira@cracs-gpu03:~/clMF/exec$ ./clMF -k 10 -t 10 -l 0.05 -P 0 -nBlocks 1000 -nThreadsPerBlock 32 ../../DATASETS/ml10M/
+Training Time: 1.30964 s.
+CALCULATED RMSE = 0.814761.
+
+rferreira@cracs-gpu03:~/clMF/exec$ ./clMF -k 10 -t 10 -l 0.05 -P 0 -nBlocks 8192 -nThreadsPerBlock 32 ../../DATASETS/ml10M/
+Training Time: 1.08432 s.
+CALCULATED RMSE = 0.814761.
+
+
+
+rferreira@cracs-gpu03:~/clMF/exec$ ./clMF -k 10 -t 10 -l 0.05 -P 0 -nBlocks 1000 -nThreadsPerBlock 64 ../../DATASETS/ml10M/
+Training Time: 1.31265 s.
+CALCULATED RMSE = 0.814761.
+
+rferreira@cracs-gpu03:~/clMF/exec$ ./clMF -k 10 -t 10 -l 0.05 -P 0 -nBlocks 8192 -nThreadsPerBlock 64 ../../DATASETS/ml10M/
+Training Time: 1.11098 s.
+CALCULATED RMSE = 0.814761.
+
+
+
+rferreira@cracs-gpu03:~/clMF/exec$ ./clMF -k 10 -t 10 -l 0.05 -P 0 -nBlocks 1000 -nThreadsPerBlock 128 ../../DATASETS/ml10M/
+Training Time: 2.0946 s.
+CALCULATED RMSE = 1.201080.
+
+rferreira@cracs-gpu03:~/clMF/exec$ ./clMF -k 10 -t 10 -l 0.05 -P 0 -nBlocks 8192 -nThreadsPerBlock 128 ../../DATASETS/ml10M/
+Training Time: 1.91214 s.
+CALCULATED RMSE = 1.041798.
+
+
+
+rferreira@cracs-gpu03:~/clMF/exec$ ./clMF -k 10 -t 10 -l 0.05 -P 0 -nBlocks 1000 -nThreadsPerBlock 256 ../../DATASETS/ml10M/
+Training Time: 3.59651 s.
+CALCULATED RMSE = 0.816269.
+
+rferreira@cracs-gpu03:~/clMF/exec$ ./clMF -k 10 -t 10 -l 0.05 -P 0 -nBlocks 8192 -nThreadsPerBlock 256 ../../DATASETS/ml10M/
+Training Time: 3.52785 s.
+CALCULATED RMSE = 0.817714.

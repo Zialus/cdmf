@@ -1,0 +1,57 @@
+[rferreira@cracs-gpu02 exec]$ ./clMF -k 10 -t 10 -l 0.05 -P 0 -nBlocks 8192 -nThreadsPerBlock 16 ../../DATASETS/ml10M/
+Training Time: 2.46008 s.
+CALCULATED RMSE = 0.814762.
+
+[rferreira@cracs-gpu02 exec]$ ./clMF -k 10 -t 10 -l 0.05 -P 0 -nBlocks 1000 -nThreadsPerBlock 16 ../../DATASETS/ml10M/
+Training Time: 2.78144 s.
+CALCULATED RMSE = 0.814762.
+
+
+
+[rferreira@cracs-gpu02 exec]$ ./clMF -k 10 -t 10 -l 0.05 -P 0 -nBlocks 8192 -nThreadsPerBlock 32 ../../DATASETS/ml10M/
+Training Time: 2.37637 s.
+CALCULATED RMSE = 0.814762.
+
+[rferreira@cracs-gpu02 exec]$ ./clMF -k 10 -t 10 -l 0.05 -P 0 -nBlocks 1000 -nThreadsPerBlock 32 ../../DATASETS/ml10M/
+Training Time: 2.65086 s.
+CALCULATED RMSE = 0.814762.
+
+
+
+[rferreira@cracs-gpu02 exec]$ ./clMF -k 10 -t 10 -l 0.05 -P 0 -nBlocks 8192 -nThreadsPerBlock 64 ../../DATASETS/ml10M/
+Training Time: 3.72158 s.
+CALCULATED RMSE = 0.814768.
+
+[rferreira@cracs-gpu02 exec]$ ./clMF -k 10 -t 10 -l 0.05 -P 0 -nBlocks 1000 -nThreadsPerBlock 64 ../../DATASETS/ml10M/
+Training Time: 3.88281 s.
+CALCULATED RMSE = 0.814911.
+
+
+
+[rferreira@cracs-gpu02 exec]$ ./clMF -k 10 -t 10 -l 0.05 -P 0 -nBlocks 512 -nThreadsPerBlock 64 ../../DATASETS/ml10M/
+Training Time: 3.91133 s.
+CALCULATED RMSE = 0.815049.
+
+[rferreira@cracs-gpu02 exec]$ ./clMF -k 10 -t 10 -l 0.05 -P 0 -nBlocks 256 -nThreadsPerBlock 64 ../../DATASETS/ml10M/
+Training Time: 4.64435 s.
+CALCULATED RMSE = 0.814732.
+
+
+
+[rferreira@cracs-gpu02 exec]$ ./clMF -k 10 -t 10 -l 0.05 -P 0 -nBlocks 1000 -nThreadsPerBlock 128 ../../DATASETS/ml10M/
+Training Time: 5.68795 s.
+CALCULATED RMSE = 8.762136.
+
+[rferreira@cracs-gpu02 exec]$ ./clMF -k 10 -t 10 -l 0.05 -P 0 -nBlocks 8192 -nThreadsPerBlock 128 ../../DATASETS/ml10M/
+Training Time: 5.51872 s.
+CALCULATED RMSE = 0.000000.
+
+
+
+[rferreira@cracs-gpu02 exec]$ ./clMF -k 10 -t 10 -l 0.05 -P 0 -nBlocks 8192 -nThreadsPerBlock 256 ../../DATASETS/ml10M/
+Training Time: 10.5488 s.
+CALCULATED RMSE = 4.302572.
+
+[rferreira@cracs-gpu02 exec]$ ./clMF -k 10 -t 10 -l 0.05 -P 0 -nBlocks 8192 -nThreadsPerBlock 256 ../../DATASETS/ml10M/
+Training Time: 10.5476 s.
+CALCULATED RMSE = 5.444009.
