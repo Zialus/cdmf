@@ -40,7 +40,7 @@ int main(int argc, char** argv) {
             std::cout << "[info] Picked Version 1: Native" << std::endl;
             char kcode_filename[1024 + 15];
             snprintf(kcode_filename, sizeof(kcode_filename), "%s/ccd_1.cl", param.kcode_path);
-            cdmf_ocl_01(R, W, H, param, kcode_filename);
+            cdmf_ocl_01(R, W, H, T, param, kcode_filename);
             break;
         }
         case 2: {

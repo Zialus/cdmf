@@ -1,3 +1,40 @@
+__kernel void GPU_rmse(__global unsigned const* test_row,
+                       __global unsigned const* test_col,
+                       __global VALUE_TYPE const* test_val,
+                       __global VALUE_TYPE* pred_v,
+                       __global VALUE_TYPE* rmse,
+                       __global VALUE_TYPE const* W,
+                       __global VALUE_TYPE const* H,
+                       const unsigned nnz,
+                       const unsigned k,
+                       const unsigned rows,
+                       const unsigned cols) {
+    int global_id = get_global_id(0);
+    int global_size = get_global_size(0);
+    uint local_id = get_local_id(0);
+    uint group_size = get_local_size(0);
+
+//    int c = global_id;
+//    if (c < nnz) {
+    for (int c = global_id; c < nnz; c+=global_size) {
+        for (int t = 0; t < k; t++) {
+            unsigned i = test_row[c];
+            unsigned j = test_col[c];
+            pred_v[c] += W[i * k + t] * H[j * k + t]; //W[i][t] * H[j][t];
+//            pred_v[c] += W[t * rows + i] * H[t * cols + j]; //W[i][t] * H[j][t];
+        }
+
+        rmse[c] = (pred_v[c] - test_val[c]) * (pred_v[c] - test_val[c]);
+    }
+
+//    for (uint stride = group_size / 2; stride > 0; stride /= 2) {
+//        barrier(CLK_LOCAL_MEM_FENCE);
+//        if (local_id < stride) {
+//            rmse[local_id] += rmse[local_id + stride];
+//        }
+//    }
+}
+
 static VALUE_TYPE RankOneUpdate_dev(__global const unsigned* col_ptr,
                                     __global const unsigned* row_idx,
                                     __global const VALUE_TYPE* val,

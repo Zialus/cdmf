@@ -3,7 +3,7 @@
 extern std::chrono::duration<double> deltaT12;
 extern std::chrono::duration<double> deltaTAB;
 
-void cdmf_ocl_01(smat_t& R, mat_t& W_c, mat_t& H_c, parameter& param, char filename[]) {
+void cdmf_ocl_01(smat_t& R, mat_t& W_c, mat_t& H_c, testset_t &T, parameter& param, char filename[]) {
     auto tA = std::chrono::high_resolution_clock::now();
 
     cl_int status;
@@ -59,9 +59,25 @@ void cdmf_ocl_01(smat_t& R, mat_t& W_c, mat_t& H_c, parameter& param, char filen
     deltaTAB = tB - tA;
     std::cout << "[INFO] Initiating OpenCL Time: " << deltaTAB.count() << " s.\n";
 
+    unsigned k = param.k;
+
     for (unsigned t = 0; t < param.k; ++t) {
         for (unsigned c = 0; c < R.cols; ++c) {
             H_c[t][c] = 0;
+        }
+    }
+
+    VALUE_TYPE* W = (VALUE_TYPE*) malloc(k * R.rows * sizeof(VALUE_TYPE));
+    for (unsigned i = 0; i < k; ++i) {
+        for (unsigned j = 0; j < R.rows; ++j) {
+            W[i * R.rows + j] = W_c[i][j];
+        }
+    }
+
+    VALUE_TYPE* H = (VALUE_TYPE*) malloc(k * R.cols * sizeof(VALUE_TYPE));
+    for (unsigned i = 0; i < k; ++i) {
+        for (unsigned j = 0; j < R.cols; ++j) {
+            H[i * R.cols + j] = 0;
         }
     }
 
@@ -71,7 +87,15 @@ void cdmf_ocl_01(smat_t& R, mat_t& W_c, mat_t& H_c, parameter& param, char filen
     size_t nbits_u = R.rows * sizeof(VALUE_TYPE);
     size_t nbits_v = R.cols * sizeof(VALUE_TYPE);
 
+    size_t nbits_W_ = R.rows * k * sizeof(VALUE_TYPE);
+    size_t nbits_H_ = R.cols * k * sizeof(VALUE_TYPE);
+
     // creating buffers
+    cl_mem WBuffer = clCreateBuffer(context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, nbits_W_, (void*) W, &err);
+    CL_CHECK(err);
+    cl_mem HBuffer = clCreateBuffer(context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, nbits_H_, (void*) H, &err);
+    CL_CHECK(err);
+
     cl_mem row_ptrBuffer = clCreateBuffer(context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, R.nbits_row_ptr, (void*) R.row_ptr, &err);
     CL_CHECK(err);
     cl_mem col_idxBuffer = clCreateBuffer(context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, R.nbits_col_idx, (void*) R.col_idx, &err);
@@ -89,6 +113,20 @@ void cdmf_ocl_01(smat_t& R, mat_t& W_c, mat_t& H_c, parameter& param, char filen
     cl_mem HtBuffer = clCreateBuffer(context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, nbits_v, (void*) Ht, &err); // v
     CL_CHECK(err);
 
+    // RMSE related buffers
+    cl_mem test_rowBuffer = clCreateBuffer(context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, T.nnz * sizeof(unsigned), (void*) T.test_row, &err);
+    CL_CHECK(err);
+    cl_mem test_colBuffer = clCreateBuffer(context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, T.nnz * sizeof(unsigned), (void*) T.test_col, &err);
+    CL_CHECK(err);
+    cl_mem test_valBuffer = clCreateBuffer(context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, T.nnz * sizeof(unsigned), (void*) T.test_val, &err);
+    CL_CHECK(err);
+    cl_mem pred_vBuffer = clCreateBuffer(context, CL_MEM_READ_WRITE, T.nnz * sizeof(VALUE_TYPE), nullptr, &err);
+    CL_CHECK(err);
+    cl_mem rmseBuffer = clCreateBuffer(context, CL_MEM_READ_WRITE, T.nnz * sizeof(VALUE_TYPE), nullptr, &err);
+    CL_CHECK(err);
+    cl_mem emptyBuffer = clCreateBuffer(context, CL_MEM_READ_ONLY, T.nnz * sizeof(VALUE_TYPE), nullptr, &err);
+    CL_CHECK(err);
+
     // creating and building kernels
     cl_kernel RankOneUpdate_DUAL_kernel_u = clCreateKernel(program, "RankOneUpdate_DUAL_kernel_u", &err);
     CL_CHECK(err);
@@ -101,6 +139,9 @@ void cdmf_ocl_01(smat_t& R, mat_t& W_c, mat_t& H_c, parameter& param, char filen
     cl_kernel UpdateRating_DUAL_kernel_NoLoss_r_ = clCreateKernel(program, "UpdateRating_DUAL_kernel_NoLoss_r_", &err);
     CL_CHECK(err);
     cl_kernel UpdateRating_DUAL_kernel_NoLoss_c_ = clCreateKernel(program, "UpdateRating_DUAL_kernel_NoLoss_c_", &err);
+    CL_CHECK(err);
+
+    cl_kernel gpuRMSE_kernel = clCreateKernel(program, "GPU_rmse", &err);
     CL_CHECK(err);
 
     // setting kernel arguments
@@ -172,8 +213,20 @@ void cdmf_ocl_01(smat_t& R, mat_t& W_c, mat_t& H_c, parameter& param, char filen
     CL_CHECK(clSetKernelArg(UpdateRating_DUAL_kernel_NoLoss_c_, 8, sizeof(cl_mem), (void*) &col_idxBuffer));
     CL_CHECK(clSetKernelArg(UpdateRating_DUAL_kernel_NoLoss_c_, 9, sizeof(cl_mem), (void*) &val_tBuffer));
 
-    size_t gws_row[1] = {static_cast<size_t>(R.rows * param.nThreadsPerBlock)};
-    size_t gws_col[1] = {static_cast<size_t>(R.cols * param.nThreadsPerBlock)};
+    CL_CHECK(clSetKernelArg(gpuRMSE_kernel, 0, sizeof(cl_mem), (void*) &test_rowBuffer));
+    CL_CHECK(clSetKernelArg(gpuRMSE_kernel, 1, sizeof(cl_mem), (void*) &test_colBuffer));
+    CL_CHECK(clSetKernelArg(gpuRMSE_kernel, 2, sizeof(cl_mem), (void*) &test_valBuffer));
+    CL_CHECK(clSetKernelArg(gpuRMSE_kernel, 3, sizeof(cl_mem), (void*) &pred_vBuffer));
+    CL_CHECK(clSetKernelArg(gpuRMSE_kernel, 4, sizeof(cl_mem), (void*) &rmseBuffer));
+    CL_CHECK(clSetKernelArg(gpuRMSE_kernel, 5, sizeof(cl_mem), (void*) &WBuffer));
+    CL_CHECK(clSetKernelArg(gpuRMSE_kernel, 6, sizeof(cl_mem), (void*) &HBuffer));
+    CL_CHECK(clSetKernelArg(gpuRMSE_kernel, 7, sizeof(unsigned), &T.nnz));
+    CL_CHECK(clSetKernelArg(gpuRMSE_kernel, 8, sizeof(unsigned), &param.k));
+    CL_CHECK(clSetKernelArg(gpuRMSE_kernel, 9, sizeof(unsigned), &R.rows));
+    CL_CHECK(clSetKernelArg(gpuRMSE_kernel, 10, sizeof(unsigned), &R.cols));
+
+//    size_t gws_row[1] = {static_cast<size_t>(R.rows * param.nThreadsPerBlock)};
+//    size_t gws_col[1] = {static_cast<size_t>(R.cols * param.nThreadsPerBlock)};
     size_t global_work_size[1] = {static_cast<size_t>(param.nBlocks * param.nThreadsPerBlock)};
     size_t local_work_size[1] = {static_cast<size_t>(param.nThreadsPerBlock)};
     printf("[INFO] - blocks: %d | threads per block: %d | global_work_size: %zu | local_work_size: %zu !\n",
@@ -193,10 +246,14 @@ void cdmf_ocl_01(smat_t& R, mat_t& W_c, mat_t& H_c, parameter& param, char filen
         printf("[VERBOSE] local_work_size for UpdateRating_DUAL_kernel_NoLoss_r_ should be: %zu\n", local);
         CL_CHECK(clGetKernelWorkGroupInfo(UpdateRating_DUAL_kernel_NoLoss_c_, devices[0], CL_KERNEL_WORK_GROUP_SIZE, sizeof(local), &local, nullptr));
         printf("[VERBOSE] local_work_size for UpdateRating_DUAL_kernel_NoLoss_c_ should be: %zu\n", local);
+        CL_CHECK(clGetKernelWorkGroupInfo(gpuRMSE_kernel, devices[0], CL_KERNEL_WORK_GROUP_SIZE, sizeof(local), &local, nullptr));
+        printf("[VERBOSE] local_work_size for gpuRMSE_kernel should be: %zu\n",local);
     }
 
     double t_update_ratings_acc = 0;
     double t_rank_one_update_acc = 0;
+
+    float* rmseVec = (float*) malloc((T.nnz) * sizeof(float));
 
     std::cout << "------------------------------------------------------" << std::endl;
     std::cout << "[INFO] Computing cdmf OpenCL..." << std::endl;
@@ -272,9 +329,35 @@ void cdmf_ocl_01(smat_t& R, mat_t& W_c, mat_t& H_c, parameter& param, char filen
         t_update_ratings_acc += t_update_ratings;
         t_rank_one_update_acc += t_rank_one_update;
 
-        printf("[-INFO-] iteration num %d \trank_time %.4lf|%.4lf s \tupdate_time %.4lf|%.4lf s \n",
-               oiter, t_rank_one_update, t_rank_one_update_acc, t_update_ratings, t_update_ratings_acc);
+        /** Calculate RMSE*/
+        cl_event eventPoint3;
 
+        CL_CHECK(clEnqueueCopyBuffer(commandQueue, emptyBuffer, rmseBuffer, 0, 0, (T.nnz) * sizeof(float), 0, nullptr, &eventPoint3));
+        CL_CHECK(clEnqueueCopyBuffer(commandQueue, emptyBuffer, pred_vBuffer, 0, 0, (T.nnz) * sizeof(float), 0, nullptr, &eventPoint3));
+
+//        size_t gws_rmse[1] = {((T.nnz + 1023) / 1024) * 1024};
+//        size_t lws_rmse[1] = {1024};
+//        CL_CHECK(clEnqueueNDRangeKernel(commandQueue, gpuRMSE_kernel, 1, nullptr, gws_rmse, lws_rmse, 0, nullptr, &eventPoint3));
+        CL_CHECK(clEnqueueNDRangeKernel(commandQueue, gpuRMSE_kernel, 1, nullptr, global_work_size, local_work_size, 0, nullptr, &eventPoint3));
+
+        CL_CHECK(clWaitForEvents(1, &eventPoint3));
+
+        double rmse_time = executionTime(eventPoint3);
+
+        CL_CHECK(clReleaseEvent(eventPoint3));
+
+        CL_CHECK(clEnqueueReadBuffer(commandQueue, rmseBuffer, CL_TRUE, 0, (T.nnz) * sizeof(float), rmseVec, 0, nullptr, nullptr));
+
+        double tot_rmse = 0;
+        double f_rmse = 0;
+
+        for (unsigned i = 0; i < T.nnz; ++i) {
+            tot_rmse += rmseVec[i];
+        }
+        f_rmse = sqrt(tot_rmse / T.nnz);
+
+        printf("[-INFO-] iteration num %d \trank_time %.4lf|%.4lf s \tupdate_time %.4lf|%.4lfs \tRMSE=%f time:%fs\n",
+                oiter, t_rank_one_update, t_rank_one_update_acc, t_update_ratings, t_update_ratings_acc, f_rmse, rmse_time);
 
     }
     auto t2 = std::chrono::high_resolution_clock::now();
