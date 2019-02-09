@@ -264,11 +264,30 @@ void cdmf_ocl_01(smat_t& R, mat_t& W_c, mat_t& H_c, testset_t &T, parameter& par
         double t_rank_one_update = 0;
 
         for (unsigned t = 0; t < param.k; ++t) {
-            // Writing Buffer
-            Wt = &(W_c[t][0]); // u
-            Ht = &(H_c[t][0]); // v
-            CL_CHECK(clEnqueueWriteBuffer(commandQueue, WtBuffer, CL_TRUE, 0, R.rows * sizeof(VALUE_TYPE), Wt, 0, nullptr, nullptr));
-            CL_CHECK(clEnqueueWriteBuffer(commandQueue, HtBuffer, CL_TRUE, 0, R.cols * sizeof(VALUE_TYPE), Ht, 0, nullptr, nullptr));
+
+            cl_buffer_region region_w;
+            region_w.origin = t * R.rows * sizeof(VALUE_TYPE);
+            region_w.size = R.rows * sizeof(VALUE_TYPE);
+            cl_mem W_vec_t = clCreateSubBuffer(WBuffer, CL_MEM_READ_WRITE, CL_BUFFER_CREATE_TYPE_REGION, &region_w, &err);
+            CL_CHECK(err);
+            cl_buffer_region region_h;
+            region_h.origin = t * R.cols * sizeof(VALUE_TYPE);
+            region_h.size = R.cols * sizeof(VALUE_TYPE);
+            cl_mem H_vec_t = clCreateSubBuffer(HBuffer, CL_MEM_READ_WRITE, CL_BUFFER_CREATE_TYPE_REGION, &region_h, &err);
+            CL_CHECK(err);
+
+            CL_CHECK(clSetKernelArg(RankOneUpdate_DUAL_kernel_u, 4, sizeof(cl_mem), &W_vec_t));
+            CL_CHECK(clSetKernelArg(RankOneUpdate_DUAL_kernel_u, 5, sizeof(cl_mem), &H_vec_t));
+            CL_CHECK(clSetKernelArg(RankOneUpdate_DUAL_kernel_v, 4, sizeof(cl_mem), &W_vec_t));
+            CL_CHECK(clSetKernelArg(RankOneUpdate_DUAL_kernel_v, 5, sizeof(cl_mem), &H_vec_t));
+            CL_CHECK(clSetKernelArg(UpdateRating_DUAL_kernel_NoLoss_r, 4, sizeof(cl_mem), &W_vec_t));
+            CL_CHECK(clSetKernelArg(UpdateRating_DUAL_kernel_NoLoss_r, 5, sizeof(cl_mem), &H_vec_t));
+            CL_CHECK(clSetKernelArg(UpdateRating_DUAL_kernel_NoLoss_c, 4, sizeof(cl_mem), &W_vec_t));
+            CL_CHECK(clSetKernelArg(UpdateRating_DUAL_kernel_NoLoss_c, 5, sizeof(cl_mem), &H_vec_t));
+            CL_CHECK(clSetKernelArg(UpdateRating_DUAL_kernel_NoLoss_r_, 4, sizeof(cl_mem), &W_vec_t));
+            CL_CHECK(clSetKernelArg(UpdateRating_DUAL_kernel_NoLoss_r_, 5, sizeof(cl_mem), &H_vec_t));
+            CL_CHECK(clSetKernelArg(UpdateRating_DUAL_kernel_NoLoss_c_, 4, sizeof(cl_mem), &W_vec_t));
+            CL_CHECK(clSetKernelArg(UpdateRating_DUAL_kernel_NoLoss_c_, 5, sizeof(cl_mem), &H_vec_t));
 
             if (oiter > 1) {
                 // update the rating matrix in CSC format (+)
@@ -305,9 +324,6 @@ void cdmf_ocl_01(smat_t& R, mat_t& W_c, mat_t& H_c, testset_t &T, parameter& par
                 CL_CHECK(clReleaseEvent(eventPoint1v));
                 CL_CHECK(clReleaseEvent(eventPoint1u));
             }
-            // Reading Buffer
-            CL_CHECK(clEnqueueReadBuffer(commandQueue, WtBuffer, CL_TRUE, 0, R.rows * sizeof(VALUE_TYPE), Wt, 0, nullptr, nullptr));
-            CL_CHECK(clEnqueueReadBuffer(commandQueue, HtBuffer, CL_TRUE, 0, R.cols * sizeof(VALUE_TYPE), Ht, 0, nullptr, nullptr));
 
             // update the rating matrix in CSC format (-)
             cl_event eventPoint2c, eventPoint2r;
@@ -364,6 +380,9 @@ void cdmf_ocl_01(smat_t& R, mat_t& W_c, mat_t& H_c, testset_t &T, parameter& par
     deltaT12 = t2 - t1;
     printf("[INFO] OCL Training time: %lf s\n", deltaT12.count());
 
+    CL_CHECK(clEnqueueReadBuffer(commandQueue, WBuffer, CL_TRUE, 0, nbits_W_, W, 0, nullptr, nullptr));
+    CL_CHECK(clEnqueueReadBuffer(commandQueue, HBuffer, CL_TRUE, 0, nbits_H_, H, 0, nullptr, nullptr));
+
     CL_CHECK(clReleaseKernel(UpdateRating_DUAL_kernel_NoLoss_c));
     CL_CHECK(clReleaseKernel(UpdateRating_DUAL_kernel_NoLoss_r));
     CL_CHECK(clReleaseKernel(UpdateRating_DUAL_kernel_NoLoss_c_));
@@ -383,4 +402,17 @@ void cdmf_ocl_01(smat_t& R, mat_t& W_c, mat_t& H_c, testset_t &T, parameter& par
     CL_CHECK(clReleaseContext(context));
     CL_CHECK(clReleaseDevice(devices[0]));
     free(devices);
+    free(rmseVec);
+
+    for (unsigned i = 0; i < k; ++i) {
+        for (unsigned j = 0; j < R.rows; ++j) {
+            W_c[i][j] = W[i * R.rows + j];
+        }
+    }
+    for (unsigned i = 0; i < k; ++i) {
+        for (unsigned j = 0; j < R.cols; ++j) {
+            H_c[i][j] = H[i * R.cols + j];
+        }
+    }
+
 }
