@@ -11,13 +11,13 @@ __kernel void GPU_rmse(__global unsigned const* test_row,
                        const unsigned cols) {
     int global_id = get_global_id(0);
     int global_size = get_global_size(0);
-    uint local_id = get_local_id(0);
-    uint group_size = get_local_size(0);
+//    int local_id = get_local_id(0);
+//    int group_size = get_local_size(0);
 
 //    int c = global_id;
 //    if (c < nnz) {
-    for (int c = global_id; c < nnz; c+=global_size) {
-        for (int t = 0; t < k; t++) {
+    for (unsigned c = global_id; c < nnz; c+=global_size) {
+        for (unsigned t = 0; t < k; t++) {
             unsigned i = test_row[c];
             unsigned j = test_col[c];
 //            pred_v[c] += W[i * k + t] * H[j * k + t]; //W[i][t] * H[j][t];
@@ -76,7 +76,7 @@ __kernel void RankOneUpdate_DUAL_kernel_v(const unsigned cols,
 //    unsigned aa = get_group_id(0);
 //    unsigned dd = get_num_groups(0);
 
-    for (int c = ii; c < cols; c += jj){
+    for (unsigned c = ii; c < cols; c += jj){
         v[c] = RankOneUpdate_dev(col_ptr, row_idx, val, c, u, lambda * (col_ptr[c + 1] - col_ptr[c]), v[c]);
     }
 
@@ -103,7 +103,7 @@ __kernel void RankOneUpdate_DUAL_kernel_u(const unsigned cols,
 //    unsigned aa = get_group_id(0);
 //    unsigned dd = get_num_groups(0);
 
-    for (int c = ii; c < cols_t; c += jj){
+    for (unsigned c = ii; c < cols_t; c += jj){
         u[c] = RankOneUpdate_dev(col_ptr_t, row_idx_t, val_t, c, v, lambda * (col_ptr_t[c + 1] - col_ptr_t[c]), u[c]);
     }
 }
@@ -126,7 +126,7 @@ static void UpdateRating_dev(const unsigned cols,
 
     if (isAdd == 1) // +
     {
-        for (int i = ii; i < cols; i += jj){
+        for (unsigned i = ii; i < cols; i += jj){
             VALUE_TYPE Htc = v[i];
             for (size_t idx = col_ptr[i]; idx < col_ptr[i + 1]; ++idx) {
                 val[idx] += u[row_idx[idx]] * Htc;
@@ -134,7 +134,7 @@ static void UpdateRating_dev(const unsigned cols,
         }
     } else  // -
     {
-        for (int i = ii; i < cols; i += jj){
+        for (unsigned i = ii; i < cols; i += jj){
             VALUE_TYPE Htc = v[i];
             for (size_t idx = col_ptr[i]; idx < col_ptr[i + 1]; ++idx) {
                 val[idx] -= u[row_idx[idx]] * Htc;
