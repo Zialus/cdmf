@@ -22,13 +22,8 @@
         get_error_string(res), res, __FILE__,__LINE__); abort();}}
 
 #define CHECK_FSCAN(err, num)    if(err != num){ \
-    perror("FSCANF"); \
-    exit(EXIT_FAILURE); \
-}
-
-#define CHECK_FGETS(err)    if(err == nullptr){ \
-    perror("FGETS"); \
-    exit(EXIT_FAILURE); \
+    fprintf(stderr,"FSCANF read %d, needed %d, in file %s on line %d\n", err, num,__FILE__,__LINE__); \
+    abort(); \
 }
 
 #endif //UTIL_H
