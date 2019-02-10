@@ -6,13 +6,6 @@
 typedef std::vector<VALUE_TYPE> vec_t;
 typedef std::vector<vec_t> mat_t;
 
-class rate_t {
-public:
-    unsigned i;
-    unsigned j;
-    VALUE_TYPE v;
-};
-
 // Comparator for sorting rates into row/column compression storage
 class SparseComp {
 public:
@@ -65,25 +58,7 @@ public:
         mem_alloc_by_me = false;
     }
 
-    rate_t read_next_line(FILE* fp) {
-        unsigned i;
-        unsigned j;
-        VALUE_TYPE v;
-        if (sizeof(VALUE_TYPE) == 8) {
-            CHECK_FSCAN(fscanf(fp, "%u %u %lf", &i, &j, &v), 3);
-        } else {
-            CHECK_FSCAN(fscanf(fp, "%u %u %f", &i, &j, &v), 3);
-        };
-        return {i - 1, j - 1, v};
-    }
-
     void load(unsigned _rows, unsigned _cols, unsigned _nnz, const char* filename, bool ifALS) {
-        FILE* fp = fopen(filename, "r");
-        load_from_file(_rows, _cols, _nnz, ifALS, fp);
-        fclose(fp);
-    }
-
-    void load_from_file(unsigned _rows, unsigned _cols, unsigned _nnz, bool ifALS, FILE* fp) {
         rows = _rows;
         cols = _cols;
         nnz = _nnz;
@@ -112,15 +87,26 @@ public:
         unsigned* tmp_row_idx = col_idx;
         unsigned* tmp_col_idx = row_idx;
         VALUE_TYPE* tmp_val = val;
+
+        FILE* fp = fopen(filename, "r");
         for (unsigned idx = 0; idx < _nnz; idx++) {
-            rate_t rate = read_next_line(fp);
-            row_ptr[rate.i + 1]++;
-            col_ptr[rate.j + 1]++;
-            tmp_row_idx[idx] = rate.i;
-            tmp_col_idx[idx] = rate.j;
-            tmp_val[idx] = rate.v;
+            unsigned i;
+            unsigned j;
+            VALUE_TYPE v;
+            if (sizeof(VALUE_TYPE) == 8) {
+                CHECK_FSCAN(fscanf(fp, "%u %u %lf", &i, &j, &v), 3);
+            } else {
+                CHECK_FSCAN(fscanf(fp, "%u %u %f", &i, &j, &v), 3);
+            }
+            row_ptr[i - 1 + 1]++;
+            col_ptr[j - 1 + 1]++;
+            tmp_row_idx[idx] = i-1;
+            tmp_col_idx[idx] = j-1;
+            tmp_val[idx] = v;
             perm[idx] = idx;
         }
+        fclose(fp);
+
         // sort entries into row-majored ordering
         sort(perm.begin(), perm.end(), SparseComp(tmp_row_idx, tmp_col_idx, true));
 
