@@ -4,9 +4,8 @@ static void UV(const unsigned cols,
                __global VALUE_TYPE* Hb,
                __global VALUE_TYPE* H,
                const VALUE_TYPE lambda) {
-    unsigned i = get_global_id(0);
-    //for(unsigned i=0; i<cols; i++)
-    //{
+    size_t i = get_global_id(0);
+
     if (i < cols) {
         VALUE_TYPE t = Ht[i];
         VALUE_TYPE b = Hb[i];
@@ -16,7 +15,6 @@ static void UV(const unsigned cols,
         Ht[i] = 0;
         Hb[i] = 0;
     }
-    //}
 }
 
 __kernel void CALV(const unsigned cols,
@@ -43,9 +41,9 @@ __kernel void RankOneUpdate_dev(__global const unsigned* col_ptr,
                                 __global const VALUE_TYPE* u_vec_t,
                                 const VALUE_TYPE lambda,
                                 __global VALUE_TYPE* v) {
-    unsigned local_id = get_local_id(0);
-    unsigned group_size = get_local_size(0);
-    unsigned group_id = get_group_id(0);
+    size_t local_id = get_local_id(0);
+    size_t group_size = get_local_size(0);
+    size_t group_id = get_group_id(0);
 
     __local VALUE_TYPE g[WG_SIZE], h[WG_SIZE];
     g[local_id] = 0;
@@ -55,7 +53,7 @@ __kernel void RankOneUpdate_dev(__global const unsigned* col_ptr,
     if ((col_ptr[j + 1] == col_ptr[j]) && (local_id == 0)) {
         v[j] = 0.0;
     }
-    for (unsigned idx = col_ptr[j] + local_id; idx < col_ptr[j + 1]; idx += group_size) {
+    for (size_t idx = col_ptr[j] + local_id; idx < col_ptr[j + 1]; idx += group_size) {
         unsigned i = row_idx[idx];
         g[local_id] += u_vec_t[i] * val[idx];
         h[local_id] += u_vec_t[i] * u_vec_t[i];
@@ -113,9 +111,9 @@ static void UpdateRating_dev(const unsigned cols,
                              __global VALUE_TYPE* u,
                              __global VALUE_TYPE* v,
                              const bool isAdd) {
-    unsigned local_id = get_local_id(0);
-    unsigned group_size = get_local_size(0);
-    unsigned group_id = get_group_id(0);
+    size_t local_id = get_local_id(0);
+    size_t group_size = get_local_size(0);
+    size_t group_id = get_group_id(0);
 
     if (isAdd) {   /// +
         size_t i = group_id;
@@ -127,7 +125,7 @@ static void UpdateRating_dev(const unsigned cols,
             unsigned rIdx = row_idx[idx];
             val[idx] += u[rIdx] * Htc;
         } else {
-            for (unsigned iter = local_id; iter < nnz; iter += group_size) {
+            for (size_t iter = local_id; iter < nnz; iter += group_size) {
                 size_t idx = bidx + iter;
                 unsigned rIdx = row_idx[idx];
                 val[idx] += u[rIdx] * Htc;
@@ -144,7 +142,7 @@ static void UpdateRating_dev(const unsigned cols,
             unsigned rIdx = row_idx[idx];
             val[idx] -= u[rIdx] * Htc;
         } else {
-            for (unsigned iter = local_id; iter < nnz; iter += group_size) {
+            for (size_t iter = local_id; iter < nnz; iter += group_size) {
                 size_t idx = bidx + iter;
                 unsigned rIdx = row_idx[idx];
                 val[idx] -= u[rIdx] * Htc;

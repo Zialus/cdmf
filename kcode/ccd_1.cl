@@ -9,16 +9,16 @@ __kernel void GPU_rmse(__global unsigned const* test_row,
                        const unsigned k,
                        const unsigned rows,
                        const unsigned cols) {
-    int global_id = get_global_id(0);
-    int global_size = get_global_size(0);
-//    int local_id = get_local_id(0);
-//    int group_size = get_local_size(0);
-//    int global_group_id = get_group_id(0);
-//    int num_group = get_num_groups(0);
+    size_t global_id = get_global_id(0);
+    size_t global_size = get_global_size(0);
+//    size_t local_id = get_local_id(0);
+//    size_t group_size = get_local_size(0);
+//    size_t global_group_id = get_group_id(0);
+//    size_t num_group = get_num_groups(0);
 
-//    int c = global_id;
+//    size_t c = global_id;
 //    if (c < nnz) {
-    for (unsigned c = global_id; c < nnz; c += global_size) {
+    for (size_t c = global_id; c < nnz; c += global_size) {
         for (unsigned t = 0; t < k; t++) {
             unsigned i = test_row[c];
             unsigned j = test_col[c];
@@ -29,7 +29,7 @@ __kernel void GPU_rmse(__global unsigned const* test_row,
         rmse[c] = (pred_v[c] - test_val[c]) * (pred_v[c] - test_val[c]);
     }
 
-//    for (uint stride = group_size / 2; stride > 0; stride /= 2) {
+//    for (size_t stride = group_size / 2; stride > 0; stride /= 2) {
 //        barrier(CLK_LOCAL_MEM_FENCE);
 //        if (local_id < stride) {
 //            rmse[local_id] += rmse[local_id + stride];
@@ -40,7 +40,7 @@ __kernel void GPU_rmse(__global unsigned const* test_row,
 static VALUE_TYPE RankOneUpdate_dev(__global const unsigned* col_ptr,
                                     __global const unsigned* row_idx,
                                     __global const VALUE_TYPE* val,
-                                    const unsigned j,
+                                    const size_t j,
                                     __global const VALUE_TYPE* u_vec_t,
                                     const VALUE_TYPE lambda,
                                     const VALUE_TYPE vj) {
@@ -71,10 +71,10 @@ __kernel void RankOneUpdate_DUAL_kernel_v(const unsigned cols,
                                           __global const unsigned* row_ptr,
                                           __global const unsigned* col_idx,
                                           __global VALUE_TYPE* val_t) {
-    unsigned global_id = get_global_id(0);
-    unsigned global_size = get_global_size(0);
+    size_t global_id = get_global_id(0);
+    size_t global_size = get_global_size(0);
 
-    for (unsigned c = global_id; c < cols; c += global_size) {
+    for (size_t c = global_id; c < cols; c += global_size) {
         v[c] = RankOneUpdate_dev(col_ptr, row_idx, val, c, u, lambda * (col_ptr[c + 1] - col_ptr[c]), v[c]);
     }
 
@@ -94,10 +94,10 @@ __kernel void RankOneUpdate_DUAL_kernel_u(const unsigned cols,
                                           __global const unsigned* row_ptr,
                                           __global const unsigned* col_idx,
                                           __global VALUE_TYPE* val_t) {
-    unsigned global_id = get_global_id(0);
-    unsigned global_size = get_global_size(0);
+    size_t global_id = get_global_id(0);
+    size_t global_size = get_global_size(0);
 
-    for (unsigned c = global_id; c < cols_t; c += global_size) {
+    for (size_t c = global_id; c < cols_t; c += global_size) {
         u[c] = RankOneUpdate_dev(row_ptr, col_idx, val_t, c, v, lambda * (row_ptr[c + 1] - row_ptr[c]), u[c]);
     }
 }
@@ -109,18 +109,18 @@ static void UpdateRating_dev(const unsigned cols,
                              __global VALUE_TYPE* u,
                              __global VALUE_TYPE* v,
                              const bool isAdd) {
-    unsigned global_id = get_global_id(0);
-    unsigned global_size = get_global_size(0);
+    size_t global_id = get_global_id(0);
+    size_t global_size = get_global_size(0);
 
     if (isAdd) {   /// +
-        for (unsigned i = global_id; i < cols; i += global_size) {
+        for (size_t i = global_id; i < cols; i += global_size) {
             VALUE_TYPE Htc = v[i];
             for (size_t idx = col_ptr[i]; idx < col_ptr[i + 1]; ++idx) {
                 val[idx] += u[row_idx[idx]] * Htc;
             }
         }
     } else  {      /// -
-        for (unsigned i = global_id; i < cols; i += global_size) {
+        for (size_t i = global_id; i < cols; i += global_size) {
             VALUE_TYPE Htc = v[i];
             for (size_t idx = col_ptr[i]; idx < col_ptr[i + 1]; ++idx) {
                 val[idx] -= u[row_idx[idx]] * Htc;
