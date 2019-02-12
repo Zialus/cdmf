@@ -102,28 +102,24 @@ __kernel void RankOneUpdate_DUAL_kernel_u(const unsigned cols,
     }
 }
 
-
 static void UpdateRating_dev(const unsigned cols,
                              __global const unsigned* col_ptr,
                              __global const unsigned* row_idx,
                              __global VALUE_TYPE* val,
                              __global VALUE_TYPE* u,
                              __global VALUE_TYPE* v,
-                             const int isAdd) {
-
+                             const bool isAdd) {
     unsigned global_id = get_global_id(0);
     unsigned global_size = get_global_size(0);
 
-    if (isAdd == 1) // +
-    {
+    if (isAdd) {   /// +
         for (unsigned i = global_id; i < cols; i += global_size) {
             VALUE_TYPE Htc = v[i];
             for (size_t idx = col_ptr[i]; idx < col_ptr[i + 1]; ++idx) {
                 val[idx] += u[row_idx[idx]] * Htc;
             }
         }
-    } else  // -
-    {
+    } else  {      /// -
         for (unsigned i = global_id; i < cols; i += global_size) {
             VALUE_TYPE Htc = v[i];
             for (size_t idx = col_ptr[i]; idx < col_ptr[i + 1]; ++idx) {
@@ -147,7 +143,7 @@ __kernel void UpdateRating_DUAL_kernel_NoLoss_c(const unsigned cols,
                                                 __global const unsigned* row_ptr,
                                                 __global const unsigned* col_idx,
                                                 __global VALUE_TYPE* val_t) {
-    UpdateRating_dev(cols, col_ptr, row_idx, val, Wt_vec_t, Ht_vec_t, 1);
+    UpdateRating_dev(cols, col_ptr, row_idx, val, Wt_vec_t, Ht_vec_t, true);
 }
 
 /**
@@ -163,7 +159,7 @@ __kernel void UpdateRating_DUAL_kernel_NoLoss_r(const unsigned cols,
                                                 __global const unsigned* row_ptr,
                                                 __global const unsigned* col_idx,
                                                 __global VALUE_TYPE* val_t) {
-    UpdateRating_dev(rows, row_ptr, col_idx, val_t, Ht_vec_t, Wt_vec_t, 1);
+    UpdateRating_dev(rows, row_ptr, col_idx, val_t, Ht_vec_t, Wt_vec_t, true);
 }
 
 
@@ -180,7 +176,7 @@ __kernel void UpdateRating_DUAL_kernel_NoLoss_c_(const unsigned cols,
                                                  __global const unsigned* row_ptr,
                                                  __global const unsigned* col_idx,
                                                  __global VALUE_TYPE* val_t) {
-    UpdateRating_dev(cols, col_ptr, row_idx, val, Wt_vec_t, Ht_vec_t, 0);
+    UpdateRating_dev(cols, col_ptr, row_idx, val, Wt_vec_t, Ht_vec_t, false);
 }
 
 /**
@@ -196,5 +192,5 @@ __kernel void UpdateRating_DUAL_kernel_NoLoss_r_(const unsigned cols,
                                                  __global const unsigned* row_ptr,
                                                  __global const unsigned* col_idx,
                                                  __global VALUE_TYPE* val_t) {
-    UpdateRating_dev(rows, row_ptr, col_idx, val_t, Ht_vec_t, Wt_vec_t, 0);
+    UpdateRating_dev(rows, row_ptr, col_idx, val_t, Ht_vec_t, Wt_vec_t, false);
 }

@@ -112,13 +112,12 @@ static void UpdateRating_dev(const unsigned cols,
                              __global VALUE_TYPE* val,
                              __global VALUE_TYPE* u,
                              __global VALUE_TYPE* v,
-                             const int isAdd) {
+                             const bool isAdd) {
     unsigned local_id = get_local_id(0);
     unsigned group_size = get_local_size(0);
     unsigned group_id = get_group_id(0);
 
-    if (isAdd == 1) // +
-    {
+    if (isAdd) {   /// +
         size_t i = group_id;
         VALUE_TYPE Htc = v[i];
         unsigned nnz = col_ptr[i + 1] - col_ptr[i];
@@ -134,8 +133,8 @@ static void UpdateRating_dev(const unsigned cols,
                 val[idx] += u[rIdx] * Htc;
             }
         }
-    } else // -
-    {
+
+    } else {       /// -
         size_t i = group_id;
         VALUE_TYPE Htc = v[i];
         unsigned nnz = col_ptr[i + 1] - col_ptr[i];
@@ -151,7 +150,6 @@ static void UpdateRating_dev(const unsigned cols,
                 val[idx] -= u[rIdx] * Htc;
             }
         }
-
     }
 
 }
@@ -169,7 +167,7 @@ __kernel void UpdateRating_DUAL_kernel_NoLoss_c(const unsigned cols,
                                                 __global const unsigned* row_ptr,
                                                 __global const unsigned* col_idx,
                                                 __global VALUE_TYPE* val_t) {
-    UpdateRating_dev(cols, col_ptr, row_idx, val, Wt_vec_t, Ht_vec_t, 1);
+    UpdateRating_dev(cols, col_ptr, row_idx, val, Wt_vec_t, Ht_vec_t, true);
 }
 
 /**
@@ -185,7 +183,7 @@ __kernel void UpdateRating_DUAL_kernel_NoLoss_r(const unsigned cols,
                                                 __global const unsigned* row_ptr,
                                                 __global const unsigned* col_idx,
                                                 __global VALUE_TYPE* val_t) {
-    UpdateRating_dev(rows, row_ptr, col_idx, val_t, Ht_vec_t, Wt_vec_t, 1);
+    UpdateRating_dev(rows, row_ptr, col_idx, val_t, Ht_vec_t, Wt_vec_t, true);
 }
 
 
@@ -202,7 +200,7 @@ __kernel void UpdateRating_DUAL_kernel_NoLoss_c_(const unsigned cols,
                                                  __global const unsigned* row_ptr,
                                                  __global const unsigned* col_idx,
                                                  __global VALUE_TYPE* val_t) {
-    UpdateRating_dev(cols, col_ptr, row_idx, val, Wt_vec_t, Ht_vec_t, 0);
+    UpdateRating_dev(cols, col_ptr, row_idx, val, Wt_vec_t, Ht_vec_t, false);
 }
 
 /**
@@ -218,5 +216,5 @@ __kernel void UpdateRating_DUAL_kernel_NoLoss_r_(const unsigned cols,
                                                  __global const unsigned* row_ptr,
                                                  __global const unsigned* col_idx,
                                                  __global VALUE_TYPE* val_t) {
-    UpdateRating_dev(rows, row_ptr, col_idx, val_t, Ht_vec_t, Wt_vec_t, 0);
+    UpdateRating_dev(rows, row_ptr, col_idx, val_t, Ht_vec_t, Wt_vec_t, false);
 }
