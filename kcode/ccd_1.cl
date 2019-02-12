@@ -68,8 +68,8 @@ __kernel void RankOneUpdate_DUAL_kernel_v(const unsigned cols,
                                           __global VALUE_TYPE* v,
                                           const VALUE_TYPE lambda,
                                           const unsigned cols_t,
-                                          __global const unsigned* col_ptr_t,
-                                          __global const unsigned* row_idx_t,
+                                          __global const unsigned* row_ptr,
+                                          __global const unsigned* col_idx,
                                           __global VALUE_TYPE* val_t) {
     unsigned global_id = get_global_id(0);
     unsigned global_size = get_global_size(0);
@@ -91,14 +91,14 @@ __kernel void RankOneUpdate_DUAL_kernel_u(const unsigned cols,
                                           __global VALUE_TYPE* v,
                                           const VALUE_TYPE lambda,
                                           const unsigned cols_t,
-                                          __global const unsigned* col_ptr_t,
-                                          __global const unsigned* row_idx_t,
+                                          __global const unsigned* row_ptr,
+                                          __global const unsigned* col_idx,
                                           __global VALUE_TYPE* val_t) {
     unsigned global_id = get_global_id(0);
     unsigned global_size = get_global_size(0);
 
     for (unsigned c = global_id; c < cols_t; c += global_size) {
-        u[c] = RankOneUpdate_dev(col_ptr_t, row_idx_t, val_t, c, v, lambda * (col_ptr_t[c + 1] - col_ptr_t[c]), u[c]);
+        u[c] = RankOneUpdate_dev(row_ptr, col_idx, val_t, c, v, lambda * (row_ptr[c + 1] - row_ptr[c]), u[c]);
     }
 }
 
@@ -143,9 +143,9 @@ __kernel void UpdateRating_DUAL_kernel_NoLoss_c(const unsigned cols,
                                                 __global VALUE_TYPE* val,
                                                 __global VALUE_TYPE* Wt_vec_t,
                                                 __global VALUE_TYPE* Ht_vec_t,
-                                                const unsigned cols_t,
-                                                __global const unsigned* col_ptr_t,
-                                                __global const unsigned* row_idx_t,
+                                                const unsigned rows,
+                                                __global const unsigned* row_ptr,
+                                                __global const unsigned* col_idx,
                                                 __global VALUE_TYPE* val_t) {
     UpdateRating_dev(cols, col_ptr, row_idx, val, Wt_vec_t, Ht_vec_t, 1);
 }
@@ -159,11 +159,11 @@ __kernel void UpdateRating_DUAL_kernel_NoLoss_r(const unsigned cols,
                                                 __global VALUE_TYPE* val,
                                                 __global VALUE_TYPE* Wt_vec_t,
                                                 __global VALUE_TYPE* Ht_vec_t,
-                                                const unsigned cols_t,
-                                                __global const unsigned* col_ptr_t,
-                                                __global const unsigned* row_idx_t,
+                                                const unsigned rows,
+                                                __global const unsigned* row_ptr,
+                                                __global const unsigned* col_idx,
                                                 __global VALUE_TYPE* val_t) {
-    UpdateRating_dev(cols_t, col_ptr_t, row_idx_t, val_t, Ht_vec_t, Wt_vec_t, 1);
+    UpdateRating_dev(rows, row_ptr, col_idx, val_t, Ht_vec_t, Wt_vec_t, 1);
 }
 
 
@@ -176,9 +176,9 @@ __kernel void UpdateRating_DUAL_kernel_NoLoss_c_(const unsigned cols,
                                                  __global VALUE_TYPE* val,
                                                  __global VALUE_TYPE* Wt_vec_t,
                                                  __global VALUE_TYPE* Ht_vec_t,
-                                                 const unsigned cols_t,
-                                                 __global const unsigned* col_ptr_t,
-                                                 __global const unsigned* row_idx_t,
+                                                 const unsigned rows,
+                                                 __global const unsigned* row_ptr,
+                                                 __global const unsigned* col_idx,
                                                  __global VALUE_TYPE* val_t) {
     UpdateRating_dev(cols, col_ptr, row_idx, val, Wt_vec_t, Ht_vec_t, 0);
 }
@@ -192,9 +192,9 @@ __kernel void UpdateRating_DUAL_kernel_NoLoss_r_(const unsigned cols,
                                                  __global VALUE_TYPE* val,
                                                  __global VALUE_TYPE* Wt_vec_t,
                                                  __global VALUE_TYPE* Ht_vec_t,
-                                                 const unsigned cols_t,
-                                                 __global const unsigned* col_ptr_t,
-                                                 __global const unsigned* row_idx_t,
+                                                 const unsigned rows,
+                                                 __global const unsigned* row_ptr,
+                                                 __global const unsigned* col_idx,
                                                  __global VALUE_TYPE* val_t) {
-    UpdateRating_dev(cols_t, col_ptr_t, row_idx_t, val_t, Ht_vec_t, Wt_vec_t, 0);
+    UpdateRating_dev(rows, row_ptr, col_idx, val_t, Ht_vec_t, Wt_vec_t, 0);
 }
