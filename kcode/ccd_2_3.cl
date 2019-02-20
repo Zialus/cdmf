@@ -115,36 +115,25 @@ static void UpdateRating_dev(const unsigned cols,
     size_t group_size = get_local_size(0);
     size_t group_id = get_group_id(0);
 
-    if (isAdd) {   /// +
-        size_t i = group_id;
-        VALUE_TYPE Htc = v[i];
-        unsigned nnz = col_ptr[i + 1] - col_ptr[i];
-        size_t bidx = col_ptr[i];
-        if (nnz <= WG_SIZE && local_id < nnz) {
-            size_t idx = bidx + local_id;
-            unsigned rIdx = row_idx[idx];
+    size_t i = group_id;
+    VALUE_TYPE Htc = v[i];
+    unsigned nnz = col_ptr[i + 1] - col_ptr[i];
+    size_t bidx = col_ptr[i];
+    if (nnz <= WG_SIZE && local_id < nnz) {
+        size_t idx = bidx + local_id;
+        unsigned rIdx = row_idx[idx];
+        if (isAdd){     /// +
             val[idx] += u[rIdx] * Htc;
-        } else {
-            for (size_t iter = local_id; iter < nnz; iter += group_size) {
-                size_t idx = bidx + iter;
-                unsigned rIdx = row_idx[idx];
-                val[idx] += u[rIdx] * Htc;
-            }
-        }
-
-    } else {       /// -
-        size_t i = group_id;
-        VALUE_TYPE Htc = v[i];
-        unsigned nnz = col_ptr[i + 1] - col_ptr[i];
-        size_t bidx = col_ptr[i];
-        if (nnz <= WG_SIZE && local_id < nnz) {
-            size_t idx = bidx + local_id;
-            unsigned rIdx = row_idx[idx];
+        } else {        /// -
             val[idx] -= u[rIdx] * Htc;
-        } else {
-            for (size_t iter = local_id; iter < nnz; iter += group_size) {
-                size_t idx = bidx + iter;
-                unsigned rIdx = row_idx[idx];
+        }
+    } else {
+        for (size_t iter = local_id; iter < nnz; iter += group_size) {
+            size_t idx = bidx + iter;
+            unsigned rIdx = row_idx[idx];
+            if (isAdd) {     /// +
+                val[idx] += u[rIdx] * Htc;
+            } else {         /// -
                 val[idx] -= u[rIdx] * Htc;
             }
         }

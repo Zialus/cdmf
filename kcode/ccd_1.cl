@@ -111,17 +111,12 @@ inline void UpdateRating_dev(const unsigned cols,
     size_t global_id = get_global_id(0);
     size_t global_size = get_global_size(0);
 
-    if (isAdd) {   /// +
-        for (size_t i = global_id; i < cols; i += global_size) {
-            VALUE_TYPE Htc = v[i];
-            for (size_t idx = col_ptr[i]; idx < col_ptr[i + 1]; ++idx) {
+    for (size_t i = global_id; i < cols; i += global_size) {
+        VALUE_TYPE Htc = v[i];
+        for (size_t idx = col_ptr[i]; idx < col_ptr[i + 1]; ++idx) {
+            if (isAdd) {    /// +
                 val[idx] += u[row_idx[idx]] * Htc;
-            }
-        }
-    } else {      /// -
-        for (size_t i = global_id; i < cols; i += global_size) {
-            VALUE_TYPE Htc = v[i];
-            for (size_t idx = col_ptr[i]; idx < col_ptr[i + 1]; ++idx) {
+            } else {        /// -
                 val[idx] -= u[row_idx[idx]] * Htc;
             }
         }
