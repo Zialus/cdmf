@@ -37,7 +37,7 @@ __kernel void GPU_rmse(__global unsigned const* test_row,
 //    }
 }
 
-static VALUE_TYPE RankOneUpdate_dev(__global const unsigned* col_ptr,
+inline VALUE_TYPE RankOneUpdate_dev(__global const unsigned* col_ptr,
                                     __global const unsigned* row_idx,
                                     __global const VALUE_TYPE* val,
                                     const size_t j,
@@ -101,7 +101,7 @@ __kernel void RankOneUpdate_DUAL_kernel_u(const unsigned cols,
     }
 }
 
-static void UpdateRating_dev(const unsigned cols,
+inline void UpdateRating_dev(const unsigned cols,
                              __global const unsigned* col_ptr,
                              __global const unsigned* row_idx,
                              __global VALUE_TYPE* val,
@@ -118,7 +118,7 @@ static void UpdateRating_dev(const unsigned cols,
                 val[idx] += u[row_idx[idx]] * Htc;
             }
         }
-    } else  {      /// -
+    } else {      /// -
         for (size_t i = global_id; i < cols; i += global_size) {
             VALUE_TYPE Htc = v[i];
             for (size_t idx = col_ptr[i]; idx < col_ptr[i + 1]; ++idx) {
