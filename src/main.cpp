@@ -46,14 +46,14 @@ int main(int argc, char** argv) {
         case 2: {
             std::cout << "[info] Picked Version 2: Thread Batching" << std::endl;
             char kcode_filename[1024 + 15];
-            snprintf(kcode_filename, sizeof(kcode_filename), "%s/ccd_2_3.cl", param.kcode_path);
+            snprintf(kcode_filename, sizeof(kcode_filename), "%s/ccd_2.cl", param.kcode_path);
             cdmf_ocl_02(R, W, H, T, param, kcode_filename);
             break;
         }
         case 3: {
             std::cout << "[info] Picked Version 3: Load Balancing" << std::endl;
             char kcode_filename[1024 + 15];
-            snprintf(kcode_filename, sizeof(kcode_filename), "%s/ccd_2_3.cl", param.kcode_path);
+            snprintf(kcode_filename, sizeof(kcode_filename), "%s/ccd_3.cl", param.kcode_path);
             cdmf_csr5(R, W, H, param, kcode_filename);
             break;
         }
