@@ -42,8 +42,7 @@ static VALUE_TYPE RankOneUpdate_dev(__global const unsigned* col_ptr,
                                     __global const VALUE_TYPE* val,
                                     const size_t j,
                                     __global const VALUE_TYPE* u_vec_t,
-                                    const VALUE_TYPE lambda,
-                                    const VALUE_TYPE vj) {
+                                    const VALUE_TYPE lambda) {
     VALUE_TYPE g = 0, h = lambda;
     if (col_ptr[j + 1] == col_ptr[j]) {
         return 0;
@@ -75,7 +74,7 @@ __kernel void RankOneUpdate_DUAL_kernel_v(const unsigned cols,
     size_t global_size = get_global_size(0);
 
     for (size_t c = global_id; c < cols; c += global_size) {
-        v[c] = RankOneUpdate_dev(col_ptr, row_idx, val, c, u, lambda * (col_ptr[c + 1] - col_ptr[c]), v[c]);
+        v[c] = RankOneUpdate_dev(col_ptr, row_idx, val, c, u, lambda * (col_ptr[c + 1] - col_ptr[c]));
     }
 
 }
@@ -98,7 +97,7 @@ __kernel void RankOneUpdate_DUAL_kernel_u(const unsigned cols,
     size_t global_size = get_global_size(0);
 
     for (size_t c = global_id; c < cols_t; c += global_size) {
-        u[c] = RankOneUpdate_dev(row_ptr, col_idx, val_t, c, v, lambda * (row_ptr[c + 1] - row_ptr[c]), u[c]);
+        u[c] = RankOneUpdate_dev(row_ptr, col_idx, val_t, c, v, lambda * (row_ptr[c + 1] - row_ptr[c]));
     }
 }
 
