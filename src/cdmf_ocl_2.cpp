@@ -3,7 +3,7 @@
 extern std::chrono::duration<double> deltaT12;
 extern std::chrono::duration<double> deltaTAB;
 
-void cdmf_ocl(smat_t& R, mat_t& W_c, mat_t& H_c, parameter& param, char filename[]) {
+void cdmf_ocl_02(smat_t& R, mat_t& W_c, mat_t& H_c, testset_t &T, parameter& param, char filename[]) {
     auto tA = std::chrono::high_resolution_clock::now();
 
     cl_int status;
@@ -272,9 +272,17 @@ void cdmf_ocl(smat_t& R, mat_t& W_c, mat_t& H_c, parameter& param, char filename
         t_update_ratings_acc += t_update_ratings;
         t_rank_one_update_acc += t_rank_one_update;
 
-        printf("[-INFO-] iteration num %d \trank_time %.4lf|%.4lf s \tupdate_time %.4lf|%.4lf s \n",
-               oiter, t_rank_one_update, t_rank_one_update_acc, t_update_ratings, t_update_ratings_acc);
+        /** Calculate RMSE*/
+        auto start = std::chrono::high_resolution_clock::now();
 
+        double rmse = calculate_rmse_directly(W_c, H_c, T, param.k, false);
+
+        auto end = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double> timeDif = end - start;
+        double rmse_time = timeDif.count();
+
+        printf("[-INFO-] iteration num %d \trank_time %.4lf|%.4lf s \tupdate_time %.4lf|%.4lfs \tRMSE=%f time:%fs\n",
+               oiter, t_rank_one_update, t_rank_one_update_acc, t_update_ratings, t_update_ratings_acc, rmse, rmse_time);
 
     }
     auto t2 = std::chrono::high_resolution_clock::now();
