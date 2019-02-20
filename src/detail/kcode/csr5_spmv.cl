@@ -184,7 +184,9 @@ void partition_fast_track(__global const vT           *d_value_partition,
     #pragma unroll
     for (int i = 0; i < ANONYMOUSLIB_CSR5_SIGMA; i++){
         candidate(d_value_partition, d_x, d_column_index_partition, i * ANONYMOUSLIB_CSR5_OMEGA + lane_id, alpha, &sum_t_, &sum_b_);
-        sum_t += sum_t_, sum_b += sum_b_;}
+        sum_t += sum_t_;
+        sum_b += sum_b_;
+    }
 
     s_sum_t[lane_id] = sum_t;
     s_sum_b[lane_id] = sum_b;
@@ -236,8 +238,10 @@ void partition_normal_track(__global const iT           *d_column_index_partitio
 
     bool direct = false;
 
-    vT first_sum_t, last_sum_t;
-    vT first_sum_b, last_sum_b;
+    vT first_sum_t = 0.0;
+    vT last_sum_t;
+    vT first_sum_b = 0.0;
+    vT last_sum_b;
 
     // step 1. thread-level seg sum
 #if ANONYMOUSLIB_CSR5_SIGMA > 16
@@ -290,7 +294,8 @@ void partition_normal_track(__global const iT           *d_column_index_partitio
         stop += local_bit;
 
         candidate(d_value_partition, d_x, d_column_index_partition, i * ANONYMOUSLIB_CSR5_OMEGA + lane_id, alpha, &sum_t_, &sum_b_);
-        sum_t += sum_t_, sum_b += sum_b_;
+        sum_t += sum_t_;
+        sum_b += sum_b_;
     }
 
     first_sum_t = direct ? first_sum_t : sum_t;
@@ -440,7 +445,7 @@ void spmv_csr5_calibrate_kernel(__global const uiT *d_partition_pointer,
 {
     const int lane_id  = get_local_id(0) % ANONYMOUSLIB_THREAD_BUNCH;
     const int bunch_id = get_local_id(0) / ANONYMOUSLIB_THREAD_BUNCH;
-    const int local_id = get_local_id(0);
+    const size_t local_id = get_local_id(0);
     const iT global_id = get_global_id(0);
 
     vT sum_t;
@@ -476,7 +481,7 @@ void spmv_csr5_calibrate_kernel(__global const uiT *d_partition_pointer,
         return;
     }
 
-    int local_par_id = local_id;
+    size_t local_par_id = local_id;
     iT row_start_current, row_start_target, row_start_previous;
     sum_t = 0;
     sum_b = 0;
@@ -528,7 +533,7 @@ void spmv_csr5_tail_partition_kernel(__global const iT           *d_row_pointer,
                                      const int           sigma,
                                      const vT            alpha)
 {
-    const int local_id = get_local_id(0);
+    const int local_id = (int) get_local_id(0);
 
     const iT row_id    = tail_partition_start + get_group_id(0);
     const iT row_start = !get_group_id(0) ? (p - 1) * ANONYMOUSLIB_CSR5_OMEGA * sigma : d_row_pointer[row_id];
@@ -541,7 +546,9 @@ void spmv_csr5_tail_partition_kernel(__global const iT           *d_row_pointer,
 
     for (iT idx = local_id + row_start; idx < row_stop; idx += ANONYMOUSLIB_CSR5_OMEGA){
         candidate(d_value, d_x, d_column_index, idx, alpha, &sum_t_, &sum_b_);
-        sum_t += sum_t_, sum_b += sum_b_;}
+        sum_t += sum_t_;
+        sum_b += sum_b_;
+    }
 
     volatile __local vT s_sum_t[ANONYMOUSLIB_CSR5_OMEGA + ANONYMOUSLIB_CSR5_OMEGA / 2];
     volatile __local vT s_sum_b[ANONYMOUSLIB_CSR5_OMEGA + ANONYMOUSLIB_CSR5_OMEGA / 2];

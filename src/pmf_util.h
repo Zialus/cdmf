@@ -39,10 +39,6 @@ public:
     unsigned* row_ptr;
     size_t nbits_col_ptr;
     size_t nbits_row_ptr;
-    unsigned* col_nnz;
-    unsigned* row_nnz;
-    size_t nbits_col_nnz;
-    size_t nbits_row_nnz;
     unsigned* row_idx;
     unsigned* col_idx;
     size_t nbits_row_idx;
