@@ -12,10 +12,12 @@ __kernel void RankOneUpdate_dev(__global const unsigned* col_ptr,
     g[local_id] = 0;
     h[local_id] = 0;
     size_t j = group_id;
-    VALUE_TYPE nlambda = lambda * (col_ptr[j + 1] - col_ptr[j]);
-    if ((col_ptr[j + 1] == col_ptr[j]) && (local_id == 0)) {
+
+    if ((col_ptr[j + 1] == col_ptr[j])) {
         v[j] = 0.0;
+        return;
     }
+
     for (size_t idx = col_ptr[j] + local_id; idx < col_ptr[j + 1]; idx += group_size) {
         unsigned i = row_idx[idx];
         g[local_id] += u_vec_t[i] * val[idx];
@@ -30,6 +32,9 @@ __kernel void RankOneUpdate_dev(__global const unsigned* col_ptr,
         }
         barrier(CLK_LOCAL_MEM_FENCE);
     }
+
+    VALUE_TYPE nlambda = lambda * (col_ptr[j + 1] - col_ptr[j]);
+
     v[j] = g[0] / (h[0] + nlambda);
 }
 
