@@ -81,9 +81,9 @@ static void UpdateRating_dev(const unsigned cols,
     size_t i = group_id;
     VALUE_TYPE Htc = v[i];
     unsigned nnz = col_ptr[i + 1] - col_ptr[i];
-    size_t bidx = col_ptr[i];
+
     if (nnz <= WG_SIZE && local_id < nnz) {
-        size_t idx = bidx + local_id;
+        size_t idx = col_ptr[i] + local_id;
         unsigned rIdx = row_idx[idx];
         if (isAdd){     /// +
             val[idx] += u[rIdx] * Htc;
@@ -91,8 +91,7 @@ static void UpdateRating_dev(const unsigned cols,
             val[idx] -= u[rIdx] * Htc;
         }
     } else {
-        for (size_t iter = local_id; iter < nnz; iter += group_size) {
-            size_t idx = bidx + iter;
+        for (size_t idx = col_ptr[i] + local_id; idx < col_ptr[i + 1]; idx += group_size) {
             unsigned rIdx = row_idx[idx];
             if (isAdd) {     /// +
                 val[idx] += u[rIdx] * Htc;

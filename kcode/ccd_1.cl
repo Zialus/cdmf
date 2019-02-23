@@ -43,7 +43,8 @@ inline VALUE_TYPE RankOneUpdate_dev(__global const unsigned* col_ptr,
                                     const size_t j,
                                     __global const VALUE_TYPE* u_vec_t,
                                     const VALUE_TYPE lambda) {
-    VALUE_TYPE g = 0, h = lambda;
+    VALUE_TYPE g = 0, h = 0;
+
     if (col_ptr[j + 1] == col_ptr[j]) {
         return 0;
     }
@@ -52,7 +53,7 @@ inline VALUE_TYPE RankOneUpdate_dev(__global const unsigned* col_ptr,
         g += u_vec_t[i] * val[idx];
         h += u_vec_t[i] * u_vec_t[i];
     }
-    VALUE_TYPE newvj = g / h;
+    VALUE_TYPE newvj = g / (h + lambda);
     return newvj;
 }
 
@@ -114,10 +115,11 @@ inline void UpdateRating_dev(const unsigned cols,
     for (size_t i = global_id; i < cols; i += global_size) {
         VALUE_TYPE Htc = v[i];
         for (size_t idx = col_ptr[i]; idx < col_ptr[i + 1]; ++idx) {
+            unsigned rIdx = row_idx[idx];
             if (isAdd) {    /// +
-                val[idx] += u[row_idx[idx]] * Htc;
+                val[idx] += u[rIdx] * Htc;
             } else {        /// -
-                val[idx] -= u[row_idx[idx]] * Htc;
+                val[idx] -= u[rIdx] * Htc;
             }
         }
     }
