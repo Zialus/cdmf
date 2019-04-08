@@ -34,21 +34,21 @@ void print_platform_info(cl_platform_id* platforms, unsigned id);
 
 int report_device(cl_device_id device_id);
 
-void load(const char* srcdir, smat_t& R,testset_t& T, bool ifALS);
+void load(const char* srcdir, SparseMatrix& R,TestData& T);
 
-void initial_col(mat_t& X, unsigned k, unsigned n);
+void initial_col(MatData& X, unsigned k, unsigned n);
 
 void exit_with_help();
 
 parameter parse_command_line(int argc, char** argv);
 
-void golden_compare(mat_t W, mat_t W_ref, unsigned k, unsigned m);
+void golden_compare(MatData W, MatData W_ref, unsigned k, unsigned m);
 
-void calculate_rmse(const mat_t& W_c, const mat_t& H_c, const char* srcdir, unsigned k);
+void calculate_rmse(const MatData& W_c, const MatData& H_c, const char* srcdir, unsigned k);
 
-double calculate_rmse_directly(mat_t& W, mat_t& H, testset_t& T, int rank, bool ifALS);
+double calculate_rmse_directly(MatData& W, MatData& H, TestData& T, int rank, bool ifALS);
 
-void print_matrix(mat_t M, unsigned k, unsigned n);
+void print_matrix(MatData M, unsigned k, unsigned n);
 
 double executionTime(cl_event& event);
 

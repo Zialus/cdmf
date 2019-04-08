@@ -3,7 +3,7 @@
 extern std::chrono::duration<double> deltaT12;
 extern std::chrono::duration<double> deltaTAB;
 
-void cdmf_ocl_01(smat_t& R, mat_t& W_c, mat_t& H_c, testset_t &T, parameter& param, char filename[]) {
+void cdmf_ocl_01(SparseMatrix& R, MatData& W_c, MatData& H_c, TestData &T, parameter& param, char filename[]) {
     auto tA = std::chrono::high_resolution_clock::now();
 
     cl_int status;
@@ -90,23 +90,30 @@ void cdmf_ocl_01(smat_t& R, mat_t& W_c, mat_t& H_c, testset_t &T, parameter& par
     size_t nbits_W_ = R.rows * k * sizeof(VALUE_TYPE);
     size_t nbits_H_ = R.cols * k * sizeof(VALUE_TYPE);
 
+    size_t nbits_col_ptr = (R.cols + 1) * sizeof(unsigned);
+    size_t nbits_row_ptr = (R.rows + 1) * sizeof(unsigned);
+
+    size_t nbits_idx = R.nnz * sizeof(unsigned);
+
+    size_t nbits_val = R.nnz * sizeof(VALUE_TYPE);
+
     // creating buffers
     cl_mem WBuffer = clCreateBuffer(context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, nbits_W_, W, &err);
     CL_CHECK(err);
     cl_mem HBuffer = clCreateBuffer(context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, nbits_H_, H, &err);
     CL_CHECK(err);
 
-    cl_mem row_ptrBuffer = clCreateBuffer(context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, R.nbits_row_ptr, R.row_ptr, &err);
+    cl_mem row_ptrBuffer = clCreateBuffer(context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, nbits_row_ptr, R.get_csr_row_ptr(), &err);
     CL_CHECK(err);
-    cl_mem col_idxBuffer = clCreateBuffer(context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, R.nbits_col_idx, R.col_idx, &err);
+    cl_mem col_idxBuffer = clCreateBuffer(context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, nbits_idx, R.get_csr_col_indx(), &err);
     CL_CHECK(err);
-    cl_mem col_ptrBuffer = clCreateBuffer(context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, R.nbits_col_ptr, R.col_ptr, &err);
+    cl_mem col_ptrBuffer = clCreateBuffer(context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, nbits_col_ptr, R.get_csc_col_ptr(), &err);
     CL_CHECK(err);
-    cl_mem row_idxBuffer = clCreateBuffer(context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, R.nbits_row_idx, R.row_idx, &err);
+    cl_mem row_idxBuffer = clCreateBuffer(context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, nbits_idx, R.get_csc_row_indx(), &err);
     CL_CHECK(err);
-    cl_mem valBuffer = clCreateBuffer(context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, R.nbits_val, R.val, &err);
+    cl_mem valBuffer = clCreateBuffer(context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, nbits_val, R.get_csc_val(), &err);
     CL_CHECK(err);
-    cl_mem val_tBuffer = clCreateBuffer(context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, R.nbits_val, R.val_t, &err);
+    cl_mem val_tBuffer = clCreateBuffer(context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, nbits_val, R.get_csr_val(), &err);
     CL_CHECK(err);
     cl_mem WtBuffer = clCreateBuffer(context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, nbits_u, Wt, &err); // u
     CL_CHECK(err);
@@ -114,11 +121,11 @@ void cdmf_ocl_01(smat_t& R, mat_t& W_c, mat_t& H_c, testset_t &T, parameter& par
     CL_CHECK(err);
 
     // RMSE related buffers
-    cl_mem test_rowBuffer = clCreateBuffer(context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, T.nnz * sizeof(unsigned), T.test_row, &err);
+    cl_mem test_rowBuffer = clCreateBuffer(context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, T.nnz * sizeof(unsigned), T.getTestRow(), &err);
     CL_CHECK(err);
-    cl_mem test_colBuffer = clCreateBuffer(context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, T.nnz * sizeof(unsigned), T.test_col, &err);
+    cl_mem test_colBuffer = clCreateBuffer(context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, T.nnz * sizeof(unsigned), T.getTestCol(), &err);
     CL_CHECK(err);
-    cl_mem test_valBuffer = clCreateBuffer(context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, T.nnz * sizeof(unsigned), T.test_val, &err);
+    cl_mem test_valBuffer = clCreateBuffer(context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, T.nnz * sizeof(unsigned), T.getTestVal(), &err);
     CL_CHECK(err);
     cl_mem pred_vBuffer = clCreateBuffer(context, CL_MEM_READ_WRITE, T.nnz * sizeof(VALUE_TYPE), nullptr, &err);
     CL_CHECK(err);

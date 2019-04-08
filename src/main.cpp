@@ -16,22 +16,22 @@ int main(int argc, char** argv) {
     std::cout << "------------------------------------------------------" << std::endl;
     std::cout << "[info] Loading R matrix..." << std::endl;
     auto t3 = std::chrono::high_resolution_clock::now();
-    smat_t R;
-    testset_t T;
-    bool ifALS = false;
-    load(param.scr_dir, R, T, ifALS);
+    SparseMatrix R;
+    TestData T;
+
+    load(param.scr_dir, R, T);
     auto t4 = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> deltaT34 = t4 - t3;
     std::cout << "[info] Loading rating data time: " << deltaT34.count() << "s.\n";
     std::cout << "------------------------------------------------------" << std::endl;
 
-    mat_t W;
-    mat_t H;
+    MatData W;
+    MatData H;
     initial_col(W, param.k, R.rows);
     initial_col(H, param.k, R.cols);
 
-    mat_t W_ref;
-    mat_t H_ref;
+    MatData W_ref;
+    MatData H_ref;
     initial_col(W_ref, param.k, R.rows);
     initial_col(H_ref, param.k, R.cols);
 

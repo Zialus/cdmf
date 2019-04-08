@@ -268,30 +268,74 @@ int report_device(cl_device_id device_id) {
     return 0;
 }
 
-void load(const char* srcdir, smat_t& R, testset_t& T, bool ifALS) {
-    char filename[2048], buf[1024];
-    snprintf(filename, sizeof(filename), "%s/meta", srcdir);
+void load(const char* srcdir, SparseMatrix& R, TestData& data) {
+    char filename[1024];
+    snprintf(filename, sizeof(filename), "%s/meta_modified_all", srcdir);
     FILE* fp = fopen(filename, "r");
+
     if (fp == nullptr) {
-        fprintf(stderr, "Can't open input file.\n");
+        printf("Can't open meta input file.\n");
         exit(EXIT_FAILURE);
     }
-    unsigned m, n, nnz;
-    CHECK_FSCAN(fscanf(fp, "%u %u", &m, &n), 2);
 
-    CHECK_FSCAN(fscanf(fp, "%u %1023s", &nnz, buf), 2);
-    snprintf(filename, sizeof(filename), "%s/%s", srcdir, buf);
-    R.load(m, n, nnz, filename, ifALS);
+    long m;
+    long n;
+    long nnz;
+    CHECK_FSCAN(fscanf(fp, "%ld %ld %ld", &m, &n, &nnz), 3);
 
-    CHECK_FSCAN(fscanf(fp, "%u %1023s", &nnz, buf), 2);
-    snprintf(filename, sizeof(filename), "%s/%s", srcdir, buf);
-    T.load(m, n, nnz, filename);
+    char buf[1024];
+    char binary_filename_val[1024];
+    char binary_filename_row[1024];
+    char binary_filename_col[1024];
+    char binary_filename_rowptr[1024];
+    char binary_filename_colidx[1024];
+    char binary_filename_csrval[1024];
+    char binary_filename_colptr[1024];
+    char binary_filename_rowidx[1024];
+    char binary_filename_cscval[1024];
+
+    CHECK_FSCAN(fscanf(fp, "%1023s", buf), 1);
+    snprintf(binary_filename_val, sizeof(binary_filename_val), "%s/%s", srcdir, buf);
+    CHECK_FSCAN(fscanf(fp, "%1023s", buf), 1);
+    snprintf(binary_filename_row, sizeof(binary_filename_row), "%s/%s", srcdir, buf);
+    CHECK_FSCAN(fscanf(fp, "%1023s", buf), 1);
+    snprintf(binary_filename_col, sizeof(binary_filename_col), "%s/%s", srcdir, buf);
+    CHECK_FSCAN(fscanf(fp, "%1023s", buf), 1);
+    snprintf(binary_filename_rowptr, sizeof(binary_filename_rowptr), "%s/%s", srcdir, buf);
+    CHECK_FSCAN(fscanf(fp, "%1023s", buf), 1);
+    snprintf(binary_filename_colidx, sizeof(binary_filename_colidx), "%s/%s", srcdir, buf);
+    CHECK_FSCAN(fscanf(fp, "%1023s", buf), 1);
+    snprintf(binary_filename_csrval, sizeof(binary_filename_csrval), "%s/%s", srcdir, buf);
+    CHECK_FSCAN(fscanf(fp, "%1023s", buf), 1);
+    snprintf(binary_filename_colptr, sizeof(binary_filename_colptr), "%s/%s", srcdir, buf);
+    CHECK_FSCAN(fscanf(fp, "%1023s", buf), 1);
+    snprintf(binary_filename_rowidx, sizeof(binary_filename_rowidx), "%s/%s", srcdir, buf);
+    CHECK_FSCAN(fscanf(fp, "%1023s", buf), 1);
+    snprintf(binary_filename_cscval, sizeof(binary_filename_cscval), "%s/%s", srcdir, buf);
+
+    R.read_binary_file(m, n, nnz,
+//                       binary_filename_val, binary_filename_row, binary_filename_col,
+                       binary_filename_rowptr, binary_filename_colidx, binary_filename_csrval,
+                       binary_filename_colptr, binary_filename_rowidx, binary_filename_cscval);
+
+
+    auto t0 = std::chrono::high_resolution_clock::now();
+
+    if (fscanf(fp, "%ld %1023s", &nnz, buf) != EOF) {
+        snprintf(filename, sizeof(filename), "%s/%s", srcdir, buf);
+        data.read(m, n, nnz, filename);
+    }
+
+    auto t1 = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> deltaT = t1 - t0;
+    std::cout << "[info] LOL TIMER: " << deltaT.count() << "s.\n";
+
 
     fclose(fp);
 }
 
-void initial_col(mat_t& X, unsigned k, unsigned n) {
-    X = mat_t(k, vec_t(n));
+void initial_col(MatData& X, unsigned k, unsigned n) {
+    X = MatData(k, VecData(n));
     srand(0L);
     for (unsigned i = 0; i < n; ++i) {
         for (unsigned j = 0; j < k; ++j) {
@@ -411,7 +455,7 @@ parameter parse_command_line(int argc, char** argv) {
     return param;
 }
 
-void golden_compare(mat_t W, mat_t W_ref, unsigned k, unsigned m) {
+void golden_compare(MatData W, MatData W_ref, unsigned k, unsigned m) {
     unsigned error_count = 0;
     for (unsigned i = 0; i < k; i++) {
         for (unsigned j = 0; j < m; j++) {
@@ -433,7 +477,7 @@ void golden_compare(mat_t W, mat_t W_ref, unsigned k, unsigned m) {
     }
 }
 
-void calculate_rmse(const mat_t& W_c, const mat_t& H_c, const char* srcdir, const unsigned k) {
+void calculate_rmse(const MatData& W_c, const MatData& H_c, const char* srcdir, const unsigned k) {
     char meta_filename[1024];
     snprintf(meta_filename, sizeof(meta_filename), "%s/meta", srcdir);
     FILE* fp = fopen(meta_filename, "r");
@@ -487,7 +531,7 @@ void calculate_rmse(const mat_t& W_c, const mat_t& H_c, const char* srcdir, cons
     printf("[INFO] Test RMSE = %lf\n", rmse);
 }
 
-double calculate_rmse_directly(mat_t& W, mat_t& H, testset_t& T, int rank, bool ifALS) {
+double calculate_rmse_directly(MatData& W, MatData& H, TestData& T, int rank, bool ifALS) {
 
     double rmse = 0;
     int num_insts = 0;
@@ -496,9 +540,9 @@ double calculate_rmse_directly(mat_t& W, mat_t& H, testset_t& T, int rank, bool 
     long nnz = T.nnz;
 
     for (long idx = 0; idx < nnz; ++idx) {
-        long i = T.test_row[idx];
-        long j = T.test_col[idx];
-        double v = T.test_val[idx];
+        long i = T.getTestRow()[idx];
+        long j = T.getTestCol()[idx];
+        double v = T.getTestVal()[idx];
 
         double pred_v = 0;
         if (ifALS) {
@@ -509,7 +553,7 @@ double calculate_rmse_directly(mat_t& W, mat_t& H, testset_t& T, int rank, bool 
         } else {
 //#pragma omp parallel for  reduction(+:pred_v)
             for (int t = 0; t < rank; t++) {
-                pred_v += W[t][i] * H[t][j];
+                pred_v += W[t][i-1] * H[t][j-1];
             }
         }
         double tmp = (pred_v - v) * (pred_v - v);
@@ -530,7 +574,7 @@ double calculate_rmse_directly(mat_t& W, mat_t& H, testset_t& T, int rank, bool 
     return rmse;
 }
 
-void print_matrix(mat_t M, unsigned k, unsigned n) {
+void print_matrix(MatData M, unsigned k, unsigned n) {
     printf("-----------------------------------------\n");
     for (unsigned i = 0; i < n; ++i) {
         for (unsigned j = 0; j < k; ++j) {

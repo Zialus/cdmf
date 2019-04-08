@@ -2,256 +2,150 @@
 #define PMF_UTIL_H
 
 #include "util.h"
+#include <memory>
 
-typedef std::vector<VALUE_TYPE> vec_t;
-typedef std::vector<vec_t> mat_t;
+using VecData = std::vector<VALUE_TYPE>;
+using MatData = std::vector<VecData>;
+using VecInt = std::vector<int>;
+using MatInt = std::vector<VecInt>;
 
-// Comparator for sorting rates into row/column compression storage
-class SparseComp {
+// Sparse matrix format CSC & CSR
+class SparseMatrix {
 public:
-    const unsigned* row_idx;
-    const unsigned* col_idx;
+    long rows, cols, nnz, max_row_nnz, max_col_nnz;
 
-    SparseComp(const unsigned* row_idx_, const unsigned* col_idx_, bool isRCS_ = true) {
-        row_idx = (isRCS_) ? row_idx_ : col_idx_;
-        col_idx = (isRCS_) ? col_idx_ : row_idx_;
+    void read_binary_file(long rows_, long cols_, long nnz_,
+//                                    std::string fname_data, std::string fname_row, std::string fname_col,
+                          const std::string& fname_csr_row_ptr, const std::string& fname_csr_col_indx,
+                          const std::string& fname_csr_val,
+                          const std::string& fname_csc_col_ptr, const std::string& fname_csc_row_indx,
+                          const std::string& fname_csc_val) {
+        this->rows = rows_;
+        this->cols = cols_;
+        this->nnz = nnz_;
+
+        /// read csr
+        this->read_compressed(fname_csr_row_ptr, fname_csr_col_indx, fname_csr_val,
+                              this->csr_row_ptr_, this->csr_col_indx_, this->csr_val_, rows + 1,
+                              this->max_row_nnz);
+
+        /// read csc
+        this->read_compressed(fname_csc_col_ptr, fname_csc_row_indx, fname_csc_val,
+                              this->csc_col_ptr_, this->csc_row_indx_, this->csc_val_, cols + 1,
+                              this->max_col_nnz);
     }
 
-    bool operator()(size_t x, size_t y) const {
-        return (row_idx[x] < row_idx[y]) || ((row_idx[x] == row_idx[y]) && (col_idx[x] <= col_idx[y]));
-    }
-};
+    SparseMatrix get_shallow_transpose() {
+        SparseMatrix shallow_transpose;
+        shallow_transpose.cols = rows;
+        shallow_transpose.rows = cols;
+        shallow_transpose.nnz = nnz;
+        shallow_transpose.csc_val_ = csr_val_;
+        shallow_transpose.csr_val_ = csc_val_;
+        shallow_transpose.csc_col_ptr_ = csr_row_ptr_;
+        shallow_transpose.csr_row_ptr_ = csc_col_ptr_;
+        shallow_transpose.csr_col_indx_ = csc_row_indx_;
+        shallow_transpose.csc_row_indx_ = csr_col_indx_;
+        shallow_transpose.max_col_nnz = max_row_nnz;
+        shallow_transpose.max_row_nnz = max_col_nnz;
 
-// Sparse matrix format CCS & RCS
-// Access column format only when you use it..
-class smat_t {
-public:
-    unsigned rows;
-    unsigned cols;
-    unsigned nnz;
-    unsigned max_row_nnz;
-    unsigned max_col_nnz;
-    VALUE_TYPE* val;
-    VALUE_TYPE* val_t;
-    size_t nbits_val;
-    size_t nbits_val_t;
-    unsigned* col_ptr;
-    unsigned* row_ptr;
-    size_t nbits_col_ptr;
-    size_t nbits_row_ptr;
-    unsigned* row_idx;
-    unsigned* col_idx;
-    size_t nbits_row_idx;
-    size_t nbits_col_idx;
-    unsigned* colMajored_sparse_idx;
-    size_t nbits_colMajored_sparse_idx;
-    bool mem_alloc_by_me;
-
-    smat_t() : mem_alloc_by_me(false) {}
-
-    smat_t(const smat_t& m) {
-        *this = m;
-        mem_alloc_by_me = false;
+        return shallow_transpose;
     }
 
-    void load(unsigned _rows, unsigned _cols, unsigned _nnz, const char* filename, bool ifALS) {
-        rows = _rows;
-        cols = _cols;
-        nnz = _nnz;
-        mem_alloc_by_me = true;
-        val = MALLOC(VALUE_TYPE, nnz);
-        val_t = MALLOC(VALUE_TYPE, nnz);
-        nbits_val = SIZEBITS(VALUE_TYPE, nnz);
-        nbits_val_t = SIZEBITS(VALUE_TYPE, nnz);
-        row_idx = MALLOC(unsigned, nnz);
-        col_idx = MALLOC(unsigned, nnz);
-        nbits_row_idx = SIZEBITS(unsigned, nnz);
-        nbits_col_idx = SIZEBITS(unsigned, nnz);
-        row_ptr = MALLOC(unsigned, rows + 1);
-        col_ptr = MALLOC(unsigned, cols + 1);
-        nbits_row_ptr = SIZEBITS(unsigned, rows + 1);
-        nbits_col_ptr = SIZEBITS(unsigned, cols + 1);
-        memset(row_ptr, 0, sizeof(unsigned) * (rows + 1));
-        memset(col_ptr, 0, sizeof(unsigned) * (cols + 1));
-        if (ifALS) {
-            colMajored_sparse_idx = MALLOC(unsigned, nnz);
-            nbits_colMajored_sparse_idx = SIZEBITS(unsigned, nnz);
+    unsigned* get_csc_col_ptr() const {
+        return csc_col_ptr_.get();
+    }
+
+    unsigned* get_csc_row_indx() const {
+        return csc_row_indx_.get();
+    }
+
+    VALUE_TYPE* get_csc_val() const {
+        return csc_val_.get();
+    }
+
+    unsigned* get_csr_col_indx() const {
+        return csr_col_indx_.get();
+    }
+
+    unsigned* get_csr_row_ptr() const {
+        return csr_row_ptr_.get();
+    }
+
+    VALUE_TYPE* get_csr_val() const {
+        return csr_val_.get();
+    }
+
+private:
+    void read_compressed(const std::string& fname_cs_ptr, const std::string& fname_cs_indx, const std::string& fname_cs_val,
+                         std::shared_ptr<unsigned>& cs_ptr, std::shared_ptr<unsigned>& cs_indx, std::shared_ptr<VALUE_TYPE>& cs_val,
+                         long num_elems_in_cs_ptr, long& max_nnz_in_one_dim) {
+
+        cs_ptr = std::shared_ptr<unsigned>(new unsigned[num_elems_in_cs_ptr], std::default_delete<unsigned[]>());
+        cs_indx = std::shared_ptr<unsigned>(new unsigned[this->nnz], std::default_delete<unsigned[]>());
+        cs_val = std::shared_ptr<VALUE_TYPE>(new VALUE_TYPE[this->nnz], std::default_delete<VALUE_TYPE[]>());
+
+        std::ifstream f_indx(fname_cs_indx, std::ios::binary);
+        std::ifstream f_val(fname_cs_val, std::ios::binary);
+
+        for (long i = 0; i < this->nnz; i++) {
+            f_indx.read((char*) &cs_indx.get()[i], sizeof(unsigned));
+            f_val.read((char*) &cs_val.get()[i], sizeof(float));
         }
 
-        // a trick here to utilize the space the have been allocated
-        std::vector<size_t> perm(_nnz);
-        unsigned* tmp_row_idx = col_idx;
-        unsigned* tmp_col_idx = row_idx;
-        VALUE_TYPE* tmp_val = val;
+        std::ifstream f_ptr(fname_cs_ptr, std::ios::binary);
+        max_nnz_in_one_dim = std::numeric_limits<long>::min();
 
-        FILE* fp = fopen(filename, "r");
-        for (unsigned idx = 0; idx < _nnz; idx++) {
-            unsigned i;
-            unsigned j;
-            VALUE_TYPE v;
-            if (sizeof(VALUE_TYPE) == 8) {
-                CHECK_FSCAN(fscanf(fp, "%u %u %lf", &i, &j, &v), 3);
-            } else {
-                CHECK_FSCAN(fscanf(fp, "%u %u %f", &i, &j, &v), 3);
-            }
-            row_ptr[i - 1 + 1]++;
-            col_ptr[j - 1 + 1]++;
-            tmp_row_idx[idx] = i-1;
-            tmp_col_idx[idx] = j-1;
-            tmp_val[idx] = v;
-            perm[idx] = idx;
-        }
-        fclose(fp);
+        int cur = 0;
+        for (long i = 0; i < num_elems_in_cs_ptr; i++) {
+            int prev = cur;
+            f_ptr.read((char*) &cur, sizeof(int));
+            cs_ptr.get()[i] = cur;
 
-        // sort entries into row-majored ordering
-        sort(perm.begin(), perm.end(), SparseComp(tmp_row_idx, tmp_col_idx, true));
-
-        // Generate CRS format
-        for (unsigned idx = 0; idx < _nnz; idx++) {
-            val_t[idx] = tmp_val[perm[idx]];
-            col_idx[idx] = tmp_col_idx[perm[idx]];
-        }
-
-        // Calculate nnz for each row and col
-        max_row_nnz = max_col_nnz = 0;
-        for (unsigned r = 1; r <= rows; ++r) {
-            max_row_nnz = std::max(max_row_nnz, row_ptr[r]);
-            row_ptr[r] += row_ptr[r - 1];
-        }
-        for (unsigned c = 1; c <= cols; ++c) {
-            max_col_nnz = std::max(max_col_nnz, col_ptr[c]);
-            col_ptr[c] += col_ptr[c - 1];
-        }
-
-        // Transpose CRS into CCS matrix
-        for (unsigned r = 0; r < rows; ++r) {
-            for (unsigned i = row_ptr[r]; i < row_ptr[r + 1]; ++i) {
-                unsigned c = col_idx[i];
-                row_idx[col_ptr[c]] = r;
-                val[col_ptr[c]] = val_t[i];
-                col_ptr[c]++;
-            }
-        }
-        for (unsigned c = cols; c > 0; --c) { col_ptr[c] = col_ptr[c - 1]; }
-        col_ptr[0] = 0;
-
-        if (ifALS) {
-            unsigned* mapIDX;
-            mapIDX = MALLOC(unsigned, rows);
-            for (unsigned r = 0; r < rows; ++r) {
-                mapIDX[r] = row_ptr[r];
-            }
-
-            for (unsigned r = 0; r < nnz; ++r) {
-                colMajored_sparse_idx[mapIDX[row_idx[r]]] = r;
-                ++mapIDX[row_idx[r]];
-            }
-            free(mapIDX);
+            if (i > 0) { max_nnz_in_one_dim = std::max<long>(max_nnz_in_one_dim, cur - prev); }
         }
     }
 
-    unsigned nnz_of_row(int i) const { return (row_ptr[i + 1] - row_ptr[i]); }
-
-    unsigned nnz_of_col(int i) const { return (col_ptr[i + 1] - col_ptr[i]); }
-
-    VALUE_TYPE get_global_mean() {
-        VALUE_TYPE sum = 0;
-        for (unsigned i = 0; i < nnz; ++i) { sum += val[i]; }
-        return sum / nnz;
-    }
-
-    void remove_bias(VALUE_TYPE bias) {
-        for (unsigned i = 0; i < nnz; ++i) { val[i] -= bias; }
-        for (unsigned i = 0; i < nnz; ++i) { val_t[i] -= bias; }
-    }
-
-    ~smat_t() {
-        if (mem_alloc_by_me) {
-            //puts("Warning: Somebody just freed me.");
-            free(val);
-            free(val_t);
-            free(row_ptr);
-            free(row_idx);
-            free(col_ptr);
-            free(col_idx);
-        }
-    }
-
-    void clear_space() {
-        free(val);
-        free(val_t);
-        free(row_ptr);
-        free(row_idx);
-        free(col_ptr);
-        free(col_idx);
-        mem_alloc_by_me = false;
-    }
-
-    smat_t transpose() {
-        smat_t mt;
-        mt.cols = rows;
-        mt.rows = cols;
-        mt.nnz = nnz;
-        mt.val = val_t;
-        mt.val_t = val;
-        mt.nbits_val = nbits_val_t;
-        mt.nbits_val_t = nbits_val;
-
-        mt.col_ptr = row_ptr;
-        mt.row_ptr = col_ptr;
-        mt.nbits_col_ptr = nbits_row_ptr;
-        mt.nbits_row_ptr = nbits_col_ptr;
-        mt.col_idx = row_idx;
-        mt.row_idx = col_idx;
-        mt.nbits_col_idx = nbits_row_idx;
-        mt.nbits_row_idx = nbits_col_idx;
-        mt.max_col_nnz = max_row_nnz;
-        mt.max_row_nnz = max_col_nnz;
-        return mt;
-    }
+    std::shared_ptr<unsigned> csc_col_ptr_, csr_row_ptr_, col_nnz_, row_nnz_;
+    std::shared_ptr<VALUE_TYPE> csr_val_, csc_val_;
+    std::shared_ptr<unsigned> csc_row_indx_, csr_col_indx_;
 };
 
 // Test set in COO format
-class testset_t {
+class TestData {
 public:
-    unsigned rows;
-    unsigned cols;
-    unsigned nnz;
-    unsigned* test_row;
-    unsigned* test_col;
-    VALUE_TYPE* test_val;
+    long rows, cols, nnz;
 
-    void load(unsigned _rows, unsigned _cols, unsigned _nnz, const char* filename) {
-        unsigned r, c;
-        VALUE_TYPE v;
-        rows = _rows;
-        cols = _cols;
-        nnz = _nnz;
+    void read(long rows_, long cols_, long nnz_, const std::string& filename) {
+        this->rows = rows_;
+        this->cols = cols_;
+        this->nnz = nnz_;
 
-        test_row = new unsigned[nnz];
-        test_col = new unsigned[nnz];
-        test_val = new float[nnz];
+        test_row = std::unique_ptr<unsigned[]>(new unsigned[nnz_]);
+        test_col = std::unique_ptr<unsigned[]>(new unsigned[nnz_]);
+        test_val = std::unique_ptr<VALUE_TYPE[]>(new VALUE_TYPE[nnz_]);
 
-        FILE* fp = fopen(filename, "r");
-        for (unsigned idx = 0; idx < nnz; ++idx) {
-            if (sizeof(VALUE_TYPE) == 8) {
-                CHECK_FSCAN(fscanf(fp, "%u %u %lf", &r, &c, &v), 3);
-            } else {
-                CHECK_FSCAN(fscanf(fp, "%u %u %f", &r, &c, &v), 3);
-            }
-            test_row[idx] = r - 1;
-            test_col[idx] = c - 1;
-            test_val[idx] = v;
+        std::ifstream fp(filename);
+        for (long idx = 0; idx < nnz_; ++idx) {
+            fp >> test_row[idx] >> test_col[idx] >> test_val[idx];
         }
-        fclose(fp);
     }
 
-    ~testset_t() {
-        delete[] test_row;
-        delete[] test_col;
-        delete[] test_val;
+    unsigned* getTestCol() const {
+        return test_col.get();
     }
 
+    unsigned* getTestRow() const {
+        return test_row.get();
+    }
+
+    VALUE_TYPE* getTestVal() const {
+        return test_val.get();
+    }
+
+private:
+    std::unique_ptr<unsigned[]> test_row, test_col;
+    std::unique_ptr<VALUE_TYPE[]> test_val;
 };
 
 #endif //PMF_UTIL_H
