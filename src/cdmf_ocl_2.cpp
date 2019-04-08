@@ -176,8 +176,8 @@ void cdmf_ocl_02(smat_t& R, mat_t& W_c, mat_t& H_c, testset_t &T, parameter& par
     size_t gws_col[1] = {static_cast<size_t>(R.cols * param.nThreadsPerBlock)};
 //    size_t global_work_size[1] = {static_cast<size_t>(param.nBlocks * param.nThreadsPerBlock)};
     size_t local_work_size[1] = {static_cast<size_t>(param.nThreadsPerBlock)};
-    printf("[info] - blocks: %d | threads per block: %d | GWS_ROW: %zu | GWS_COL: %zu | local_work_size: %zu !\n",
-           param.nBlocks, param.nThreadsPerBlock, gws_row[0], gws_col[0], local_work_size[0]);
+    printf("[info] - blocks_ROW: %u | blocks_COL: %u | threads per block: %d | GWS_ROW: %zu | GWS_COL: %zu | local_work_size: %zu !\n",
+           R.rows, R.cols, param.nThreadsPerBlock, gws_row[0], gws_col[0], local_work_size[0]);
 
     if (param.verbose) {
         size_t local;
