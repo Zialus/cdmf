@@ -15,6 +15,8 @@ environment:
   - WHATOPENCL: AMD
     APPVEYOR_BUILD_WORKER_IMAGE: Ubuntu1804
 
+stack: python 3.7
+
 init:
   - cmake --version
   - sh: uname -a
@@ -37,12 +39,21 @@ build_script:
 
 before_test:
   - python --version
+  - pip --version
+  - pip install numpy scipy
   - cd ../data/a/
   - python a.py
+  - python a_compress.py
   - cd ../b/
   - python b.py
+  - python b_compress.py
   - cd ../c/
   - python c.py
+  - python c_compress.py
+  - cd ../simple/
+  - python simple_compress.py
+  - cd ../tricky_simple/
+  - python tricky_simple_compress.py
   - cd ../../build/
 
 test_script:

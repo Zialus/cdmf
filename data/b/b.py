@@ -13,7 +13,7 @@ uid = 0
 iid = 0
 score = 0
 trainEntries = n+2*(m-1)
-testEntries = trainEntries/100
+testEntries = trainEntries//100
 
 meta = open("meta", "w+")
 meta.write(str(m)+"\t"+str(n)+"\n")

@@ -11,21 +11,45 @@ before_script:
   - eval "${MATRIX_EVAL}"
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]];   then export SIZE_FLAG=1; export VERSION_FLAG=1; fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then export SIZE_FLAG=2; export VERSION_FLAG=2; fi
-  - cmake --version
+
+  - python3 --version
+  - pip3 --version
+  - sudo pip3 install virtualenv
+  - virtualenv env -p python3
+  - source env/bin/activate
   - python --version
-  - clinfo
+  - pip --version
+  - pip install scipy numpy
+
   - pushd .
   - cd data/a/
   - python a.py
+  - python a_compress.py
   - popd
   - pushd .
   - cd data/b/
   - python b.py
+  - python b_compress.py
   - popd
   - pushd .
   - cd data/c/
   - python c.py
+  - python c_compress.py
   - popd
+  - pushd .
+  - cd data/simple/
+  - python simple_compress.py
+  - popd
+  - pushd .
+  - cd data/tricky_simple/
+  - python tricky_simple_compress.py
+  - popd
+
+  - deactivate
+
+  - cmake --version
+  - clinfo
+
 
 matrix:
   include:
@@ -131,6 +155,7 @@ matrix:
             - clang-3.9
             - libomp-dev
       install: &linux_extras
+        - sudo apt-get install python3-pip
         - sudo apt-get install opencl-headers clinfo
         - source .ci/intel_opencl_install.sh
         - source .ci/cmake_install.sh
