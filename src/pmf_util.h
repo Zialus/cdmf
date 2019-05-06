@@ -12,7 +12,8 @@ using MatInt = std::vector<VecInt>;
 // Sparse matrix format CSC & CSR
 class SparseMatrix {
 public:
-    long rows, cols, nnz, max_row_nnz, max_col_nnz;
+    long rows, cols;
+    unsigned long nnz, max_row_nnz, max_col_nnz;
 
     void read_binary_file(long rows_, long cols_, long nnz_,
 //                                    std::string fname_data, std::string fname_row, std::string fname_col,
@@ -79,7 +80,7 @@ public:
 private:
     void read_compressed(const std::string& fname_cs_ptr, const std::string& fname_cs_indx, const std::string& fname_cs_val,
                          std::shared_ptr<unsigned>& cs_ptr, std::shared_ptr<unsigned>& cs_indx, std::shared_ptr<VALUE_TYPE>& cs_val,
-                         long num_elems_in_cs_ptr, long& max_nnz_in_one_dim) {
+                         long num_elems_in_cs_ptr, unsigned long& max_nnz_in_one_dim) {
 
         cs_ptr = std::shared_ptr<unsigned>(new unsigned[num_elems_in_cs_ptr], std::default_delete<unsigned[]>());
         cs_indx = std::shared_ptr<unsigned>(new unsigned[this->nnz], std::default_delete<unsigned[]>());
@@ -88,7 +89,7 @@ private:
         std::ifstream f_indx(fname_cs_indx, std::ios::binary);
         std::ifstream f_val(fname_cs_val, std::ios::binary);
 
-        for (long i = 0; i < this->nnz; i++) {
+        for (unsigned long i = 0; i < this->nnz; i++) {
             f_indx.read((char*) &cs_indx.get()[i], sizeof(unsigned));
             f_val.read((char*) &cs_val.get()[i], sizeof(float));
         }
@@ -114,7 +115,7 @@ private:
 // Test set in COO format
 class TestData {
 public:
-    long rows, cols, nnz;
+    unsigned long rows, cols, nnz;
 
     void read(long rows_, long cols_, long nnz_, const std::string& filename) {
         this->rows = rows_;

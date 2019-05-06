@@ -183,7 +183,7 @@ void cdmf_ocl_02(SparseMatrix& R, MatData& W_c, MatData& H_c, TestData &T, param
     size_t gws_col[1] = {static_cast<size_t>(R.cols * param.nThreadsPerBlock)};
 //    size_t global_work_size[1] = {static_cast<size_t>(param.nBlocks * param.nThreadsPerBlock)};
     size_t local_work_size[1] = {static_cast<size_t>(param.nThreadsPerBlock)};
-    printf("[info] - blocks_ROW: %u | blocks_COL: %u | threads per block: %d | GWS_ROW: %zu | GWS_COL: %zu | local_work_size: %zu !\n",
+    printf("[info] - blocks_ROW: %ld | blocks_COL: %ld | threads per block: %d | GWS_ROW: %zu | GWS_COL: %zu | local_work_size: %zu !\n",
            R.rows, R.cols, param.nThreadsPerBlock, gws_row[0], gws_col[0], local_work_size[0]);
 
     if (param.verbose) {

@@ -540,8 +540,8 @@ double calculate_rmse_directly(MatData& W, MatData& H, TestData& T, int rank, bo
     long nnz = T.nnz;
 
     for (long idx = 0; idx < nnz; ++idx) {
-        long i = T.getTestRow()[idx];
-        long j = T.getTestCol()[idx];
+        unsigned i = T.getTestRow()[idx];
+        unsigned j = T.getTestCol()[idx];
         double v = T.getTestVal()[idx];
 
         double pred_v = 0;
