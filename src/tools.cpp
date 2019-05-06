@@ -548,7 +548,7 @@ double calculate_rmse_directly(MatData& W, MatData& H, TestData& T, int rank, bo
         if (ifALS) {
 //#pragma omp parallel for  reduction(+:pred_v)
             for (int t = 0; t < rank; t++) {
-                pred_v += W[i][t] * H[j][t];
+                pred_v += W[i-1][t] * H[j-1][t];
             }
         } else {
 //#pragma omp parallel for  reduction(+:pred_v)
