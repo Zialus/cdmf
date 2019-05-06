@@ -23,7 +23,7 @@ __kernel void GPU_rmse(__global unsigned const* test_row,
             unsigned i = test_row[c];
             unsigned j = test_col[c];
 //            pred_v[c] += W[i * k + t] * H[j * k + t]; //W[i][t] * H[j][t];
-            pred_v[c] += W[t * rows + (i-1)] * H[t * cols + (j-1)]; //W[i][t] * H[j][t];
+            pred_v[c] += W[t * rows + i] * H[t * cols + j]; //W[i][t] * H[j][t];
         }
 
         rmse[c] = (pred_v[c] - test_val[c]) * (pred_v[c] - test_val[c]);

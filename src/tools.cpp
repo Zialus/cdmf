@@ -268,7 +268,7 @@ int report_device(cl_device_id device_id) {
     return 0;
 }
 
-void load(const char* srcdir, SparseMatrix& R, TestData& data) {
+void load(const char* srcdir, SparseMatrix& R, TestData& T) {
     char filename[1024];
     snprintf(filename, sizeof(filename), "%s/meta_modified_all", srcdir);
     FILE* fp = fopen(filename, "r");
@@ -294,6 +294,10 @@ void load(const char* srcdir, SparseMatrix& R, TestData& data) {
     char binary_filename_rowidx[1024];
     char binary_filename_cscval[1024];
 
+    char binary_filename_val_test[1024];
+    char binary_filename_row_test[1024];
+    char binary_filename_col_test[1024];
+
     CHECK_FSCAN(fscanf(fp, "%1023s", buf), 1);
     snprintf(binary_filename_val, sizeof(binary_filename_val), "%s/%s", srcdir, buf);
     CHECK_FSCAN(fscanf(fp, "%1023s", buf), 1);
@@ -313,23 +317,35 @@ void load(const char* srcdir, SparseMatrix& R, TestData& data) {
     CHECK_FSCAN(fscanf(fp, "%1023s", buf), 1);
     snprintf(binary_filename_cscval, sizeof(binary_filename_cscval), "%s/%s", srcdir, buf);
 
+//    CHECK_FSCAN(fscanf(fp, "%1023s", buf), 1);
+    snprintf(binary_filename_val_test, sizeof(binary_filename_val_test), "%s/R_test_coo.data.bin", srcdir);
+//    CHECK_FSCAN(fscanf(fp, "%1023s", buf), 1);
+    snprintf(binary_filename_row_test, sizeof(binary_filename_row_test), "%s/R_test_coo.row.bin", srcdir);
+//    CHECK_FSCAN(fscanf(fp, "%1023s", buf), 1);
+    snprintf(binary_filename_col_test, sizeof(binary_filename_col_test), "%s/R_test_coo.col.bin", srcdir);
+
+    auto t2 = std::chrono::high_resolution_clock::now();
+
     R.read_binary_file(m, n, nnz,
 //                       binary_filename_val, binary_filename_row, binary_filename_col,
                        binary_filename_rowptr, binary_filename_colidx, binary_filename_csrval,
                        binary_filename_colptr, binary_filename_rowidx, binary_filename_cscval);
 
+    auto t3 = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> deltaT = t3 - t2;
+    std::cout << "[info] Train TIMER: " << deltaT.count() << "s.\n";
 
-    auto t0 = std::chrono::high_resolution_clock::now();
+    auto t4 = std::chrono::high_resolution_clock::now();
 
     if (fscanf(fp, "%ld %1023s", &nnz, buf) != EOF) {
         snprintf(filename, sizeof(filename), "%s/%s", srcdir, buf);
-        data.read(m, n, nnz, filename);
+//        T.read(m, n, nnz, filename);
+        T.read_binary_file(m, n, nnz, binary_filename_val_test, binary_filename_row_test, binary_filename_col_test);
     }
 
-    auto t1 = std::chrono::high_resolution_clock::now();
-    std::chrono::duration<double> deltaT = t1 - t0;
-    std::cout << "[info] LOL TIMER: " << deltaT.count() << "s.\n";
-
+    auto t5 = std::chrono::high_resolution_clock::now();
+    deltaT = t5 - t4;
+    std::cout << "[info] Tests TIMER: " << deltaT.count() << "s.\n";
 
     fclose(fp);
 }
@@ -548,12 +564,12 @@ double calculate_rmse_directly(MatData& W, MatData& H, TestData& T, int rank, bo
         if (ifALS) {
 //#pragma omp parallel for  reduction(+:pred_v)
             for (int t = 0; t < rank; t++) {
-                pred_v += W[i-1][t] * H[j-1][t];
+                pred_v += W[i][t] * H[j][t];
             }
         } else {
 //#pragma omp parallel for  reduction(+:pred_v)
             for (int t = 0; t < rank; t++) {
-                pred_v += W[t][i-1] * H[t][j-1];
+                pred_v += W[t][i] * H[t][j];
             }
         }
         double tmp = (pred_v - v) * (pred_v - v);

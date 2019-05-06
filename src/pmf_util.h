@@ -132,6 +132,31 @@ public:
         }
     }
 
+    void read_binary_file(long rows_, long cols_, long nnz_,
+                          const std::string& fname_data,
+                          const std::string& fname_row,
+                          const std::string& fname_col) {
+        this->rows = rows_;
+        this->cols = cols_;
+        this->nnz = nnz_;
+
+        test_row = std::unique_ptr<unsigned[]>(new unsigned[nnz_]);
+        test_col = std::unique_ptr<unsigned[]>(new unsigned[nnz_]);
+        test_val = std::unique_ptr<VALUE_TYPE[]>(new VALUE_TYPE[nnz_]);
+
+        FILE* f_val = fopen(fname_data.c_str(), "rb");
+        FILE* f_row = fopen(fname_row.c_str(), "rb");
+        FILE* f_col = fopen(fname_col.c_str(), "rb");
+
+        fread(&test_val.get()[0], sizeof(VALUE_TYPE) * this->nnz, 1, f_val);
+        fread(&test_row.get()[0], sizeof(unsigned) * this->nnz, 1, f_row);
+        fread(&test_col.get()[0], sizeof(unsigned) * this->nnz, 1, f_col);
+
+        fclose(f_val);
+        fclose(f_row);
+        fclose(f_col);
+    }
+
     unsigned* getTestCol() const {
         return test_col.get();
     }
