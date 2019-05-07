@@ -85,13 +85,14 @@ private:
         cs_indx = std::shared_ptr<unsigned>(new unsigned[this->nnz], std::default_delete<unsigned[]>());
         cs_val = std::shared_ptr<VALUE_TYPE>(new VALUE_TYPE[this->nnz], std::default_delete<VALUE_TYPE[]>());
 
-        std::ifstream f_indx(fname_cs_indx, std::ios::binary);
-        std::ifstream f_val(fname_cs_val, std::ios::binary);
+        FILE* f_indx = fopen(fname_cs_indx.c_str(), "rb");
+        FILE* f_val = fopen(fname_cs_val.c_str(), "rb");
 
-        for (unsigned long i = 0; i < this->nnz; i++) {
-            f_indx.read((char*) &cs_indx.get()[i], sizeof(unsigned));
-            f_val.read((char*) &cs_val.get()[i], sizeof(float));
-        }
+        fread(&cs_indx.get()[0], sizeof(unsigned) * this->nnz, 1, f_indx);
+        fread(&cs_val.get()[0], sizeof(float) * this->nnz, 1, f_val);
+
+        fclose(f_indx);
+        fclose(f_val);
 
         std::ifstream f_ptr(fname_cs_ptr, std::ios::binary);
         max_nnz_in_one_dim = std::numeric_limits<unsigned long>::min();
