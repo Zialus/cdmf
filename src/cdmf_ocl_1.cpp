@@ -62,21 +62,21 @@ void cdmf_ocl_01(SparseMatrix& R, MatData& W_c, MatData& H_c, TestData &T, param
     unsigned k = param.k;
 
     for (unsigned t = 0; t < param.k; ++t) {
-        for (unsigned c = 0; c < R.cols; ++c) {
+        for (long c = 0; c < R.cols; ++c) {
             H_c[t][c] = 0;
         }
     }
 
     VALUE_TYPE* W = (VALUE_TYPE*) malloc(k * R.rows * sizeof(VALUE_TYPE));
     for (unsigned i = 0; i < k; ++i) {
-        for (unsigned j = 0; j < R.rows; ++j) {
+        for (long j = 0; j < R.rows; ++j) {
             W[i * R.rows + j] = W_c[i][j];
         }
     }
 
     VALUE_TYPE* H = (VALUE_TYPE*) malloc(k * R.cols * sizeof(VALUE_TYPE));
     for (unsigned i = 0; i < k; ++i) {
-        for (unsigned j = 0; j < R.cols; ++j) {
+        for (long j = 0; j < R.cols; ++j) {
             H[i * R.cols + j] = 0;
         }
     }
@@ -412,12 +412,12 @@ void cdmf_ocl_01(SparseMatrix& R, MatData& W_c, MatData& H_c, TestData &T, param
     free(rmseVec);
 
     for (unsigned i = 0; i < k; ++i) {
-        for (unsigned j = 0; j < R.rows; ++j) {
+        for (long j = 0; j < R.rows; ++j) {
             W_c[i][j] = W[i * R.rows + j];
         }
     }
     for (unsigned i = 0; i < k; ++i) {
-        for (unsigned j = 0; j < R.cols; ++j) {
+        for (long j = 0; j < R.cols; ++j) {
             H_c[i][j] = H[i * R.cols + j];
         }
     }

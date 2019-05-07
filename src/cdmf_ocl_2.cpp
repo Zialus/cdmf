@@ -60,7 +60,7 @@ void cdmf_ocl_02(SparseMatrix& R, MatData& W_c, MatData& H_c, TestData &T, param
     std::cout << "[INFO] Initiating OpenCL Time: " << deltaTAB.count() << " s.\n";
 
     for (unsigned t = 0; t < param.k; ++t) {
-        for (unsigned c = 0; c < R.cols; ++c) {
+        for (long c = 0; c < R.cols; ++c) {
             H_c[t][c] = 0;
         }
     }

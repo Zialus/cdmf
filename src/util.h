@@ -26,4 +26,10 @@
     abort(); \
 }
 
+#define CHECK_FREAD(err, num)    if(err != num){ \
+    fprintf(stderr,"FREAD read %d, needed %d, in file %s on line %d\n", err, num,__FILE__,__LINE__); \
+    abort(); \
+}
+
+
 #endif //UTIL_H

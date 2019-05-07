@@ -16,34 +16,6 @@ inline VALUE_TYPE RankOneUpdate(const SparseMatrix& R, const long j, const VecDa
     return newvj;
 }
 
-inline VALUE_TYPE UpdateRating(SparseMatrix& R, const VecData& Wt, const VecData& Ht, const VecData& oldWt, const VecData& oldHt) {
-    VALUE_TYPE loss = 0;
-#pragma omp parallel for  schedule(kind) reduction(+:loss)
-    for (long c = 0; c < R.cols; ++c) {
-        VALUE_TYPE Htc = Ht[c], oldHtc = oldHt[c], loss_inner = 0;
-        for (unsigned idx = R.get_csc_col_ptr()[c]; idx < R.get_csc_col_ptr()[c + 1]; ++idx) {
-            R.get_csc_val()[idx] -= Wt[R.get_csc_row_indx()[idx]] * Htc - oldWt[R.get_csc_row_indx()[idx]] * oldHtc;
-            loss_inner += R.get_csc_val()[idx] * R.get_csc_val()[idx];
-        }
-        loss += loss_inner;
-    }
-    return loss;
-}
-
-inline VALUE_TYPE UpdateRating(SparseMatrix& R, const VecData& Wt2, const VecData& Ht2) {
-    VALUE_TYPE loss = 0;
-#pragma omp parallel for schedule(kind) reduction(+:loss)
-    for (long c = 0; c < R.cols; ++c) {
-        VALUE_TYPE Htc = Ht2[2 * c], oldHtc = Ht2[2 * c + 1], loss_inner = 0;
-        for (unsigned idx = R.get_csc_col_ptr()[c]; idx < R.get_csc_col_ptr()[c + 1]; ++idx) {
-            R.get_csc_val()[idx] -= Wt2[2 * R.get_csc_row_indx()[idx]] * Htc - Wt2[2 * R.get_csc_row_indx()[idx] + 1] * oldHtc;
-            loss_inner += R.get_csc_val()[idx] * R.get_csc_val()[idx];
-        }
-        loss += loss_inner;
-    }
-    return loss;
-}
-
 inline VALUE_TYPE UpdateRating(SparseMatrix& R, const VecData& Wt, const VecData& Ht, bool add) {
     VALUE_TYPE loss = 0;
     if (add) {
@@ -83,7 +55,7 @@ void cdmf_ref(SparseMatrix& R, MatData& W, MatData& H, TestData &T, parameter& p
     Rt = R.get_shallow_transpose();
     // H is a zero matrix now.
     for (unsigned t = 0; t < param.k; ++t) {
-        for (unsigned c = 0; c < R.cols; ++c) {
+        for (long c = 0; c < R.cols; ++c) {
             H[t][c] = 0;
         }
     }
