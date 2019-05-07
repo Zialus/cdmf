@@ -15,7 +15,7 @@ public:
     long rows, cols;
     unsigned long nnz, max_row_nnz, max_col_nnz;
 
-    void read_binary_file(long rows_, long cols_, long nnz_,
+    void read_binary_file(long rows_, long cols_, unsigned long nnz_,
 //                                    std::string fname_data, std::string fname_row, std::string fname_col,
                           const std::string& fname_csr_row_ptr, const std::string& fname_csr_col_indx,
                           const std::string& fname_csr_val,
@@ -27,12 +27,12 @@ public:
 
         /// read csr
         this->read_compressed(fname_csr_row_ptr, fname_csr_col_indx, fname_csr_val,
-                              this->csr_row_ptr_, this->csr_col_indx_, this->csr_val_, rows + 1,
+                              this->csr_row_ptr_, this->csr_col_indx_, this->csr_val_, (unsigned long) rows + 1,
                               this->max_row_nnz);
 
         /// read csc
         this->read_compressed(fname_csc_col_ptr, fname_csc_row_indx, fname_csc_val,
-                              this->csc_col_ptr_, this->csc_row_indx_, this->csc_val_, cols + 1,
+                              this->csc_col_ptr_, this->csc_row_indx_, this->csc_val_, (unsigned long) cols + 1,
                               this->max_col_nnz);
     }
 
@@ -80,7 +80,7 @@ public:
 private:
     void read_compressed(const std::string& fname_cs_ptr, const std::string& fname_cs_indx, const std::string& fname_cs_val,
                          std::shared_ptr<unsigned>& cs_ptr, std::shared_ptr<unsigned>& cs_indx, std::shared_ptr<VALUE_TYPE>& cs_val,
-                         long num_elems_in_cs_ptr, unsigned long& max_nnz_in_one_dim) {
+                         unsigned long num_elems_in_cs_ptr, unsigned long& max_nnz_in_one_dim) {
 
         cs_ptr = std::shared_ptr<unsigned>(new unsigned[num_elems_in_cs_ptr], std::default_delete<unsigned[]>());
         cs_indx = std::shared_ptr<unsigned>(new unsigned[this->nnz], std::default_delete<unsigned[]>());
@@ -95,15 +95,15 @@ private:
         }
 
         std::ifstream f_ptr(fname_cs_ptr, std::ios::binary);
-        max_nnz_in_one_dim = std::numeric_limits<long>::min();
+        max_nnz_in_one_dim = std::numeric_limits<unsigned long>::min();
 
-        int cur = 0;
-        for (long i = 0; i < num_elems_in_cs_ptr; i++) {
-            int prev = cur;
+        unsigned cur = 0;
+        for (unsigned long i = 0; i < num_elems_in_cs_ptr; i++) {
+            unsigned prev = cur;
             f_ptr.read((char*) &cur, sizeof(int));
             cs_ptr.get()[i] = cur;
 
-            if (i > 0) { max_nnz_in_one_dim = std::max<long>(max_nnz_in_one_dim, cur - prev); }
+            if (i > 0) { max_nnz_in_one_dim = std::max<unsigned long>(max_nnz_in_one_dim, cur - prev); }
         }
     }
 
@@ -132,7 +132,7 @@ public:
         }
     }
 
-    void read_binary_file(long rows_, long cols_, long nnz_,
+    void read_binary_file(unsigned long rows_, unsigned long cols_, unsigned long nnz_,
                           const std::string& fname_data,
                           const std::string& fname_row,
                           const std::string& fname_col) {
