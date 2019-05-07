@@ -4,7 +4,7 @@
 
 #define kind dynamic,500
 
-inline VALUE_TYPE RankOneUpdate(const SparseMatrix& R, const long j, const VecData& u, const VALUE_TYPE lambda, int do_nmf) {
+inline VALUE_TYPE RankOneUpdate(const SparseMatrix& R, const long j, const VecData& u, const VALUE_TYPE lambda) {
     VALUE_TYPE g = 0, h = lambda;
     if (R.get_csc_col_ptr()[j + 1] == R.get_csc_col_ptr()[j]) { return 0; }
     for (unsigned idx = R.get_csc_col_ptr()[j]; idx < R.get_csc_col_ptr()[j + 1]; ++idx) {
@@ -13,9 +13,6 @@ inline VALUE_TYPE RankOneUpdate(const SparseMatrix& R, const long j, const VecDa
         h += u[i] * u[i];
     }
     VALUE_TYPE newvj = g / h;
-    if (do_nmf > 0 && newvj < 0) {
-        newvj = 0;
-    }
     return newvj;
 }
 
@@ -126,7 +123,7 @@ void cdmf_ref(SparseMatrix& R, MatData& W, MatData& H, TestData &T, parameter& p
                 start = omp_get_wtime();
 #pragma omp parallel for schedule(kind) shared(u, v)
                 for (long c = 0; c < R.cols; ++c) {
-                    v[c] = RankOneUpdate(R, c, u, lambda * (R.get_csc_col_ptr()[c + 1] - R.get_csc_col_ptr()[c]), param.do_nmf);
+                    v[c] = RankOneUpdate(R, c, u, lambda * (R.get_csc_col_ptr()[c + 1] - R.get_csc_col_ptr()[c]));
                 }
                 t_rank_one_update += omp_get_wtime() - start;
 
@@ -134,7 +131,7 @@ void cdmf_ref(SparseMatrix& R, MatData& W, MatData& H, TestData &T, parameter& p
                 start = omp_get_wtime();
 #pragma omp parallel for schedule(kind) shared(u, v)
                 for (long c = 0; c < Rt.cols; ++c) {
-                    u[c] = RankOneUpdate(Rt, c, v, lambda * (Rt.get_csc_col_ptr()[c + 1] - Rt.get_csc_col_ptr()[c]), param.do_nmf);
+                    u[c] = RankOneUpdate(Rt, c, v, lambda * (Rt.get_csc_col_ptr()[c + 1] - Rt.get_csc_col_ptr()[c]));
                 }
                 t_rank_one_update += omp_get_wtime() - start;
 

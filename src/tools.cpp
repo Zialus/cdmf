@@ -280,8 +280,8 @@ void load(const char* srcdir, SparseMatrix& R, TestData& T) {
 
     long m;
     long n;
-    long nnz;
-    CHECK_FSCAN(fscanf(fp, "%ld %ld %ld", &m, &n, &nnz), 3);
+    unsigned long nnz;
+    CHECK_FSCAN(fscanf(fp, "%ld %ld %lu", &m, &n, &nnz), 3);
 
     char buf[1024];
     char binary_filename_val[1024];
@@ -327,7 +327,6 @@ void load(const char* srcdir, SparseMatrix& R, TestData& T) {
     auto t2 = std::chrono::high_resolution_clock::now();
 
     R.read_binary_file(m, n, nnz,
-//                       binary_filename_val, binary_filename_row, binary_filename_col,
                        binary_filename_rowptr, binary_filename_colidx, binary_filename_csrval,
                        binary_filename_colptr, binary_filename_rowidx, binary_filename_cscval);
 
@@ -337,9 +336,8 @@ void load(const char* srcdir, SparseMatrix& R, TestData& T) {
 
     auto t4 = std::chrono::high_resolution_clock::now();
 
-    if (fscanf(fp, "%ld %1023s", &nnz, buf) != EOF) {
+    if (fscanf(fp, "%lu %1023s", &nnz, buf) != EOF) {
         snprintf(filename, sizeof(filename), "%s/%s", srcdir, buf);
-//        T.read(m, n, nnz, filename);
         T.read_binary_file(m, n, nnz, binary_filename_val_test, binary_filename_row_test, binary_filename_col_test);
     }
 
@@ -432,9 +430,6 @@ parameter parse_command_line(int argc, char** argv) {
                     break;
                 case 'V':
                     param.version = atoi(argv[i]);
-                    break;
-                case 'N':
-                    param.do_nmf = atoi(argv[i]) == 1;
                     break;
                 default:
                     fprintf(stderr, "unknown option: -%c\n", argv[i - 1][1]);
@@ -547,7 +542,7 @@ void calculate_rmse(const MatData& W_c, const MatData& H_c, const char* srcdir, 
     printf("[INFO] Test RMSE = %lf\n", rmse);
 }
 
-double calculate_rmse_directly(MatData& W, MatData& H, TestData& T, int rank, bool ifALS) {
+double calculate_rmse_directly(MatData& W, MatData& H, TestData& T, unsigned rank, bool ifALS) {
 
     double rmse = 0;
     int num_insts = 0;
@@ -562,13 +557,11 @@ double calculate_rmse_directly(MatData& W, MatData& H, TestData& T, int rank, bo
 
         double pred_v = 0;
         if (ifALS) {
-//#pragma omp parallel for  reduction(+:pred_v)
-            for (int t = 0; t < rank; t++) {
+            for (unsigned t = 0; t < rank; t++) {
                 pred_v += W[i][t] * H[j][t];
             }
         } else {
-//#pragma omp parallel for  reduction(+:pred_v)
-            for (int t = 0; t < rank; t++) {
+            for (unsigned t = 0; t < rank; t++) {
                 pred_v += W[t][i] * H[t][j];
             }
         }

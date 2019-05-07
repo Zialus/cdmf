@@ -34,7 +34,7 @@ void print_platform_info(cl_platform_id* platforms, unsigned id);
 
 int report_device(cl_device_id device_id);
 
-void load(const char* srcdir, SparseMatrix& R,TestData& T);
+void load(const char* srcdir, SparseMatrix& R, TestData& T);
 
 void initial_col(MatData& X, unsigned k, unsigned n);
 
@@ -46,7 +46,7 @@ void golden_compare(MatData W, MatData W_ref, unsigned k, unsigned m);
 
 void calculate_rmse(const MatData& W_c, const MatData& H_c, const char* srcdir, unsigned k);
 
-double calculate_rmse_directly(MatData& W, MatData& H, TestData& T, int rank, bool ifALS);
+double calculate_rmse_directly(MatData& W, MatData& H, TestData& T, unsigned rank, bool ifALS);
 
 void print_matrix(MatData M, unsigned k, unsigned n);
 

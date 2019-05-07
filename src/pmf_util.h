@@ -16,7 +16,6 @@ public:
     unsigned long nnz, max_row_nnz, max_col_nnz;
 
     void read_binary_file(long rows_, long cols_, unsigned long nnz_,
-//                                    std::string fname_data, std::string fname_row, std::string fname_col,
                           const std::string& fname_csr_row_ptr, const std::string& fname_csr_col_indx,
                           const std::string& fname_csr_val,
                           const std::string& fname_csc_col_ptr, const std::string& fname_csc_row_indx,
@@ -107,7 +106,8 @@ private:
         }
     }
 
-    std::shared_ptr<unsigned> csc_col_ptr_, csr_row_ptr_, col_nnz_, row_nnz_;
+    std::shared_ptr<unsigned> col_nnz_, row_nnz_;
+    std::shared_ptr<unsigned> csc_col_ptr_, csr_row_ptr_;
     std::shared_ptr<VALUE_TYPE> csr_val_, csc_val_;
     std::shared_ptr<unsigned> csc_row_indx_, csr_col_indx_;
 };
@@ -116,21 +116,6 @@ private:
 class TestData {
 public:
     unsigned long rows, cols, nnz;
-
-    void read(long rows_, long cols_, long nnz_, const std::string& filename) {
-        this->rows = rows_;
-        this->cols = cols_;
-        this->nnz = nnz_;
-
-        test_row = std::unique_ptr<unsigned[]>(new unsigned[nnz_]);
-        test_col = std::unique_ptr<unsigned[]>(new unsigned[nnz_]);
-        test_val = std::unique_ptr<VALUE_TYPE[]>(new VALUE_TYPE[nnz_]);
-
-        std::ifstream fp(filename);
-        for (long idx = 0; idx < nnz_; ++idx) {
-            fp >> test_row[idx] >> test_col[idx] >> test_val[idx];
-        }
-    }
 
     void read_binary_file(unsigned long rows_, unsigned long cols_, unsigned long nnz_,
                           const std::string& fname_data,

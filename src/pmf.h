@@ -9,7 +9,6 @@ public:
 
     int do_ref = 0; // compare opencl results to reference results
     int do_predict = 0; // predict RMSE
-    int do_nmf = 0;  // non-negative matrix factorization
 
     int maxinneriter = 5;
     int maxiter = 5;
