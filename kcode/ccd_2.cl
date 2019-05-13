@@ -25,10 +25,10 @@ __kernel void RankOneUpdate_dev(__global const unsigned* col_ptr,
     }
     barrier(CLK_LOCAL_MEM_FENCE);
 
-    for (unsigned i = WG_SIZE / 2; i > 0; i = i / 2) {
-        if (local_id < i) {
-            g[local_id] += g[local_id + i];
-            h[local_id] += h[local_id + i];
+    for (unsigned stride = WG_SIZE / 2; stride > 0; stride /= 2) {
+        if (local_id < stride) {
+            g[local_id] += g[local_id + stride];
+            h[local_id] += h[local_id + stride];
         }
         barrier(CLK_LOCAL_MEM_FENCE);
     }
@@ -72,7 +72,7 @@ __kernel void RankOneUpdate_DUAL_kernel_u(const unsigned cols,
     RankOneUpdate_dev(row_ptr, col_idx, val_t, v, lambda, u);
 }
 
-static void UpdateRating_dev(const unsigned cols,
+inline void UpdateRating_dev(const unsigned cols,
                              __global const unsigned* col_ptr,
                              __global const unsigned* row_idx,
                              __global VALUE_TYPE* val,

@@ -1,4 +1,4 @@
-static void UV(const unsigned cols,
+inline void UV(const unsigned cols,
                __global const unsigned* col_ptr,
                __global VALUE_TYPE* Ht,
                __global VALUE_TYPE* Hb,
@@ -17,6 +17,9 @@ static void UV(const unsigned cols,
     }
 }
 
+/**
+    Update vector v
+**/
 __kernel void CALV(const unsigned cols,
                    __global const unsigned* col_ptr,
                    __global VALUE_TYPE* Ht,
@@ -26,6 +29,9 @@ __kernel void CALV(const unsigned cols,
     UV(cols, col_ptr, Ht, Hb, H, lambda);
 }
 
+/**
+    Update vector u
+**/
 __kernel void CALU(const unsigned rows,
                    __global const unsigned* row_ptr,
                    __global VALUE_TYPE* Wt,
@@ -36,7 +42,7 @@ __kernel void CALU(const unsigned rows,
 }
 
 
-static void UpdateRating_dev(const unsigned cols,
+inline void UpdateRating_dev(const unsigned cols,
                              __global const unsigned* col_ptr,
                              __global const unsigned* row_idx,
                              __global VALUE_TYPE* val,
