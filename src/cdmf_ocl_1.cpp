@@ -131,8 +131,6 @@ void cdmf_ocl_01(SparseMatrix& R, MatData& W_c, MatData& H_c, TestData &T, param
     CL_CHECK(err);
     cl_mem rmseBuffer = clCreateBuffer(context, CL_MEM_READ_WRITE, T.nnz * sizeof(VALUE_TYPE), nullptr, &err);
     CL_CHECK(err);
-    cl_mem emptyBuffer = clCreateBuffer(context, CL_MEM_READ_ONLY, T.nnz * sizeof(VALUE_TYPE), nullptr, &err);
-    CL_CHECK(err);
 
     // creating and building kernels
     cl_kernel RankOneUpdate_DUAL_kernel_u = clCreateKernel(program, "RankOneUpdate_DUAL_kernel_u", &err);
@@ -220,6 +218,8 @@ void cdmf_ocl_01(SparseMatrix& R, MatData& W_c, MatData& H_c, TestData &T, param
     CL_CHECK(clSetKernelArg(UpdateRating_DUAL_kernel_NoLoss_c_, 8, sizeof(cl_mem), &col_idxBuffer));
     CL_CHECK(clSetKernelArg(UpdateRating_DUAL_kernel_NoLoss_c_, 9, sizeof(cl_mem), &val_tBuffer));
 
+    bool isALS = false;
+
     CL_CHECK(clSetKernelArg(gpuRMSE_kernel, 0, sizeof(cl_mem), &test_rowBuffer));
     CL_CHECK(clSetKernelArg(gpuRMSE_kernel, 1, sizeof(cl_mem), &test_colBuffer));
     CL_CHECK(clSetKernelArg(gpuRMSE_kernel, 2, sizeof(cl_mem), &test_valBuffer));
@@ -231,6 +231,7 @@ void cdmf_ocl_01(SparseMatrix& R, MatData& W_c, MatData& H_c, TestData &T, param
     CL_CHECK(clSetKernelArg(gpuRMSE_kernel, 8, sizeof(unsigned), &param.k));
     CL_CHECK(clSetKernelArg(gpuRMSE_kernel, 9, sizeof(unsigned), &R.rows));
     CL_CHECK(clSetKernelArg(gpuRMSE_kernel, 10, sizeof(unsigned), &R.cols));
+    CL_CHECK(clSetKernelArg(gpuRMSE_kernel, 11, sizeof(unsigned), &isALS));
 
 //    size_t gws_row[1] = {static_cast<size_t>(R.rows * param.nThreadsPerBlock)};
 //    size_t gws_col[1] = {static_cast<size_t>(R.cols * param.nThreadsPerBlock)};
@@ -354,9 +355,6 @@ void cdmf_ocl_01(SparseMatrix& R, MatData& W_c, MatData& H_c, TestData &T, param
 
         /** Calculate RMSE*/
         cl_event eventPoint3;
-
-        CL_CHECK(clEnqueueCopyBuffer(commandQueue, emptyBuffer, rmseBuffer, 0, 0, (T.nnz) * sizeof(float), 0, nullptr, &eventPoint3));
-        CL_CHECK(clEnqueueCopyBuffer(commandQueue, emptyBuffer, pred_vBuffer, 0, 0, (T.nnz) * sizeof(float), 0, nullptr, &eventPoint3));
 
 //        size_t gws_rmse[1] = {((T.nnz + 1023) / 1024) * 1024};
 //        size_t lws_rmse[1] = {1024};
