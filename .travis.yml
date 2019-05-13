@@ -95,9 +95,6 @@ matrix:
       before_install:
         - brew update
         - brew install llvm@7 && brew link --overwrite llvm@7 --force
-        - export PATH="/usr/local/opt/llvm/bin:$PATH"
-        - export LDFLAGS="-L/usr/local/opt/llvm/lib"
-        - export CPPFLAGS="-I/usr/local/opt/llvm/include"
       install: *mac_extra
 
     ######## OSX GCC ########
@@ -139,7 +136,7 @@ matrix:
         - MATRIX_EVAL="CC=gcc-8 && CXX=g++-8"
       before_install:
         - brew update
-        - brew link gcc@8
+        - brew install gcc@8
       install: *mac_extra
 
     ######## LINUX CLANG ########

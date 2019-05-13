@@ -90,13 +90,14 @@ static void UpdateRating_dev(const unsigned cols,
     if (nnz <= WG_SIZE && local_id < nnz) {
         size_t idx = col_ptr[i] + local_id;
         unsigned rIdx = row_idx[idx];
-        if (isAdd){     /// +
+        if (isAdd) {    /// +
             val[idx] += u[rIdx] * Htc;
         } else {        /// -
             val[idx] -= u[rIdx] * Htc;
         }
     } else {
-        for (size_t idx = col_ptr[i] + local_id; idx < col_ptr[i + 1]; idx += group_size) {
+        for (size_t iter = local_id; iter < nnz; iter += group_size) {
+            size_t idx = col_ptr[i] + iter;
             unsigned rIdx = row_idx[idx];
             if (isAdd) {     /// +
                 val[idx] += u[rIdx] * Htc;
