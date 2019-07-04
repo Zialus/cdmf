@@ -1,0 +1,30 @@
+INTEL CPU
+
+./clMF -k 10 -t 10 -l 0.05 -d 1 -P 0 -p 1 -q 1 -r 1 -nBlocks 8192 -nThreadsPerBlock 1 -V 2 ../../DATASETS/whatever/
+
+nThreadsPerBlock has to be 1
+
+[VERBOSE] local_work_size for updateHOverW_kernel should be: 409
+[VERBOSE] local_work_size for updateWOverH_kernel should be: 409
+[VERBOSE] local_work_size for gpuRMSE_kernel should be: 8192
+
+
+NVIDIA GPU
+
+./clMF -k 10 -t 10 -l 0.05 -d 0 -P 0 -p 1 -q 1 -r 1 -nBlocks 8192 -nThreadsPerBlock 32 -V 2 ../../DATASETS/whatever/
+
+nThreadsPerBlock seems to work up to 32 (depends on the DATASET)
+
+[VERBOSE] local_work_size for updateHOverW_kernel should be: 256
+[VERBOSE] local_work_size for updateWOverH_kernel should be: 256
+[VERBOSE] local_work_size for gpuRMSE_kernel should be: 256
+
+AMD GPU
+
+./clMF -k 10 -t 10 -l 0.05 -d 0 -P 1 -p 1 -q 1 -r 1 -nBlocks 8192 -nThreadsPerBlock 32 -V 2 ../../DATASETS/whatever/
+
+nThreadsPerBlock seems to work with any value (depends on the DATASET)
+
+[VERBOSE] local_work_size for updateHOverW_kernel should be: 256
+[VERBOSE] local_work_size for updateWOverH_kernel should be: 256
+[VERBOSE] local_work_size for gpuRMSE_kernel should be: 256
