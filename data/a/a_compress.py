@@ -83,7 +83,7 @@ assert R_test_coo.nnz == nnz_test
 outfile_test = open("test.txt", 'w')
 for i in range(nnz_test):
     outfile_test.write(str(test_user[i]) + " " + str(test_item[i]) + " " + str(test_rating[i]) + "\n")
-
+outfile_test.close()
 
 
 
@@ -133,7 +133,7 @@ assert R_train_coo.nnz == nnz_train
 outfile_train = open("train.txt", 'w')
 for i in range(nnz_train):
     outfile_train.write(str(train_user[i]) + " " + str(train_item[i]) + " " + str(train_rating[i]) + "\n")
-
+outfile_train.close()
 
 
 
@@ -228,7 +228,12 @@ R_train_csc.indptr.bin
 R_train_csc.indices.bin
 R_train_csc.data.bin
 """)
-outfile_meta.write(str(nnz_test) + " " + "test.txt\n")
+outfile_meta.write(str(nnz_test) + "\n")
+outfile_meta.write("""R_test_coo.data.bin
+R_test_coo.row.bin
+R_test_coo.col.bin
+""")
+outfile_meta.close()
 
 
 
@@ -238,3 +243,4 @@ outfile_meta = open("meta", 'w')
 outfile_meta.write(str(m) + " " + str(n) + "\n")
 outfile_meta.write(str(nnz_train) + " " + "train.txt\n")
 outfile_meta.write(str(nnz_test) + " " + "test.txt\n")
+outfile_meta.close()

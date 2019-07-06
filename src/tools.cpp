@@ -269,7 +269,7 @@ int report_device(cl_device_id device_id) {
 }
 
 void load(const char* srcdir, SparseMatrix& R, TestData& T) {
-    char filename[1024];
+    char filename[2048];
     snprintf(filename, sizeof(filename), "%s/meta_modified_all", srcdir);
     FILE* fp = fopen(filename, "r");
 
@@ -278,25 +278,22 @@ void load(const char* srcdir, SparseMatrix& R, TestData& T) {
         exit(EXIT_FAILURE);
     }
 
+    char buf[1024];
+
     long m;
     long n;
     unsigned long nnz;
     CHECK_FSCAN(fscanf(fp, "%ld %ld %lu", &m, &n, &nnz), 3);
 
-    char buf[1024];
-    char binary_filename_val[1024];
-    char binary_filename_row[1024];
-    char binary_filename_col[1024];
-    char binary_filename_rowptr[1024];
-    char binary_filename_colidx[1024];
-    char binary_filename_csrval[1024];
-    char binary_filename_colptr[1024];
-    char binary_filename_rowidx[1024];
-    char binary_filename_cscval[1024];
-
-    char binary_filename_val_test[1024];
-    char binary_filename_row_test[1024];
-    char binary_filename_col_test[1024];
+    char binary_filename_val[2048];
+    char binary_filename_row[2048];
+    char binary_filename_col[2048];
+    char binary_filename_rowptr[2048];
+    char binary_filename_colidx[2048];
+    char binary_filename_csrval[2048];
+    char binary_filename_colptr[2048];
+    char binary_filename_rowidx[2048];
+    char binary_filename_cscval[2048];
 
     CHECK_FSCAN(fscanf(fp, "%1023s", buf), 1);
     snprintf(binary_filename_val, sizeof(binary_filename_val), "%s/%s", srcdir, buf);
@@ -317,30 +314,31 @@ void load(const char* srcdir, SparseMatrix& R, TestData& T) {
     CHECK_FSCAN(fscanf(fp, "%1023s", buf), 1);
     snprintf(binary_filename_cscval, sizeof(binary_filename_cscval), "%s/%s", srcdir, buf);
 
-//    CHECK_FSCAN(fscanf(fp, "%1023s", buf), 1);
-    snprintf(binary_filename_val_test, sizeof(binary_filename_val_test), "%s/R_test_coo.data.bin", srcdir);
-//    CHECK_FSCAN(fscanf(fp, "%1023s", buf), 1);
-    snprintf(binary_filename_row_test, sizeof(binary_filename_row_test), "%s/R_test_coo.row.bin", srcdir);
-//    CHECK_FSCAN(fscanf(fp, "%1023s", buf), 1);
-    snprintf(binary_filename_col_test, sizeof(binary_filename_col_test), "%s/R_test_coo.col.bin", srcdir);
 
     auto t2 = std::chrono::high_resolution_clock::now();
-
     R.read_binary_file(m, n, nnz,
                        binary_filename_rowptr, binary_filename_colidx, binary_filename_csrval,
                        binary_filename_colptr, binary_filename_rowidx, binary_filename_cscval);
-
     auto t3 = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> deltaT = t3 - t2;
     std::cout << "[info] Train TIMER: " << deltaT.count() << "s.\n";
 
+    unsigned long nnz_test;
+    CHECK_FSCAN(fscanf(fp, "%lu", &nnz_test),1);
+
+    char binary_filename_val_test[2048];
+    char binary_filename_row_test[2048];
+    char binary_filename_col_test[2048];
+
+    CHECK_FSCAN(fscanf(fp, "%1023s", buf), 1);
+    snprintf(binary_filename_val_test, sizeof(binary_filename_val_test), "%s/%s", srcdir, buf);
+    CHECK_FSCAN(fscanf(fp, "%1023s", buf), 1);
+    snprintf(binary_filename_row_test, sizeof(binary_filename_row_test), "%s/%s", srcdir, buf);
+    CHECK_FSCAN(fscanf(fp, "%1023s", buf), 1);
+    snprintf(binary_filename_col_test, sizeof(binary_filename_col_test), "%s/%s", srcdir, buf);
+
     auto t4 = std::chrono::high_resolution_clock::now();
-
-    if (fscanf(fp, "%lu %1023s", &nnz, buf) != EOF) {
-        snprintf(filename, sizeof(filename), "%s/%s", srcdir, buf);
-        T.read_binary_file(m, n, nnz, binary_filename_val_test, binary_filename_row_test, binary_filename_col_test);
-    }
-
+    T.read_binary_file(m, n, nnz_test, binary_filename_val_test, binary_filename_row_test, binary_filename_col_test);
     auto t5 = std::chrono::high_resolution_clock::now();
     deltaT = t5 - t4;
     std::cout << "[info] Tests TIMER: " << deltaT.count() << "s.\n";
