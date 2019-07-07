@@ -64,4 +64,4 @@ add_test(NAME b COMMAND $<TARGET_FILE:cdmf> -k 10 -t 5 -T 3 -l 0.05 -p 1 -r 1 -q
 add_test(NAME c COMMAND $<TARGET_FILE:cdmf> -k 10 -t 5 -T 3 -l 0.05 -p 1 -r 1 -q 1 -P 0 -d 1 -V $ENV{VERSION_FLAG} -nThreadsPerBlock $ENV{SIZE_FLAG} ${CMAKE_SOURCE_DIR}/data/c)
 add_test(NAME simple COMMAND $<TARGET_FILE:cdmf> -k 10 -t 5 -T 3 -l 0.05 -p 1 -r 1 -q 1 -P 0 -d 1 -V $ENV{VERSION_FLAG} -nThreadsPerBlock $ENV{SIZE_FLAG} ${CMAKE_SOURCE_DIR}/data/simple)
 add_test(NAME tricky_simple COMMAND $<TARGET_FILE:cdmf> -k 10 -t 5 -T 3 -l 0.05 -p 1 -r 1 -q 1 -P 0 -d 1 -V $ENV{VERSION_FLAG} -nThreadsPerBlock $ENV{SIZE_FLAG} ${CMAKE_SOURCE_DIR}/data/tricky_simple)
-#add_test(NAME toy-example COMMAND $<TARGET_FILE:cdmf> -k 10 -t 5 -T 3 -l 0.05 -p 1 -r 1 -q 1 -P 0 -d 1 -V $ENV{VERSION_FLAG} -nThreadsPerBlock $ENV{SIZE_FLAG} ${CMAKE_SOURCE_DIR}/data/toy-example)
+add_test(NAME toy_example COMMAND $<TARGET_FILE:cdmf> -k 10 -t 5 -T 3 -l 0.05 -p 1 -r 1 -q 1 -P 0 -d 1 -V $ENV{VERSION_FLAG} -nThreadsPerBlock $ENV{SIZE_FLAG} ${CMAKE_SOURCE_DIR}/data/toy_example)

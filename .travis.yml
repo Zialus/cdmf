@@ -43,6 +43,8 @@ before_script:
   - pushd .
   - cd data/tricky_simple/
   - python tricky_simple_compress.py
+  - cd ../toy_example/
+  - python toy_example_compress.py
   - popd
 
   - deactivate

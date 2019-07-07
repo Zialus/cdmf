@@ -54,6 +54,8 @@ before_test:
   - python simple_compress.py
   - cd ../tricky_simple/
   - python tricky_simple_compress.py
+  - cd ../toy_example/
+  - python toy_example_compress.py
   - cd ../../build/
 
 test_script:
