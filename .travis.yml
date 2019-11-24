@@ -58,90 +58,125 @@ matrix:
 
     ######## OSX CLANG ########
     - os: osx
-      osx_image: xcode10.1
-      env:
-        - MATRIX_EVAL="CC=clang-3.9 && CXX=clang++"
-      before_install:
-        - brew update
-        - brew install llvm@3.9 && brew link --overwrite llvm@3.9 --force
-      install: &mac_extra
-        - brew install clinfo
-    - os: osx
-      osx_image: xcode10.1
-      env:
-        - MATRIX_EVAL="CC=clang-4.0 && CXX=clang++"
-      before_install:
-        - brew update
-        - brew install llvm@4 && brew link --overwrite llvm@4 --force
-      install: *mac_extra
-    - os: osx
-      osx_image: xcode10.1
-      env:
-        - MATRIX_EVAL="CC=clang-5.0 && CXX=clang++"
-      before_install:
-        - brew update
-        - brew install llvm@5 && brew link --overwrite llvm@5 --force
-      install: *mac_extra
-    - os: osx
-      osx_image: xcode10.1
+      osx_image: xcode11.2
       env:
         - MATRIX_EVAL="CC=clang-6.0 && CXX=clang++"
+      addons:
+        homebrew:
+          packages:
+            - llvm@6
+            - clinfo
+          update: true
       before_install:
-        - brew update
-        - brew install llvm@6 && brew link --overwrite llvm@6 --force
-      install: *mac_extra
+        - export PATH="/usr/local/opt/llvm@6/bin:$PATH"
+        - export LDFLAGS="-L/usr/local/opt/llvm@6/lib"
+        - export CPPFLAGS="-I/usr/local/opt/llvm@6/include"
     - os: osx
-      osx_image: xcode10.1
+      osx_image: xcode11.2
       env:
         - MATRIX_EVAL="CC=clang-7 && CXX=clang++"
+      addons:
+        homebrew:
+          packages:
+            - llvm@7
+            - clinfo
+          update: true
       before_install:
-        - brew update
-        - brew install llvm@7 && brew link --overwrite llvm@7 --force
-      install: *mac_extra
+        - export PATH="/usr/local/opt/llvm@7/bin:$PATH"
+        - export LDFLAGS="-L/usr/local/opt/llvm@7/lib"
+        - export CPPFLAGS="-I/usr/local/opt/llvm@7/include"
+    - os: osx
+      osx_image: xcode11.2
+      env:
+        - MATRIX_EVAL="CC=clang-8 && CXX=clang++"
+      addons:
+        homebrew:
+          packages:
+            - llvm@8
+            - clinfo
+          update: true
+      before_install:
+        - export PATH="/usr/local/opt/llvm@8/bin:$PATH"
+        - export LDFLAGS="-L/usr/local/opt/llvm@8/lib"
+        - export CPPFLAGS="-I/usr/local/opt/llvm@8/include"
+    - os: osx
+      osx_image: xcode11.2
+      env:
+        - MATRIX_EVAL="CC=clang-9 && CXX=clang++"
+      addons:
+        homebrew:
+          packages:
+            - llvm@9
+            - clinfo
+          update: true
+      before_install:
+        - export PATH="/usr/local/opt/llvm/bin:$PATH"
+        - export LDFLAGS="-L/usr/local/opt/llvm/lib"
+        - export CPPFLAGS="-I/usr/local/opt/llvm/include"
 
     ######## OSX GCC ########
     - os: osx
-      osx_image: xcode10.1
+      osx_image: xcode11.2
       env:
         - MATRIX_EVAL="CC=gcc-4.9 && CXX=g++-4.9"
-      before_install:
-        - brew update
-        - brew install gcc@4.9
-      install: *mac_extra
+      addons:
+        homebrew:
+          packages:
+            - gcc@4.9
+            - clinfo
+          update: true
     - os: osx
-      osx_image: xcode10.1
+      osx_image: xcode11.2
       env:
         - MATRIX_EVAL="CC=gcc-5 && CXX=g++-5"
-      before_install:
-        - brew update
-        - brew install gcc@5
-      install: *mac_extra
+      addons:
+        homebrew:
+          packages:
+            - gcc@5
+            - clinfo
+          update: true
     - os: osx
-      osx_image: xcode10.1
+      osx_image: xcode11.2
       env:
         - MATRIX_EVAL="CC=gcc-6 && CXX=g++-6"
-      before_install:
-        - brew update
-        - brew install gcc@6
-      install: *mac_extra
+      addons:
+        homebrew:
+          packages:
+            - gcc@6
+            - clinfo
+          update: true
     - os: osx
-      osx_image: xcode10.1
+      osx_image: xcode11.2
       env:
         - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
-      before_install:
-        - brew update
-        - brew install gcc@7
-      install: *mac_extra
+      addons:
+        homebrew:
+          packages:
+            - gcc@7
+            - clinfo
+          update: true
     - os: osx
-      osx_image: xcode10.1
+      osx_image: xcode11.2
       env:
         - MATRIX_EVAL="CC=gcc-8 && CXX=g++-8"
-      before_install:
-        - brew update
-        - brew install gcc@8
-      install: *mac_extra
+      addons:
+        homebrew:
+          packages:
+            - gcc@8
+            - clinfo
+          update: true
+    - os: osx
+      osx_image: xcode11.2
+      env:
+        - MATRIX_EVAL="CC=gcc-9 && CXX=g++-9"
+      addons:
+        homebrew:
+          packages:
+            - gcc@9
+            - clinfo
+          update: true
 
-    ######## LINUX CLANG ########
+    ######## LINUX CLANG #######
     - os: linux
       env:
         - MATRIX_EVAL="CC=clang-3.9 && CXX=clang++-3.9"
@@ -206,6 +241,30 @@ matrix:
             - clang-7
             - libomp-dev
       install: *linux_extras
+    - os: linux
+      env:
+        - MATRIX_EVAL="CC=clang-8 && CXX=clang++-8"
+      addons:
+        apt:
+          sources:
+            - sourceline: 'deb https://apt.llvm.org/xenial/ llvm-toolchain-xenial-8 main'
+              key_url: 'https://apt.llvm.org/llvm-snapshot.gpg.key'
+          packages:
+            - clang-8
+            - libomp-dev
+      install: *linux_extras
+    - os: linux
+      env:
+        - MATRIX_EVAL="CC=clang-9 && CXX=clang++-9"
+      addons:
+        apt:
+          sources:
+            - sourceline: 'deb https://apt.llvm.org/xenial/ llvm-toolchain-xenial-9 main'
+              key_url: 'https://apt.llvm.org/llvm-snapshot.gpg.key'
+          packages:
+            - clang-9
+            - libomp-dev
+      install: *linux_extras
 
     ######## LINUX GCC ########
     - os: linux
@@ -257,6 +316,16 @@ matrix:
             - sourceline: 'ppa:ubuntu-toolchain-r/test'
           packages:
             - g++-8
+      install: *linux_extras
+    - os: linux
+      env:
+        - MATRIX_EVAL="CC=gcc-9 && CXX=g++-9"
+      addons:
+        apt:
+          sources:
+            - sourceline: 'ppa:ubuntu-toolchain-r/test'
+          packages:
+            - g++-9
       install: *linux_extras
 
 

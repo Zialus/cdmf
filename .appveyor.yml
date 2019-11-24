@@ -3,9 +3,9 @@ environment:
   SIZE_FLAG: '2'
   matrix:
   - WHATOPENCL: INTEL
-    APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+    APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
   - WHATOPENCL: NVIDIA
-    APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+    APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
   - WHATOPENCL: INTEL
     APPVEYOR_BUILD_WORKER_IMAGE: Ubuntu1804
   - WHATOPENCL: NVIDIA
@@ -15,7 +15,7 @@ environment:
   - WHATOPENCL: AMD
     APPVEYOR_BUILD_WORKER_IMAGE: Ubuntu1804
 
-stack: python 3.7
+stack: python 3.8
 
 init:
   - cmake --version
@@ -34,7 +34,7 @@ before_build:
 build_script:
   - .\clinfo.exe
   - mkdir build && cd build
-  - cmake -G "Visual Studio 15 2017 Win64" ..
+  - cmake -G "Visual Studio 16 2019" -A x64 ..
   - cmake --build . --config Release
 
 before_test:
@@ -69,13 +69,13 @@ for:
   matrix:
     only:
     - WHATOPENCL: NVIDIA
-      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
 
   before_build:
     - ps: appveyor DownloadFile "https://ci.appveyor.com/api/projects/oblomov/clinfo/artifacts/clinfo.exe?job=platform:+x64" -FileName clinfo.exe
-    - ps: $env:cuda_version = '10.0'
-    - ps: $env:url = "https://developer.nvidia.com/compute/cuda/10.0/Prod/local_installers/cuda_10.0.130_411.31_win10"
-    - ps: $env:arguments = "-s nvcc_10.0"
+    - ps: $env:cuda_version = '10.2'
+    - ps: $env:url = "http://developer.download.nvidia.com/compute/cuda/10.2/Prod/local_installers/cuda_10.2.89_441.22_win10.exe"
+    - ps: $env:arguments = "-s nvcc_10.2"
     - ps: appveyor DownloadFile -Url $env:url -FileName C:\cuda.exe
     - C:\cuda.exe %arguments%
     - set CUDA_PATH=%ProgramFiles%\NVIDIA GPU Computing Toolkit\CUDA\v%CUDA_VERSION%
@@ -146,13 +146,15 @@ for:
       APPVEYOR_BUILD_WORKER_IMAGE: Ubuntu1804
 
   before_build:
-    - wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/cuda-repo-ubuntu1804_10.0.130-1_amd64.deb
-    - sudo dpkg -i cuda-repo-ubuntu1804_10.0.130-1_amd64.deb
-    - sudo apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/7fa2af80.pub
+    # Install CUDA
+    - wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/cuda-ubuntu1804.pin
+    - sudo mv cuda-ubuntu1804.pin /etc/apt/preferences.d/cuda-repository-pin-600
+    - wget http://developer.download.nvidia.com/compute/cuda/10.2/Prod/local_installers/cuda-repo-ubuntu1804-10-2-local-10.2.89-440.33.01_1.0-1_amd64.deb
+    - sudo dpkg -i cuda-repo-ubuntu1804-10-2-local-10.2.89-440.33.01_1.0-1_amd64.deb
+    - sudo apt-key add /var/cuda-repo-10-2-local-10.2.89-440.33.01/7fa2af80.pub
     - sudo apt-get update
-    # Appveyor has this package kept back
-    - sudo apt-get install openjdk-11-jre-headless -y --allow-change-held-packages -o Dpkg::Options::="--force-confnew"
-    - sudo apt-get install cuda-toolkit-10-0 -y
+    - sudo apt-get -y install cuda
+    # Install clinfo and set CUDA_PATH for cmake
     - sudo apt-get install clinfo -y
     - export CUDA_PATH=/usr/local/cuda
     - ls -l $CUDA_PATH
